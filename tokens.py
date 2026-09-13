@@ -33,6 +33,7 @@ class TokenType(Enum):
     SECURE = auto()
     SANITIZE = auto()
     TRUSTED = auto()
+    INTENT = auto()
 
     # Literals & Identifiers
     IDENTIFIER = auto()
