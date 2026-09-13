@@ -198,12 +198,15 @@ let charge: Currency where (v >= 0 and v <= 500) = "three hundred dollars"
 // Runtime validation and violation reporting
 ```
 
-### 6. Self-Healing Variables
-Automatic typo correction using edit distance:
+### 6. Self-Healing Variables & Functions
+Automatic typo correction using edit distance and token-prefix matching:
 
 ```ipl
 let customer_feedback: Sentiment = "Great experience!"
 print custmer_feedbk  // Automatically resolves to customer_feedback
+
+fn calculate_discount(price, rate) { return price * rate; }
+let d = calc_discount(100, 0.1) // Auto-heals to calculate_discount!
 ```
 
 ### 7. Immutability Control
@@ -215,20 +218,71 @@ var counter = 1          // Can be reassigned
 counter = counter + 1    // Valid
 ```
 
+### 8. Control Flow (Conditionals & Loops)
+Full control flow primitives with confidence-aware reasoning:
+
+```ipl
+// If / Elif / Else
+if confidence(review) >= 0.85 {
+    print "High confidence verified"
+} elif confidence(review) >= 0.5 {
+    print "Moderate signal"
+} else {
+    print "Low confidence observation"
+}
+
+// For loops with lists and range()
+for node in cluster_nodes {
+    if not node.healthy {
+        print "Alert on", node.name
+    }
+}
+
+// While loops with break & continue
+var count = 5
+while count > 0 {
+    count = count - 1
+    if count == 2 { continue }
+    print count
+}
+```
+
+### 9. User-Defined Functions & Built-ins
+Functions with first-class semantic type checking, return values, recursion, and built-ins:
+
+```ipl
+fn fibonacci(n) {
+    if n <= 1 { return n }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+fn process_order(price: Currency, ticket: Intent<Refund, Fraud, Support>) {
+    return price
+}
+```
+
+Built-in library: `len()`, `range()`, `confidence()`, `type_of()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
+
 ## 🚀 Usage
+
+### Installation
+Install as an editable package to make the `ipl` executable globally available:
+```bash
+pip install -e .
+```
 
 ### Running the REPL
 ```bash
-python3 -m ipl_lang.cli repl
-# or simply
-python3 -m ipl_lang.cli
+ipl repl
+# or
+python3 cli.py
 ```
 
 ### Running a Script
 ```bash
-python3 -m ipl_lang.cli run examples/01_intelligent_variables.ipl
+ipl run examples/06_control_flow.ipl
 # or
-python3 -m ipl_lang.cli examples/01_intelligent_variables.ipl
+python3 cli.py run examples/07_functions_and_logic.ipl
 ```
 
 ### Interactive Examples
