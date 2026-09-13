@@ -75,6 +75,20 @@ class FunctionCall(Expr):
 
 
 @dataclass
+class SanitizationNode(Expr):
+    target: Expr
+    rule: Optional[str] = None
+    line: int = 1
+
+
+@dataclass
+class IntentExpr(Expr):
+    intent_prompt: str
+    target_type: Optional[TypeAnnotation] = None
+    line: int = 1
+
+
+@dataclass
 class Block(ASTNode):
     statements: List[ASTNode]
     line: int = 1
