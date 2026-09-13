@@ -118,8 +118,8 @@ class ContinueStatement(ASTNode):
 class FunctionDef(ASTNode):
     name: str
     params: List[str]
-    param_types: Dict[str, Optional[TypeAnnotation]] = field(default_factory=dict)
     body: Block
+    param_types: Dict[str, Optional[TypeAnnotation]] = field(default_factory=dict)
     return_type: Optional[TypeAnnotation] = None
     line: int = 1
 
