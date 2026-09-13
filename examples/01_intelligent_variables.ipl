@@ -1,0 +1,41 @@
+// ============================================================================
+// IPL Demo 01: Intelligent Variables & Semantic Types
+// ============================================================================
+
+// 1. Natural Language Currency Extraction with Confidence
+let base_price: Currency = "the service costs ninety-nine bucks and 50 cents"
+let tax: Currency = "approx 8 dollars and 45 cents"
+let total: Currency = base_price + tax
+
+// 2. Probabilistic Sentiment Analysis & Valence
+let customer_review: Sentiment = "The mechanical keys feel crisp and tactile, absolutely fantastic build!"
+let critical_feedback: Sentiment = "App broke on day two and crashed repeatedly, horrible experience."
+
+// 3. Natural Language Date Calculation
+let maintenance_window: Date = "scheduled for tomorrow at 3pm"
+
+// 4. Dimensional Quantities with Unit Arithmetic
+let db_latency: Quantity = "450 ms"
+let network_hop: Quantity = "75 ms"
+let total_latency: Quantity = db_latency + network_hop
+
+// 5. Semantic Intent Classification
+let claim_text = "someone used my stolen credit card for unauthorized transactions"
+let detected_intent: Intent<Fraud, Refund, Support> = claim_text
+
+// 6. Probabilistic Monad with Confidence Bound
+let system_alert: Prob<String> = "unusual spike detected in background worker thread pool"
+
+// Output results using contextual intelligent print
+print "========================================================"
+print "       IPL INTELLIGENT VARIABLES DEMOSTRATION           "
+print "========================================================"
+print "Base Price     :", base_price
+print "Tax Amount     :", tax
+print "Computed Total :", total
+print "Positive Review:", customer_review
+print "Critical Issue :", critical_feedback
+print "Maintenance    :", maintenance_window
+print "Total Latency  :", total_latency
+print "User Intent    :", detected_intent
+print "Prob Anomaly   :", system_alert

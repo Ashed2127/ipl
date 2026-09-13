@@ -1,0 +1,67 @@
+// ============================================================================
+// IPL Demo 03: Semantic Natural-Language Queries & Visual Presentation Formats
+// ============================================================================
+// Developers can ask high-level questions to data directly inside print statements
+// and render data into rich tables, Unicode proportional bar charts, gauges, badges, and trees.
+
+// 1. Complex Structured Data
+let cluster_nodes = [
+    { "node": "us-east-1a", "cpu_percent": 42, "memory_gb": 32, "status": "Healthy" },
+    { "node": "us-east-1b", "cpu_percent": 88, "memory_gb": 64, "status": "Warning" },
+    { "node": "eu-central-1", "cpu_percent": 24, "memory_gb": 16, "status": "Healthy" },
+    { "node": "ap-southeast-1", "cpu_percent": 96, "memory_gb": 64, "status": "Critical" }
+]
+
+let resource_utilization = {
+    "us-east-1a": 42.0,
+    "us-east-1b": 88.0,
+    "eu-central-1": 24.0,
+    "ap-southeast-1": 96.0
+}
+
+let diagnostic_incident = {
+    "latency_spike": 92,
+    "error_log": "Memory buffer leak detected, crashing worker pods repeatedly",
+    "region": "ap-southeast-1"
+}
+
+// 2. Semantic Queries (Direct Q&A on Data)
+print "=========================================================="
+print "              1. SEMANTIC QUERY PRINTS                    "
+print "=========================================================="
+print "summary of" cluster_nodes
+print "highlight risks in" diagnostic_incident
+print "explain" diagnostic_incident
+
+// 3. Visual Presentation Styles
+print "\n=========================================================="
+print "              2. VISUAL PRESENTATION FORMATS              "
+print "=========================================================="
+
+// Rich Table
+print cluster_nodes as table
+
+// Proportional Bar Chart
+print resource_utilization as bar_chart
+
+// Progress / Utilization Gauge
+let cluster_load: Quantity = "78.5 percent"
+print cluster_load as gauge
+
+// Status Badge with Confidence Meter
+let service_status: Prob<String> = "Operational / Verified SLA"
+print service_status as badge
+
+// Hierarchical Tree
+let app_topology = {
+    "cluster": "production-alpha",
+    "gateway": {
+        "host": "api.aether.internal",
+        "port": 443
+    },
+    "services": [
+        { "name": "auth-service", "replicas": 4 },
+        { "name": "semantic-engine", "replicas": 8 }
+    ]
+}
+print app_topology as tree

@@ -1,0 +1,43 @@
+// ============================================================================
+// IPL Demo 04: Refinement Invariants, Immutability & Neuro-Symbolic Self-Healing
+// ============================================================================
+
+print "=========================================================="
+print "       1. REFINEMENT TYPES & INVARIANT GUARDRAILS         "
+print "=========================================================="
+
+// Valid invariant: price must be within authorized limit
+let approved_charge: Currency where (v >= 0.0 and v <= 500.0) = "three hundred and fifty dollars"
+print "Approved charge:", approved_charge
+
+// Invariant breach: attempting to allocate exceeding safety threshold
+let excessive_rebate: Currency where (v <= 100.0) = "four hundred and fifty dollars"
+print "Excessive rebate attempt:", excessive_rebate
+
+print "\n=========================================================="
+print "       2. MUTABLE (var) VS IMMUTABLE (let) BINDINGS       "
+print "=========================================================="
+var transaction_counter = 1
+print "Initial Counter (var):", transaction_counter
+
+transaction_counter = transaction_counter + 1
+print "Incremented Counter :", transaction_counter
+
+print "\n=========================================================="
+print "       3. NEURO-SYMBOLIC SELF-HEALING VARIABLE REPAIR     "
+print "=========================================================="
+// In traditional languages (C, Rust, Python), a typo like 'approvd_charg' crashes with NameError.
+// In IPL, the runtime calculates latent symbol similarity and heals the reference!
+
+let customer_feedback: Sentiment = "Super responsive and delightful interface!"
+let operational_budget: Currency = "50000 dollars"
+
+// Notice intentional typographical errors:
+print "Querying with typo 'custmer_feedbk':"
+print custmer_feedbk
+
+print "\nQuerying with typo 'op_budget':"
+print op_budget
+
+print "\nQuerying with typo 'apprvd_charg':"
+print apprvd_charg

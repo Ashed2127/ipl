@@ -1,0 +1,37 @@
+// ============================================================================
+// IPL Demo 02: Audience-Adaptive Intelligent Print
+// ============================================================================
+// The same runtime variables dynamically adapt their presentation based on
+// who is consuming the information: Executive, Developer, SRE, Marketer, or Child.
+
+let quarterly_revenue: Currency = "the cloud division generated two million four hundred thousand dollars"
+let customer_sentiment: Sentiment = "Customers absolutely love the blazing fast speed and rock solid reliability!"
+let latency_metric: Quantity = "database response time is 620 ms under heavy load"
+
+print "------------------------------------------------------------"
+print "1. EXECUTIVE AUDIENCE VIEW (print ... for 'executive')"
+print "------------------------------------------------------------"
+print quarterly_revenue for "executive"
+print customer_sentiment for "executive"
+
+print "\n------------------------------------------------------------"
+print "2. DEVELOPER AUDIENCE VIEW (print ... for 'developer')"
+print "------------------------------------------------------------"
+print quarterly_revenue for "developer"
+print latency_metric for "developer"
+
+print "\n------------------------------------------------------------"
+print "3. SRE / OPS TELEMETRY VIEW (print ... for 'sre')"
+print "------------------------------------------------------------"
+print latency_metric for "sre"
+
+print "\n------------------------------------------------------------"
+print "4. MARKETING HIGHLIGHT VIEW (print ... for 'marketer')"
+print "------------------------------------------------------------"
+print customer_sentiment for "marketer"
+
+print "\n------------------------------------------------------------"
+print "5. CHILD / BEGINNER VIEW (print ... for 'child')"
+print "------------------------------------------------------------"
+print quarterly_revenue for "child"
+print customer_sentiment for "child"
