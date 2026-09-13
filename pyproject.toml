@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ipl-lang"
+version = "0.2.0"
+description = "IPL (Intelligent Programming Language / Aether) - Neuro-symbolic programming language"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "rich>=12.0.0"
+]
+
+[project.scripts]
+ipl = "cli:main"
+
+[tool.setuptools]
+py-modules = [
+    "ast_nodes",
+    "cli",
+    "formatter",
+    "lexer",
+    "parser",
+    "runtime",
+    "security_engine",
+    "semantic_engine",
+    "tokens",
+]
