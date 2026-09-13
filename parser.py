@@ -2,12 +2,23 @@
 Parser for IPL (Intelligent Programming Language / Aether).
 Parses tokens into an Abstract Syntax Tree (AST).
 """
-from typing import List, Optional
-from tokens import Token, TokenType
-from ast_nodes import (
-    Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
-    Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess
-)
+from typing import List, Optional, Tuple
+try:
+    from .tokens import Token, TokenType
+    from .ast_nodes import (
+        Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
+        Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
+        IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+    )
+except (ImportError, ValueError):
+    from tokens import Token, TokenType
+    from ast_nodes import (
+        Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
+        Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
+        IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+    )
 
 
 class ParserError(Exception):
@@ -67,10 +78,28 @@ class Parser:
             return self.parse_let_statement()
         elif tok.type == TokenType.PRINT:
             return self.parse_print_statement()
+        elif tok.type == TokenType.IF:
+            return self.parse_if_statement()
+        elif tok.type == TokenType.FOR:
+            return self.parse_for_statement()
+        elif tok.type == TokenType.WHILE:
+            return self.parse_while_statement()
+        elif tok.type == TokenType.BREAK:
+            return self.parse_break_statement()
+        elif tok.type == TokenType.CONTINUE:
+            return self.parse_continue_statement()
+        elif tok.type == TokenType.FN:
+            return self.parse_function_def()
+        elif tok.type == TokenType.RETURN:
+            return self.parse_return_statement()
+        elif tok.type == TokenType.LBRACE:
+            return self.parse_block()
         elif tok.type == TokenType.IDENTIFIER and self.peek_token().type == TokenType.ASSIGN:
             return self.parse_assign_statement()
         else:
-            raise ParserError(f"Unexpected statement beginning with {tok.type.name} ('{tok.value}')", tok)
+            expr = self.parse_expression()
+            self.match(TokenType.SEMICOLON)
+            return expr
 
     def parse_type_annotation(self) -> TypeAnnotation:
         """
@@ -222,6 +251,137 @@ class Parser:
             line=start_tok.line
         )
 
+    def parse_block(self) -> Block:
+        start_tok = self.expect(TokenType.LBRACE, "Expected '{' to start block")
+        stmts: List[ASTNode] = []
+        while self.current_token().type not in (TokenType.RBRACE, TokenType.EOF):
+            if self.match(TokenType.SEMICOLON):
+                continue
+            stmts.append(self.parse_statement())
+        self.expect(TokenType.RBRACE, "Expected '}' to close block")
+        return Block(statements=stmts, line=start_tok.line)
+
+    def parse_if_statement(self) -> IfStatement:
+        start_tok = self.advance()  # consume 'if'
+        if self.current_token().type == TokenType.LPAREN:
+            self.advance()
+            cond = self.parse_expression()
+            self.expect(TokenType.RPAREN, "Expected ')' after if condition")
+        else:
+            cond = self.parse_expression()
+        then_block = self.parse_block()
+
+        elif_branches: List[Tuple[Expr, Block]] = []
+        while self.current_token().type == TokenType.ELIF or (
+            self.current_token().type == TokenType.ELSE and self.peek_token().type == TokenType.IF
+        ):
+            if self.current_token().type == TokenType.ELIF:
+                self.advance()
+            else:
+                self.advance()  # consume 'else'
+                self.advance()  # consume 'if'
+            if self.current_token().type == TokenType.LPAREN:
+                self.advance()
+                e_cond = self.parse_expression()
+                self.expect(TokenType.RPAREN, "Expected ')' after elif condition")
+            else:
+                e_cond = self.parse_expression()
+            e_block = self.parse_block()
+            elif_branches.append((e_cond, e_block))
+
+        else_block = None
+        if self.match(TokenType.ELSE):
+            else_block = self.parse_block()
+
+        return IfStatement(
+            condition=cond,
+            then_branch=then_block,
+            elif_branches=elif_branches,
+            else_branch=else_block,
+            line=start_tok.line
+        )
+
+    def parse_for_statement(self) -> ForStatement:
+        start_tok = self.advance()  # consume 'for'
+        ident_tok = self.expect(TokenType.IDENTIFIER, "Expected loop variable name after 'for'")
+        self.expect(TokenType.IN, "Expected 'in' after loop variable")
+        iterable_expr = self.parse_expression()
+        body = self.parse_block()
+        return ForStatement(
+            variable=ident_tok.value,
+            iterable=iterable_expr,
+            body=body,
+            line=start_tok.line
+        )
+
+    def parse_while_statement(self) -> WhileStatement:
+        start_tok = self.advance()  # consume 'while'
+        if self.current_token().type == TokenType.LPAREN:
+            self.advance()
+            cond = self.parse_expression()
+            self.expect(TokenType.RPAREN, "Expected ')' after while condition")
+        else:
+            cond = self.parse_expression()
+        body = self.parse_block()
+        return WhileStatement(
+            condition=cond,
+            body=body,
+            line=start_tok.line
+        )
+
+    def parse_break_statement(self) -> BreakStatement:
+        start_tok = self.advance()  # consume 'break'
+        self.match(TokenType.SEMICOLON)
+        return BreakStatement(line=start_tok.line)
+
+    def parse_continue_statement(self) -> ContinueStatement:
+        start_tok = self.advance()  # consume 'continue'
+        self.match(TokenType.SEMICOLON)
+        return ContinueStatement(line=start_tok.line)
+
+    def parse_function_def(self) -> FunctionDef:
+        start_tok = self.advance()  # consume 'fn'/'func'
+        name_tok = self.expect(TokenType.IDENTIFIER, "Expected function name after 'fn'")
+        self.expect(TokenType.LPAREN, "Expected '(' after function name")
+
+        params: List[str] = []
+        param_types = {}
+        if self.current_token().type != TokenType.RPAREN:
+            while True:
+                p_tok = self.expect(TokenType.IDENTIFIER, "Expected parameter name")
+                p_name = p_tok.value
+                params.append(p_name)
+                p_type = None
+                if self.match(TokenType.COLON):
+                    p_type = self.parse_type_annotation()
+                param_types[p_name] = p_type
+                if self.match(TokenType.COMMA):
+                    continue
+                break
+        self.expect(TokenType.RPAREN, "Expected ')' after parameters")
+
+        return_type = None
+        if self.match(TokenType.ARROW):
+            return_type = self.parse_type_annotation()
+
+        body = self.parse_block()
+        return FunctionDef(
+            name=name_tok.value,
+            params=params,
+            param_types=param_types,
+            body=body,
+            return_type=return_type,
+            line=start_tok.line
+        )
+
+    def parse_return_statement(self) -> ReturnStatement:
+        start_tok = self.advance()  # consume 'return'
+        val_expr = None
+        if self.current_token().type not in (TokenType.SEMICOLON, TokenType.RBRACE, TokenType.EOF):
+            val_expr = self.parse_expression()
+        self.match(TokenType.SEMICOLON)
+        return ReturnStatement(value_expr=val_expr, line=start_tok.line)
+
     # --------------------------------------------------------------------------
     # Expression Parsing (Precedence Hierarchy)
     # --------------------------------------------------------------------------
@@ -286,6 +446,20 @@ class Parser:
             if self.match(TokenType.DOT):
                 member_tok = self.expect(TokenType.IDENTIFIER, "Expected field name after '.'")
                 expr = MemberAccess(target=expr, member=member_tok.value)
+            elif self.match(TokenType.LPAREN):
+                args: List[Expr] = []
+                if self.current_token().type != TokenType.RPAREN:
+                    args.append(self.parse_expression())
+                    while self.match(TokenType.COMMA):
+                        if self.current_token().type == TokenType.RPAREN:
+                            break
+                        args.append(self.parse_expression())
+                self.expect(TokenType.RPAREN, "Expected ')' after function arguments")
+                expr = FunctionCall(callee=expr, args=args)
+            elif self.match(TokenType.LBRACKET):
+                idx_expr = self.parse_expression()
+                self.expect(TokenType.RBRACKET, "Expected ']' after index")
+                expr = IndexAccess(target=expr, index=idx_expr)
             else:
                 break
         return expr

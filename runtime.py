@@ -5,13 +5,60 @@ from typing import Any, Dict, List, Optional, Tuple
 from rich.console import Console
 from rich.text import Text
 
-from ast_nodes import (
-    Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
-    Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess
-)
-from semantic_engine import SemanticEngine
-from formatter import IntelligentFormatter
-from security_engine import SecurityEngine
+try:
+    from .ast_nodes import (
+        Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
+        Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
+        IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+    )
+    from .semantic_engine import SemanticEngine
+    from .formatter import IntelligentFormatter
+    from .security_engine import SecurityEngine
+except (ImportError, ValueError):
+    from ast_nodes import (
+        Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
+        Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
+        IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+    )
+    from semantic_engine import SemanticEngine
+    from formatter import IntelligentFormatter
+    from security_engine import SecurityEngine
+
+
+class BreakException(Exception):
+    pass
+
+
+class ContinueException(Exception):
+    pass
+
+
+class ReturnException(Exception):
+    def __init__(self, value: 'IValue'):
+        self.value = value
+
+
+class IFunction:
+    def __init__(
+        self,
+        name: str,
+        params: List[str],
+        param_types: Dict[str, Optional[TypeAnnotation]],
+        body: Block,
+        closure_env: 'Environment',
+        return_type: Optional[TypeAnnotation] = None
+    ):
+        self.name = name
+        self.params = params
+        self.param_types = param_types
+        self.body = body
+        self.closure_env = closure_env
+        self.return_type = return_type
+
+    def __repr__(self) -> str:
+        return f"<function {self.name}({', '.join(self.params)})>"
 
 
 class IValue:

@@ -3,7 +3,10 @@ Lexer for IPL (Intelligent Programming Language / Aether).
 Tokenizes source code into a stream of Token objects.
 """
 from typing import List
-from tokens import Token, TokenType
+try:
+    from .tokens import Token, TokenType
+except (ImportError, ValueError):
+    from tokens import Token, TokenType
 
 
 class LexerError(Exception):
@@ -28,7 +31,15 @@ class Lexer:
         "not": TokenType.NOT,
         "in": TokenType.IN,
         "if": TokenType.IF,
+        "elif": TokenType.ELIF,
         "else": TokenType.ELSE,
+        "while": TokenType.WHILE,
+        "break": TokenType.BREAK,
+        "continue": TokenType.CONTINUE,
+        "fn": TokenType.FN,
+        "func": TokenType.FN,
+        "function": TokenType.FN,
+        "return": TokenType.RETURN,
         "true": TokenType.TRUE,
         "false": TokenType.FALSE,
         "null": TokenType.NULL,

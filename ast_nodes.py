@@ -63,6 +63,74 @@ class MemberAccess(Expr):
 
 
 @dataclass
+class IndexAccess(Expr):
+    target: Expr
+    index: Expr                                     # e.g. arr[0], dict["key"]
+
+
+@dataclass
+class FunctionCall(Expr):
+    callee: Expr
+    args: List[Expr] = field(default_factory=list)
+
+
+@dataclass
+class Block(ASTNode):
+    statements: List[ASTNode]
+    line: int = 1
+
+
+@dataclass
+class IfStatement(ASTNode):
+    condition: Expr
+    then_branch: Block
+    elif_branches: List[Tuple[Expr, Block]] = field(default_factory=list)
+    else_branch: Optional[Block] = None
+    line: int = 1
+
+
+@dataclass
+class ForStatement(ASTNode):
+    variable: str
+    iterable: Expr
+    body: Block
+    line: int = 1
+
+
+@dataclass
+class WhileStatement(ASTNode):
+    condition: Expr
+    body: Block
+    line: int = 1
+
+
+@dataclass
+class BreakStatement(ASTNode):
+    line: int = 1
+
+
+@dataclass
+class ContinueStatement(ASTNode):
+    line: int = 1
+
+
+@dataclass
+class FunctionDef(ASTNode):
+    name: str
+    params: List[str]
+    param_types: Dict[str, Optional[TypeAnnotation]] = field(default_factory=dict)
+    body: Block
+    return_type: Optional[TypeAnnotation] = None
+    line: int = 1
+
+
+@dataclass
+class ReturnStatement(ASTNode):
+    value_expr: Optional[Expr] = None
+    line: int = 1
+
+
+@dataclass
 class LetStatement(ASTNode):
     name: str
     type_annotation: Optional[TypeAnnotation]
