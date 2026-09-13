@@ -368,8 +368,8 @@ class Parser:
         return FunctionDef(
             name=name_tok.value,
             params=params,
-            param_types=param_types,
             body=body,
+            param_types=param_types,
             return_type=return_type,
             line=start_tok.line
         )
