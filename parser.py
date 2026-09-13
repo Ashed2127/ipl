@@ -9,7 +9,8 @@ try:
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
-        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
+        SanitizationNode, IntentExpr
     )
 except (ImportError, ValueError):
     from tokens import Token, TokenType
@@ -17,7 +18,8 @@ except (ImportError, ValueError):
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
-        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
+        SanitizationNode, IntentExpr
     )
 
 
@@ -475,6 +477,29 @@ class Parser:
 
     def parse_primary(self) -> Expr:
         tok = self.current_token()
+
+        # Sanitization Node: sanitize(expr) or sanitize(expr, "rule")
+        if tok.type == TokenType.SANITIZE:
+            start_tok = self.advance()
+            self.expect(TokenType.LPAREN, "Expected '(' after sanitize")
+            target = self.parse_expression()
+            rule = None
+            if self.match(TokenType.COMMA):
+                rule_tok = self.current_token()
+                if rule_tok.type in (TokenType.STRING, TokenType.IDENTIFIER):
+                    rule = str(rule_tok.value).strip('"\'')
+                    self.advance()
+            self.expect(TokenType.RPAREN, "Expected ')' after sanitize arguments")
+            return SanitizationNode(target=target, rule=rule, line=start_tok.line)
+
+        # Intent Expression: intent "Extract user_age..." [as Int]
+        if tok.type == TokenType.INTENT:
+            start_tok = self.advance()
+            prompt_tok = self.expect(TokenType.STRING, "Expected string intent description after 'intent'")
+            target_type = None
+            if self.match(TokenType.AS):
+                target_type = self.parse_type_annotation()
+            return IntentExpr(intent_prompt=prompt_tok.value, target_type=target_type, line=start_tok.line)
 
         # Literals
         if tok.type == TokenType.NUMBER:
