@@ -1,0 +1,75 @@
+// ==============================================================================
+// 07. USER FUNCTIONS & NEURO-SYMBOLIC LOGIC
+// Demonstrates fn definitions, recursion, built-in library, and semantic typing
+// ==============================================================================
+
+print "=========================================================="
+print "       1. USER FUNCTIONS & ARITHMETIC                     "
+print "=========================================================="
+
+fn calculate_discounted_price(base_price, discount_rate) {
+    let discount = base_price * discount_rate
+    let final_price = base_price - discount
+    return final_price
+}
+
+let original_price: Currency = "150 dollars"
+let sale_price = calculate_discounted_price(original_price, 0.20)
+print "Original Price :", original_price
+print "After 20% Off  :", sale_price
+
+print ""
+print "=========================================================="
+print "       2. RECURSIVE ALGORITHMS IN IPL                     "
+print "=========================================================="
+
+fn fibonacci(n) {
+    if n <= 0 {
+        return 0
+    }
+    if n == 1 {
+        return 1
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+print "Fibonacci sequence values:"
+for i in range(1, 8) {
+    print "fib(", i, ") =", fibonacci(i)
+}
+
+print ""
+print "=========================================================="
+print "       3. SEMANTIC INTENT CLASSIFICATION IN FUNCTIONS     "
+print "=========================================================="
+
+fn route_customer_ticket(ticket_text: Intent<Fraud, Refund, Support>) {
+    print "Dispatching ticket to queue:", ticket_text
+    return ticket_text
+}
+
+let customer_msg = "Please refund my payment for the damaged item"
+let routed = route_customer_ticket(customer_msg)
+
+print ""
+print "=========================================================="
+print "       4. BUILT-IN UTILITIES & INTROSPECTION              "
+print "=========================================================="
+
+let readings = [45, 12, 89, 34, 76, 23]
+print "Readings list length:", len(readings)
+print "Lowest reading       :", min(readings)
+print "Highest reading      :", max(readings)
+
+let sample_currency: Currency = "ninety-nine bucks"
+print "Introspected Type    :", type_of(sample_currency)
+print "Introspected Conf    :", round(confidence(sample_currency) * 100), "%"
+
+print ""
+print "=========================================================="
+print "       5. SELF-HEALING FUNCTION RESOLUTION                "
+print "=========================================================="
+
+// Notice deliberate typo 'calc_discounted_price' -> auto-heals to 'calculate_discounted_price'
+let auto_healed = calc_discounted_price(200, 0.15)
+print "Result via self-healed function call:", auto_healed
