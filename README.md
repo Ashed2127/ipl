@@ -295,21 +295,30 @@ ipl> help
 
 ```
 ipl_lang/
+├── pyproject.toml           # Packaging and CLI script entrypoint
 ├── __init__.py              # Package initialization
 ├── tokens.py                # Token definitions and TokenType enum
 ├── lexer.py                 # Lexical analysis and tokenization
 ├── parser.py                # AST construction from tokens
 ├── ast_nodes.py             # Abstract syntax tree node definitions
 ├── semantic_engine.py       # Neural-symbolic semantic processing
-├── runtime.py               # Interpreter, IValue system, and environment
+├── runtime.py               # Interpreter, IValue system, environment, built-ins
 ├── formatter.py             # Rich presentation formatting
+├── security_engine.py       # Security analysis and code sanitization
 ├── cli.py                   # Command-line interface and REPL
 ├── examples/                # Example IPL programs
 │   ├── 01_intelligent_variables.ipl
 │   ├── 02_intelligent_print_audiences.ipl
 │   ├── 03_semantic_queries_and_formats.ipl
-│   └── 04_invariants_and_self_healing.ipl
-└── tests/                   # Test suite
+│   ├── 04_invariants_and_self_healing.ipl
+│   ├── 05_security_demo.ipl
+│   ├── 06_control_flow.ipl
+│   └── 07_functions_and_logic.ipl
+└── tests/                   # Comprehensive test suite
+    ├── test_extraction.py
+    ├── test_variables_and_print.py
+    ├── test_control_flow.py
+    └── test_functions.py
 ```
 
 ## 🔮 Design Philosophy
@@ -323,56 +332,21 @@ IPL is built on the principle that **programming languages should understand int
 5. **Type-Rich**: Semantic types carry meaning beyond traditional type systems
 6. **Query-Native**: Natural language queries are first-class citizens
 
-## 🛠️ Current Focus
+## 🛠️ Implemented Core Features
 
-The language currently focuses on making **variable declarations** and **print syntax** intelligent:
-
-- **Variables**: Natural language extraction, semantic types, probabilistic confidence, refinement invariants
-- **Print**: Audience adaptation, semantic queries, rich formatting, self-healing references
-
-Future expansion areas include:
-- Control flow (if/else, loops)
-- Functions and closures
-- Module system
-- Concurrent programming primitives
-- Database integration
-- API client generation
-
-## 📖 Example Programs
-
-### Intelligent Variables
-```ipl
-let price: Currency = "ninety-nine bucks and 50 cents"
-let review: Sentiment = "Absolutely fantastic build!"
-print price
-print review
-```
-
-### Audience Adaptation
-```ipl
-let revenue: Currency = "two million dollars"
-print revenue for "executive"   // Business summary
-print revenue for "child"        // Simple explanation
-```
-
-### Semantic Queries
-```ipl
-let nodes = [{ "cpu": 42 }, { "cpu": 88 }]
-print "summary of" nodes
-print "highlight risks in" nodes
-```
-
-### Invariants
-```ipl
-let charge: Currency where (v >= 0 and v <= 500) = "three hundred dollars"
-print charge
-```
+- **Intelligent Variables**: Natural language extraction (`Currency`, `Quantity`, `Sentiment`, `Date`, `Intent`), probabilistic confidence `Prob<T>`, refinement invariants (`where` clauses), immutability (`let` vs `var`).
+- **Adaptive Print**: Audience adaptation (`executive`, `developer`, `sre`, `child`, `marketer`), semantic queries (`"summary of"`, `"highlight risks in"`, `"explain"`), visual presentation (`table`, `bar_chart`, `badge`, `gauge`, `card`, `tree`).
+- **Control Flow**: Conditionals (`if`, `elif`, `else`), `for ... in` iteration over lists and `range()`, `while` loops, `break`, `continue`, subscript indexing.
+- **Functions & Closures**: User-defined `fn`, recursive calls, return values, semantic type verification on arguments, lexical scope.
+- **Built-in Standard Library**: `len()`, `range()`, `confidence()`, `type_of()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
+- **Neuro-Symbolic Self-Healing**: Dynamic symbol resolution repairing typos in both variables and function calls.
+- **Security Engine**: Pre-execution AST/source threat detection, input sanitization, and safety warnings.
 
 ## 🧪 Testing
 
-Run the test suite:
+Run the comprehensive unit test suite:
 ```bash
-python3 -m pytest tests/
+python3 -m unittest discover -s tests
 ```
 
 ## 📝 License
