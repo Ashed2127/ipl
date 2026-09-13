@@ -699,6 +699,10 @@ class Interpreter:
             meter = "■" * int(ivalue.confidence * 10) + "□" * (10 - int(ivalue.confidence * 10))
             return f"[italic]{raw}[/italic] [bold yellow][{int(ivalue.confidence*100)}% {meter}][/bold yellow]{violation_suffix}"
 
+        # If Function
+        if isinstance(raw, IFunction) or ivalue.type_name in ("Function", "BuiltinFunction"):
+            return f"[cyan]{raw}[/cyan]"
+
         # If dictionary
         if isinstance(raw, dict):
             items = [f"[cyan]{k}[/cyan]: {v}" for k, v in raw.items()]
@@ -760,6 +764,36 @@ class Interpreter:
 
             raise AttributeError(f"Member '{member}' not found on {target_val}")
 
+        if isinstance(expr, IndexAccess):
+            target_val = self.evaluate_expr(expr.target, env)
+            index_val = self.evaluate_expr(expr.index, env)
+            raw_target = target_val.raw_value
+            raw_idx = index_val.raw_value
+
+            if isinstance(raw_target, list):
+                idx = int(raw_idx)
+                if idx < 0 or idx >= len(raw_target):
+                    raise IndexError(f"List index out of range: {idx} (length {len(raw_target)})")
+                elem = raw_target[idx]
+                elem_type = type(elem).__name__.capitalize()
+                return IValue(raw_value=elem, type_name=elem_type, confidence=target_val.confidence)
+
+            if isinstance(raw_target, dict):
+                if raw_idx not in raw_target:
+                    raise KeyError(f"Key '{raw_idx}' not found in dictionary")
+                val = raw_target[raw_idx]
+                val_type = type(val).__name__.capitalize()
+                return IValue(raw_value=val, type_name=val_type, confidence=target_val.confidence)
+
+            if isinstance(raw_target, str):
+                idx = int(raw_idx)
+                return IValue(raw_value=raw_target[idx], type_name="String", confidence=target_val.confidence)
+
+            raise TypeError(f"'{target_val.type_name}' object is not subscriptable")
+
+        if isinstance(expr, FunctionCall):
+            return self.call_function(expr, env)
+
         if isinstance(expr, UnaryOp):
             val = self.evaluate_expr(expr.operand, env)
             if expr.op == "-":
@@ -771,6 +805,45 @@ class Interpreter:
             return self.evaluate_binary_op(expr, env)
 
         raise NotImplementedError(f"Expression {type(expr).__name__} not supported")
+
+    def call_function(self, call_node: FunctionCall, env: Environment) -> IValue:
+        callee_val = self.evaluate_expr(call_node.callee, env)
+        arg_vals = [self.evaluate_expr(a, env) for a in call_node.args]
+        callee = callee_val.raw_value
+
+        # 1. User-defined IPL function
+        if isinstance(callee, IFunction):
+            if len(arg_vals) != len(callee.params):
+                raise TypeError(
+                    f"Function '{callee.name}' expects {len(callee.params)} arguments, "
+                    f"but {len(arg_vals)} were given"
+                )
+
+            call_env = Environment(parent=callee.closure_env, console=self.console)
+            for param_name, arg_val in zip(callee.params, arg_vals):
+                p_type = callee.param_types.get(param_name)
+                bound_val = self.apply_type_annotation(arg_val, p_type, param_name) if p_type else arg_val
+                call_env.set(param_name, bound_val)
+
+            try:
+                for stmt in callee.body.statements:
+                    self.execute_statement(stmt, call_env)
+            except ReturnException as ret:
+                ret_val = ret.value
+                if callee.return_type:
+                    ret_val = self.apply_type_annotation(ret_val, callee.return_type, f"{callee.name}_return")
+                return ret_val
+
+            return IValue(raw_value=None, type_name="Null")
+
+        # 2. Built-in callable
+        if callable(callee):
+            res = callee(*arg_vals)
+            if isinstance(res, IValue):
+                return res
+            return IValue(raw_value=res, type_name=type(res).__name__.capitalize())
+
+        raise TypeError(f"'{callee_val.type_name}' object is not callable")
 
     def evaluate_binary_op(self, expr: BinaryOp, env: Environment) -> IValue:
         left = self.evaluate_expr(expr.left, env)
