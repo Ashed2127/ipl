@@ -1,0 +1,81 @@
+// ==============================================================================
+// 06. CONTROL FLOW: CONDITIONAL BRANCHING & ITERATION
+// Demonstrates if/elif/else, for loops, while loops, break, continue, and indexing
+// ==============================================================================
+
+print "=========================================================="
+print "       1. CONFIDENCE-AWARE CONDITIONAL BRANCHING          "
+print "=========================================================="
+
+let feedback: Sentiment = "Service was completely broken and crashed repeatedly"
+let alert_confidence = confidence(feedback)
+
+if alert_confidence >= 0.85 {
+    print "🚨 High confidence signal detected. Immediate mitigation dispatched!"
+} elif alert_confidence >= 0.50 {
+    print "⚠️ Moderate confidence signal. Flagged for review."
+} else {
+    print "ℹ️ Low confidence observation. Logging to telemetry."
+}
+
+print ""
+print "=========================================================="
+print "       2. INTELLIGENT FOR LOOPS & RANGE ITERATION         "
+print "=========================================================="
+
+let cluster_nodes = [
+    {"name": "us-east-1a", "cpu": 45, "healthy": true},
+    {"name": "us-east-1b", "cpu": 92, "healthy": false},
+    {"name": "eu-central-1", "cpu": 30, "healthy": true},
+    {"name": "ap-southeast-1", "cpu": 88, "healthy": false}
+]
+
+var unhealthy_count = 0
+for node in cluster_nodes {
+    if not node.healthy {
+        print "Node Alert: High CPU or Unhealthy state on", node.name, "with CPU", node.cpu
+        unhealthy_count = unhealthy_count + 1
+    }
+}
+print "Total unhealthy nodes found:", unhealthy_count
+
+print ""
+print "Generating synthetic sequence with range(1, 6):"
+var total_accum = 0
+for step in range(1, 6) {
+    total_accum = total_accum + step
+}
+print "Accumulated sum 1..5:", total_accum
+
+print ""
+print "=========================================================="
+print "       3. WHILE LOOPS WITH BREAK AND CONTINUE             "
+print "=========================================================="
+
+var attempts = 0
+var simulated_backoff = 100
+while attempts < 5 {
+    attempts = attempts + 1
+    if attempts == 2 {
+        print "Attempt", attempts, "retrying after transient timeout..."
+        continue
+    }
+    if attempts == 4 {
+        print "Attempt", attempts, "reached circuit-breaker ceiling. Halting loop!"
+        break
+    }
+    print "Attempt", attempts, "processed with backoff", simulated_backoff, "ms"
+    simulated_backoff = simulated_backoff * 2
+}
+
+print ""
+print "=========================================================="
+print "       4. SUBSCRIPT INDEXING                              "
+print "=========================================================="
+
+let priorities = ["Critical", "High", "Medium", "Low"]
+print "Primary escalation priority:", priorities[0]
+print "Tertiary priority:", priorities[2]
+
+let primary_node = cluster_nodes[0]
+print "First cluster node name:", primary_node["name"]
