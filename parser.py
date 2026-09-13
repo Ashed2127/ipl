@@ -207,11 +207,11 @@ class Parser:
         start_tok = self.advance()  # consume 'print'
         query_str = None
 
-        # Check if first item is a semantic query string followed by an expression
+        # Check if first item is a semantic query string followed by an expression on the same line
         if self.current_token().type == TokenType.STRING:
             next_tok = self.peek_token(1)
-            # If next token is an expression starter (not comma, for, as, semicolon, eof)
-            if next_tok.type in (TokenType.IDENTIFIER, TokenType.STRING, TokenType.LBRACKET, TokenType.LBRACE):
+            # If next token is an expression starter on the same line
+            if next_tok.line == self.current_token().line and next_tok.type in (TokenType.IDENTIFIER, TokenType.STRING, TokenType.LBRACKET, TokenType.LBRACE):
                 query_tok = self.advance()
                 query_str = query_tok.value
 
@@ -225,7 +225,13 @@ class Parser:
 
         # Allow 'for' and 'as' in any order
         for _ in range(2):
-            if self.match(TokenType.FOR):
+            if self.current_token().type == TokenType.FOR:
+                # If 'for' is on a subsequent line or is a 'for x in ...' loop, do not consume
+                if self.current_token().line > start_tok.line:
+                    break
+                if self.peek_token(1).type == TokenType.IDENTIFIER and self.peek_token(2).type == TokenType.IN:
+                    break
+                self.advance()
                 aud_tok = self.current_token()
                 if aud_tok.type in (TokenType.STRING, TokenType.IDENTIFIER):
                     audience = str(aud_tok.value).strip('"\'')
@@ -233,7 +239,10 @@ class Parser:
                 else:
                     raise ParserError("Expected audience string or identifier after 'for'", aud_tok)
 
-            elif self.match(TokenType.AS):
+            elif self.current_token().type == TokenType.AS:
+                if self.current_token().line > start_tok.line:
+                    break
+                self.advance()
                 fmt_tok = self.current_token()
                 if fmt_tok.type in (TokenType.IDENTIFIER, TokenType.STRING):
                     format_style = str(fmt_tok.value).strip('"\'')
