@@ -179,6 +179,105 @@ class Interpreter:
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
+        self._init_builtins()
+
+    def _init_builtins(self):
+        def _len(arg_val: IValue) -> IValue:
+            val = arg_val.raw_value
+            if isinstance(val, (list, dict, str)):
+                return IValue(len(val), "Int", confidence=arg_val.confidence)
+            raise TypeError(f"Object of type '{arg_val.type_name}' has no len()")
+
+        def _range(*args: IValue) -> IValue:
+            raw_args = [int(a.get_numeric()) for a in args]
+            if len(raw_args) == 1:
+                return IValue(list(range(raw_args[0])), "List")
+            elif len(raw_args) == 2:
+                return IValue(list(range(raw_args[0], raw_args[1])), "List")
+            elif len(raw_args) == 3:
+                return IValue(list(range(raw_args[0], raw_args[1], raw_args[2])), "List")
+            raise TypeError(f"range expected 1 to 3 arguments, got {len(args)}")
+
+        def _confidence(arg_val: IValue) -> IValue:
+            return IValue(arg_val.confidence, "Float")
+
+        def _type_of(arg_val: IValue) -> IValue:
+            return IValue(arg_val.type_name, "String")
+
+        def _keys(arg_val: IValue) -> IValue:
+            if isinstance(arg_val.raw_value, dict):
+                return IValue(list(arg_val.raw_value.keys()), "List", confidence=arg_val.confidence)
+            raise TypeError("keys() requires a dictionary")
+
+        def _values(arg_val: IValue) -> IValue:
+            if isinstance(arg_val.raw_value, dict):
+                return IValue(list(arg_val.raw_value.values()), "List", confidence=arg_val.confidence)
+            raise TypeError("values() requires a dictionary")
+
+        def _min(*args: IValue) -> IValue:
+            if len(args) == 1 and isinstance(args[0].raw_value, list):
+                if not args[0].raw_value:
+                    raise ValueError("min() arg is an empty sequence")
+                m = min(args[0].raw_value)
+                return IValue(m, "Number", confidence=args[0].confidence)
+            nums = [a.get_numeric() for a in args]
+            min_c = min([a.confidence for a in args]) if args else 1.0
+            return IValue(min(nums), "Number", confidence=min_c)
+
+        def _max(*args: IValue) -> IValue:
+            if len(args) == 1 and isinstance(args[0].raw_value, list):
+                if not args[0].raw_value:
+                    raise ValueError("max() arg is an empty sequence")
+                m = max(args[0].raw_value)
+                return IValue(m, "Number", confidence=args[0].confidence)
+            nums = [a.get_numeric() for a in args]
+            min_c = min([a.confidence for a in args]) if args else 1.0
+            return IValue(max(nums), "Number", confidence=min_c)
+
+        def _abs(arg: IValue) -> IValue:
+            return IValue(abs(arg.get_numeric()), "Number", confidence=arg.confidence)
+
+        def _round(val: IValue, ndigits: Optional[IValue] = None) -> IValue:
+            n = int(ndigits.get_numeric()) if ndigits else 0
+            return IValue(round(val.get_numeric(), n), "Number", confidence=val.confidence)
+
+        def _str(arg: IValue) -> IValue:
+            return IValue(str(arg.get_display_value()), "String", confidence=arg.confidence)
+
+        def _int(arg: IValue) -> IValue:
+            return IValue(int(arg.get_numeric()), "Int", confidence=arg.confidence)
+
+        def _float(arg: IValue) -> IValue:
+            return IValue(float(arg.get_numeric()), "Float", confidence=arg.confidence)
+
+        def _bool(arg: IValue) -> IValue:
+            return IValue(bool(arg.raw_value), "Bool", confidence=arg.confidence)
+
+        def _push(lst: IValue, item: IValue) -> IValue:
+            if isinstance(lst.raw_value, list):
+                lst.raw_value.append(item.raw_value)
+                return lst
+            raise TypeError("push() requires a list as first argument")
+
+        builtins = {
+            "len": _len,
+            "range": _range,
+            "confidence": _confidence,
+            "type_of": _type_of,
+            "keys": _keys,
+            "values": _values,
+            "min": _min,
+            "max": _max,
+            "abs": _abs,
+            "round": _round,
+            "str": _str,
+            "int": _int,
+            "float": _float,
+            "bool": _bool,
+            "push": _push,
+        }
+        for name, fn in builtins.items():
+            self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
 
     def run(self, program: Program, source_code: str = ""):
         # Security check before execution
@@ -221,6 +320,24 @@ class Interpreter:
             self.execute_assign(stmt, env)
         elif isinstance(stmt, PrintStatement):
             self.execute_print(stmt, env)
+        elif isinstance(stmt, Block):
+            self.execute_block(stmt, env)
+        elif isinstance(stmt, IfStatement):
+            self.execute_if(stmt, env)
+        elif isinstance(stmt, ForStatement):
+            self.execute_for(stmt, env)
+        elif isinstance(stmt, WhileStatement):
+            self.execute_while(stmt, env)
+        elif isinstance(stmt, BreakStatement):
+            self.execute_break(stmt, env)
+        elif isinstance(stmt, ContinueStatement):
+            self.execute_continue(stmt, env)
+        elif isinstance(stmt, FunctionDef):
+            self.execute_fn_def(stmt, env)
+        elif isinstance(stmt, ReturnStatement):
+            self.execute_return(stmt, env)
+        elif isinstance(stmt, Expr):
+            self.evaluate_expr(stmt, env)
         else:
             raise NotImplementedError(f"Statement {type(stmt).__name__} not implemented")
 
