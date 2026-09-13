@@ -10,21 +10,27 @@ try:
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
-        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
+        SanitizationNode, IntentExpr
     )
     from .semantic_engine import SemanticEngine
     from .formatter import IntelligentFormatter
     from .security_engine import SecurityEngine
+    from .taint import TaintLevel, TaintTag, TaintViolationError
+    from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
 except (ImportError, ValueError):
     from ast_nodes import (
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
-        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
+        SanitizationNode, IntentExpr
     )
     from semantic_engine import SemanticEngine
     from formatter import IntelligentFormatter
     from security_engine import SecurityEngine
+    from taint import TaintLevel, TaintTag, TaintViolationError
+    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
 
 
 class BreakException(Exception):
