@@ -46,6 +46,7 @@ class Lexer:
         "secure": TokenType.SECURE,
         "sanitize": TokenType.SANITIZE,
         "trusted": TokenType.TRUSTED,
+        "intent": TokenType.INTENT,
     }
 
     def __init__(self, source: str):
