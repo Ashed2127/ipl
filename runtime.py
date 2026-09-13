@@ -409,6 +409,81 @@ class Interpreter:
         evaluated = self.evaluate_expr(stmt.value_expr, env)
         env.set(stmt.name, evaluated, is_reassignment=True)
 
+    def execute_block(self, block: Block, env: Environment):
+        block_env = Environment(parent=env, console=self.console)
+        for s in block.statements:
+            self.execute_statement(s, block_env)
+
+    def execute_if(self, stmt: IfStatement, env: Environment):
+        cond_val = self.evaluate_expr(stmt.condition, env)
+        if bool(cond_val.raw_value):
+            self.execute_block(stmt.then_branch, env)
+            return
+
+        for elif_cond, elif_block in stmt.elif_branches:
+            elif_val = self.evaluate_expr(elif_cond, env)
+            if bool(elif_val.raw_value):
+                self.execute_block(elif_block, env)
+                return
+
+        if stmt.else_branch is not None:
+            self.execute_block(stmt.else_branch, env)
+
+    def execute_for(self, stmt: ForStatement, env: Environment):
+        iter_val = self.evaluate_expr(stmt.iterable, env)
+        items = iter_val.raw_value
+        if not hasattr(items, "__iter__"):
+            raise TypeError(f"'{iter_val.type_name}' object is not iterable")
+
+        iterable_items = items.keys() if isinstance(items, dict) else items
+        loop_env = Environment(parent=env, console=self.console)
+        for item in iterable_items:
+            loop_env.set(stmt.variable, IValue(raw_value=item, type_name="Any", confidence=iter_val.confidence))
+            try:
+                for s in stmt.body.statements:
+                    self.execute_statement(s, loop_env)
+            except BreakException:
+                break
+            except ContinueException:
+                continue
+
+    def execute_while(self, stmt: WhileStatement, env: Environment):
+        loop_env = Environment(parent=env, console=self.console)
+        while True:
+            cond_val = self.evaluate_expr(stmt.condition, loop_env)
+            if not bool(cond_val.raw_value):
+                break
+            try:
+                for s in stmt.body.statements:
+                    self.execute_statement(s, loop_env)
+            except BreakException:
+                break
+            except ContinueException:
+                continue
+
+    def execute_break(self, stmt: BreakStatement, env: Environment):
+        raise BreakException()
+
+    def execute_continue(self, stmt: ContinueStatement, env: Environment):
+        raise ContinueException()
+
+    def execute_fn_def(self, stmt: FunctionDef, env: Environment):
+        fn_obj = IFunction(
+            name=stmt.name,
+            params=stmt.params,
+            param_types=stmt.param_types,
+            body=stmt.body,
+            closure_env=env,
+            return_type=stmt.return_type
+        )
+        env.set(stmt.name, IValue(raw_value=fn_obj, type_name="Function"))
+
+    def execute_return(self, stmt: ReturnStatement, env: Environment):
+        ret_val = IValue(raw_value=None, type_name="Null")
+        if stmt.value_expr is not None:
+            ret_val = self.evaluate_expr(stmt.value_expr, env)
+        raise ReturnException(ret_val)
+
     def apply_type_annotation(self, ivalue: IValue, type_ann: Optional[TypeAnnotation], var_name: str = "", skip_security: bool = False) -> IValue:
         if type_ann is None:
             return ivalue
