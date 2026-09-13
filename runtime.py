@@ -80,7 +80,8 @@ class IValue:
         confidence: float = 1.0,
         metadata: Optional[Dict[str, Any]] = None,
         invariant_violation: Optional[str] = None,
-        is_mutable: bool = False
+        is_mutable: bool = False,
+        taint: Optional[TaintTag] = None
     ):
         self.raw_value = raw_value
         self.type_name = type_name
@@ -88,6 +89,14 @@ class IValue:
         self.metadata = metadata or {}
         self.invariant_violation = invariant_violation
         self.is_mutable = is_mutable
+
+        if taint is not None:
+            self.taint = taint
+        else:
+            if type_name in ("Currency", "Sentiment", "Quantity", "Intent") or (metadata and "origin_text" in metadata):
+                self.taint = TaintTag(level=TaintLevel.UNTRUSTED, provenance="natural_language_extraction")
+            else:
+                self.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="constant_literal")
 
     def get_display_value(self) -> Any:
         if isinstance(self.raw_value, dict):
