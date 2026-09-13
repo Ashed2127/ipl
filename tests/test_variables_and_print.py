@@ -2,14 +2,29 @@
 Unit and Integration Tests for IPL (Intelligent Programming Language / Aether).
 Tests Intelligent Variables and Intelligent Print end-to-end.
 """
+import sys
 import unittest
 from io import StringIO
+from pathlib import Path
 from rich.console import Console
 
-from ipl_lang.lexer import Lexer
-from ipl_lang.parser import Parser
-from ipl_lang.runtime import Interpreter, Environment, IValue
-from ipl_lang.semantic_engine import SemanticEngine
+# Ensure parent directory is on sys.path
+_repo_dir = Path(__file__).resolve().parent.parent
+if str(_repo_dir.parent) not in sys.path:
+    sys.path.insert(0, str(_repo_dir.parent))
+if str(_repo_dir) not in sys.path:
+    sys.path.insert(0, str(_repo_dir))
+
+try:
+    from ipl_lang.lexer import Lexer
+    from ipl_lang.parser import Parser
+    from ipl_lang.runtime import Interpreter, Environment, IValue
+    from ipl_lang.semantic_engine import SemanticEngine
+except ImportError:
+    from lexer import Lexer
+    from parser import Parser
+    from runtime import Interpreter, Environment, IValue
+    from semantic_engine import SemanticEngine
 
 
 class TestSemanticEngine(unittest.TestCase):
