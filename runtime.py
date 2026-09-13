@@ -194,6 +194,7 @@ class Interpreter:
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
+        self.compiler = NeuroSymbolicCompiler(console=self.console)
         self._init_builtins()
 
     def _init_builtins(self):
@@ -218,6 +219,63 @@ class Interpreter:
 
         def _type_of(arg_val: IValue) -> IValue:
             return IValue(arg_val.type_name, "String")
+
+        def _taint_of(arg_val: IValue) -> IValue:
+            return IValue(arg_val.taint.level.value, "String", confidence=1.0)
+
+        def _db_write(table_val: IValue, record_val: IValue) -> IValue:
+            if record_val.taint.level == TaintLevel.UNTRUSTED:
+                self.compiler.audit_trace.record(
+                    phase="SINK_EXECUTION_ATTEMPT",
+                    status="BLOCKED_BY_TAINT",
+                    details={"sink": "db_write", "table": str(table_val.raw_value), "taint": record_val.taint.level.value}
+                )
+                raise TaintViolationError(
+                    variable_name=str(record_val.get_display_value()),
+                    sink_name=f"db_write('{table_val.raw_value}')",
+                    taint_level=record_val.taint.level
+                )
+
+            self.compiler.audit_trace.record(
+                phase="SINK_EXECUTION",
+                status="EXECUTED",
+                details={"sink": "db_write", "table": str(table_val.raw_value), "taint": record_val.taint.level.value}
+            )
+            self.console.print(
+                f"[bold green]🔒 [Zero-Trust DB Sink Verified][/bold green] "
+                f"Successfully committed record into table [cyan]'{table_val.raw_value}'[/cyan] "
+                f"(Taint: [bold green]{record_val.taint.level.value}[/bold green])"
+            )
+            return IValue(True, "Bool", confidence=1.0)
+
+        def _file_write(path_val: IValue, data_val: IValue) -> IValue:
+            if data_val.taint.level == TaintLevel.UNTRUSTED:
+                self.compiler.audit_trace.record(
+                    phase="SINK_EXECUTION_ATTEMPT",
+                    status="BLOCKED_BY_TAINT",
+                    details={"sink": "file_write", "path": str(path_val.raw_value), "taint": data_val.taint.level.value}
+                )
+                raise TaintViolationError(
+                    variable_name=str(data_val.get_display_value()),
+                    sink_name=f"file_write('{path_val.raw_value}')",
+                    taint_level=data_val.taint.level
+                )
+
+            self.compiler.audit_trace.record(
+                phase="SINK_EXECUTION",
+                status="EXECUTED",
+                details={"sink": "file_write", "path": str(path_val.raw_value), "taint": data_val.taint.level.value}
+            )
+            self.console.print(
+                f"[bold green]🔒 [Zero-Trust File Sink Verified][/bold green] "
+                f"Wrote to [cyan]'{path_val.raw_value}'[/cyan] "
+                f"(Taint: [bold green]{data_val.taint.level.value}[/bold green])"
+            )
+            return IValue(True, "Bool", confidence=1.0)
+
+        def _audit_trace() -> IValue:
+            self.compiler.audit_trace.render_table(self.console)
+            return IValue(len(self.compiler.audit_trace.steps), "Int")
 
         def _keys(arg_val: IValue) -> IValue:
             if isinstance(arg_val.raw_value, dict):
@@ -279,6 +337,10 @@ class Interpreter:
             "range": _range,
             "confidence": _confidence,
             "type_of": _type_of,
+            "taint_of": _taint_of,
+            "db_write": _db_write,
+            "file_write": _file_write,
+            "audit_trace": _audit_trace,
             "keys": _keys,
             "values": _values,
             "min": _min,
