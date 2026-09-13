@@ -420,10 +420,16 @@ class Interpreter:
 
     def execute_let(self, stmt: LetStatement, env: Environment):
         # 1. Evaluate right-hand side expression
-        evaluated = self.evaluate_expr(stmt.value_expr, env)
+        if isinstance(stmt.value_expr, IntentExpr):
+            candidate_node, taint_tag = self.compiler.compile_intent_node(stmt.value_expr, stmt.type_annotation)
+            evaluated = self.evaluate_expr(candidate_node, env)
+            evaluated.taint = taint_tag
+        else:
+            evaluated = self.evaluate_expr(stmt.value_expr, env)
 
-        # 2. If trusted, skip security checks
+        # 2. If trusted, assign TRUSTED taint
         if stmt.is_trusted:
+            evaluated.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="trusted_declaration")
             self.console.print(f"[green]🔒 Trusted variable '{stmt.name}' - security checks bypassed[/green]")
         else:
             # Security check on raw string data
@@ -441,7 +447,7 @@ class Interpreter:
                     # Sanitize the data
                     sanitized = self.security_engine.sanitize_string(evaluated.raw_value)
                     self.console.print(f"[yellow]Data sanitized for security. Original length: {len(evaluated.raw_value)}, Sanitized: {len(sanitized)}[/yellow]")
-                    evaluated = IValue(raw_value=sanitized, type_name=evaluated.type_name, confidence=evaluated.confidence)
+                    evaluated = IValue(raw_value=sanitized, type_name=evaluated.type_name, confidence=evaluated.confidence, taint=evaluated.taint)
 
         # 3. Semantic Extraction & Type Coercion based on TypeAnnotation
         ivalue = self.apply_type_annotation(evaluated, stmt.type_annotation, stmt.name, skip_security=stmt.is_trusted)
