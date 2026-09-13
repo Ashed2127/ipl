@@ -8,9 +8,14 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.markdown import Markdown
 
-from lexer import Lexer, LexerError
-from parser import Parser, ParserError
-from runtime import Interpreter
+try:
+    from .lexer import Lexer, LexerError
+    from .parser import Parser, ParserError
+    from .runtime import Interpreter
+except (ImportError, ValueError):
+    from lexer import Lexer, LexerError
+    from parser import Parser, ParserError
+    from runtime import Interpreter
 
 
 def print_banner(console: Console):
