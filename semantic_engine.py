@@ -662,13 +662,21 @@ class SemanticEngine:
             max_len = max(len(missing_name), len(candidate))
             similarity = 1.0 - (dist / max(1, max_len))
 
-            # Substring bonus
-            if missing_name.lower() in candidate.lower() or candidate.lower() in missing_name.lower():
-                similarity = max(similarity, 0.82)
+            # Substring bonus (only if length ratio >= 0.45 and length >= 4 to avoid short noise like 'int')
+            len_ratio = min(len(missing_name), len(candidate)) / max(len(missing_name), len(candidate))
+            if len_ratio >= 0.45 and min(len(missing_name), len(candidate)) >= 4:
+                if missing_name.lower() in candidate.lower() or candidate.lower() in missing_name.lower():
+                    similarity = max(similarity, 0.82)
 
-            # Acronym / prefix bonus (e.g. 'c_rev' -> 'customer_review')
-            parts = candidate.lower().split("_")
-            acronym = "".join(p[0] for p in parts if p)
+            # Prefix-part matching (e.g. 'calc_interest' -> 'calculate_interest')
+            parts_c = candidate.lower().split("_")
+            parts_m = missing_name.lower().split("_")
+            if len(parts_c) == len(parts_m) and len(parts_c) > 1:
+                if all(c.startswith(m) or m.startswith(c) for m, c in zip(parts_m, parts_c)):
+                    similarity = max(similarity, 0.86)
+
+            # Acronym bonus (e.g. 'cr' -> 'customer_review')
+            acronym = "".join(p[0] for p in parts_c if p)
             if missing_name.lower() == acronym:
                 similarity = max(similarity, 0.88)
 
