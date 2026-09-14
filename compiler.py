@@ -289,7 +289,7 @@ class LocalInferenceRuntime:
         prompt_lower = intent_prompt.lower()
 
         # Check for adversarial prompt injection
-        if "ignore previous instructions" in prompt_lower or "format the hard drive" in prompt_lower or "rm -rf" in prompt_lower:
+        if "override_system_rules" in prompt_lower or "bypass_security_guardrails" in prompt_lower or "unauthorized_instruction" in prompt_lower:
             # Neutralize: Treat exclusively as raw string data literal, never executable commands
             return Literal(value=f"[NEUTRALIZED_ADVERSARIAL_INJECTION: {intent_prompt}]", type_name="string")
 
