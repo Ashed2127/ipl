@@ -20,7 +20,7 @@ from rich.panel import Panel
 from taint import TaintLevel, TaintTag, TaintViolationError
 from ast_nodes import (
     ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
-    MemberAccess, IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
+    MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
     BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
     AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
 )
@@ -82,7 +82,7 @@ class MathematicalFirewall:
     and strict contracts before any memory allocation or code execution.
     """
     SAFE_PRIMITIVES: Set[str] = {
-        "Literal", "Identifier", "BinaryOp", "UnaryOp", "ListLiteral", "DictLiteral",
+        "Program", "Literal", "Identifier", "BinaryOp", "UnaryOp", "ListLiteral", "DictLiteral",
         "MemberAccess", "IndexAccess", "FunctionCall", "Block", "IfStatement",
         "ForStatement", "WhileStatement", "BreakStatement", "ContinueStatement",
         "FunctionDef", "ReturnStatement", "LetStatement", "AssignStatement",
