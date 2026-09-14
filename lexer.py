@@ -47,6 +47,7 @@ class Lexer:
         "sanitize": TokenType.SANITIZE,
         "trusted": TokenType.TRUSTED,
         "intent": TokenType.INTENT,
+        "import": TokenType.IMPORT,
     }
 
     def __init__(self, source: str):

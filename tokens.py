@@ -34,6 +34,7 @@ class TokenType(Enum):
     SANITIZE = auto()
     TRUSTED = auto()
     INTENT = auto()
+    IMPORT = auto()
 
     # Literals & Identifiers
     IDENTIFIER = auto()

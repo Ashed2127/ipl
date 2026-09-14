@@ -172,5 +172,12 @@ class PrintStatement(ASTNode):
 
 
 @dataclass
+class ImportStatement(ASTNode):
+    module_path: str
+    alias: Optional[str] = None
+    line: int = 1
+
+
+@dataclass
 class Program(ASTNode):
     statements: List[ASTNode]
