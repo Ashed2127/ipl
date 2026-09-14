@@ -26,7 +26,7 @@ try:
         ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
         MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
-        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
+        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from .semantic_engine import SemanticEngine
 except (ImportError, ValueError):
@@ -35,7 +35,7 @@ except (ImportError, ValueError):
         ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
         MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
-        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
+        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from semantic_engine import SemanticEngine
 
@@ -99,7 +99,7 @@ class MathematicalFirewall:
         "MemberAccess", "IndexAccess", "FunctionCall", "Block", "IfStatement",
         "ForStatement", "WhileStatement", "BreakStatement", "ContinueStatement",
         "FunctionDef", "ReturnStatement", "LetStatement", "AssignStatement",
-        "PrintStatement", "SanitizationNode", "IntentExpr"
+        "PrintStatement", "SanitizationNode", "IntentExpr", "ImportStatement"
     }
 
     FORBIDDEN_OPERATIONS: Set[str] = {
