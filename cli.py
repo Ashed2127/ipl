@@ -16,12 +16,17 @@ try:
     from .runtime import Interpreter
     from .compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from .ast_nodes import FunctionDef, IntentExpr, SanitizationNode
+    from .gateway import run_gateway
 except (ImportError, ValueError):
     from lexer import Lexer, LexerError
     from parser import Parser, ParserError
     from runtime import Interpreter
     from compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from ast_nodes import FunctionDef, IntentExpr, SanitizationNode
+    try:
+        from gateway import run_gateway
+    except ImportError:
+        run_gateway = None
 
 
 def print_banner(console: Console):
@@ -254,6 +259,25 @@ def main():
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
         compile_file(args[1])
+    elif cmd in ("serve", "gateway"):
+        host = "0.0.0.0"
+        port = 8000
+        if "--host" in args:
+            h_idx = args.index("--host")
+            if h_idx + 1 < len(args):
+                host = args[h_idx + 1]
+        if "--port" in args:
+            p_idx = args.index("--port")
+            if p_idx + 1 < len(args):
+                try:
+                    port = int(args[p_idx + 1])
+                except ValueError:
+                    console.print(f"[red]Invalid port number: {args[p_idx + 1]}[/red]")
+                    sys.exit(1)
+        if run_gateway is None:
+            console.print("[red]Gateway module not available. Please install starlette and uvicorn.[/red]")
+            sys.exit(1)
+        run_gateway(host=host, port=port)
     elif cmd in ("repl", "interactive"):
         start_repl(model_name=model_name)
     elif cmd in ("help", "--help", "-h"):
@@ -265,6 +289,7 @@ def main():
             "  ipl models                              List available local neural models (Ollama)\n"
             "  ipl verify <script.ipl>                 Validate AST via Mathematical Firewall\n"
             "  ipl compile <script.ipl>                Compile and inspect AST contract readiness\n"
+            "  ipl serve [--host H] [--port P]         Launch REST API Security Gateway\n"
             "  ipl repl [--model <name>]               Start interactive REPL\n"
         )
     else:
