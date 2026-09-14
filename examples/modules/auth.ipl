@@ -1,0 +1,32 @@
+// ============================================================================
+// IPL Standard Security Module: Auth & Risk Verification
+// examples/modules/auth.ipl
+// ============================================================================
+
+fn calculate_fee(amount, tier) {
+    if (tier == "HIGH") {
+        return amount * 0.03
+    }
+    if (tier == "MEDIUM") {
+        return amount * 0.015
+    }
+    return 0.00
+}
+
+fn determine_risk_tier(amount, is_vip) {
+    if (is_vip) {
+        return "LOW"
+    }
+    if (amount > 3000) {
+        return "HIGH"
+    }
+    if (amount > 1000) {
+        return "MEDIUM"
+    }
+    return "LOW"
+}
+
+fn verify_session_checksum(session_id, salt) {
+    let raw = session_id + ":" + salt
+    return sha256(raw)
+}
