@@ -10,7 +10,7 @@ try:
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
-        SanitizationNode, IntentExpr
+        SanitizationNode, IntentExpr, ImportStatement
     )
 except (ImportError, ValueError):
     from tokens import Token, TokenType
@@ -19,7 +19,7 @@ except (ImportError, ValueError):
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
-        SanitizationNode, IntentExpr
+        SanitizationNode, IntentExpr, ImportStatement
     )
 
 
@@ -78,6 +78,8 @@ class Parser:
         tok = self.current_token()
         if tok.type in (TokenType.LET, TokenType.VAR, TokenType.TRUSTED):
             return self.parse_let_statement()
+        elif tok.type == TokenType.IMPORT:
+            return self.parse_import_statement()
         elif tok.type == TokenType.PRINT:
             return self.parse_print_statement()
         elif tok.type == TokenType.IF:
@@ -102,6 +104,22 @@ class Parser:
             expr = self.parse_expression()
             self.match(TokenType.SEMICOLON)
             return expr
+
+    def parse_import_statement(self) -> ImportStatement:
+        start_tok = self.advance()  # consume 'import'
+        path_tok = self.current_token()
+        if path_tok.type not in (TokenType.STRING, TokenType.IDENTIFIER):
+            raise ParserError("Expected module path string or identifier after 'import'", path_tok)
+        
+        self.advance()
+        module_path = str(path_tok.value)
+        alias = None
+        if self.match(TokenType.AS):
+            alias_tok = self.expect(TokenType.IDENTIFIER, "Expected alias identifier after 'as'")
+            alias = str(alias_tok.value)
+
+        self.match(TokenType.SEMICOLON)
+        return ImportStatement(module_path=module_path, alias=alias, line=start_tok.line)
 
     def parse_type_annotation(self) -> TypeAnnotation:
         """
