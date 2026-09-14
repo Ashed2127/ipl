@@ -960,13 +960,19 @@ class Interpreter:
             if member == "raw":
                 return IValue(raw_value=target_val.raw_value, type_name="Any", confidence=target_val.confidence)
 
-            # Field on dict
+            # Field on dict or module exports
             if isinstance(raw, dict) and member in raw:
-                return IValue(raw_value=raw[member], type_name="Any", confidence=target_val.confidence)
+                val = raw[member]
+                if isinstance(val, IValue):
+                    return val
+                return IValue(raw_value=val, type_name="Any", confidence=target_val.confidence)
 
             # Field on object
             if hasattr(raw, member):
-                return IValue(raw_value=getattr(raw, member), type_name="Any", confidence=target_val.confidence)
+                val = getattr(raw, member)
+                if isinstance(val, IValue):
+                    return val
+                return IValue(raw_value=val, type_name="Any", confidence=target_val.confidence)
 
             raise AttributeError(f"Member '{member}' not found on {target_val}")
 
