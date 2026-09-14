@@ -1,17 +1,25 @@
 """
 Runtime Environment, IValue representation, and Interpreter for IPL (Intelligent Programming Language / Aether).
 """
-from typing import Any, Dict, List, Optional, Tuple
+import os
+import json
+import hashlib
+import base64
+import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Set
 from rich.console import Console
 from rich.text import Text
 
 try:
+    from .lexer import Lexer
+    from .parser import Parser
     from .ast_nodes import (
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
-        SanitizationNode, IntentExpr
+        SanitizationNode, IntentExpr, ImportStatement
     )
     from .semantic_engine import SemanticEngine
     from .formatter import IntelligentFormatter
@@ -19,12 +27,14 @@ try:
     from .taint import TaintLevel, TaintTag, TaintViolationError
     from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
 except (ImportError, ValueError):
+    from lexer import Lexer
+    from parser import Parser
     from ast_nodes import (
         Program, ASTNode, LetStatement, AssignStatement, PrintStatement, TypeAnnotation,
         Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral, MemberAccess,
         IndexAccess, FunctionCall, Block, IfStatement, ForStatement, WhileStatement,
         BreakStatement, ContinueStatement, FunctionDef, ReturnStatement,
-        SanitizationNode, IntentExpr
+        SanitizationNode, IntentExpr, ImportStatement
     )
     from semantic_engine import SemanticEngine
     from formatter import IntelligentFormatter
