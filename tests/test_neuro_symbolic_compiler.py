@@ -59,7 +59,7 @@ class TestMathematicalFirewall(unittest.TestCase):
         self.assertTrue(any("forbidden operation 'eval'" in v for v in viols))
 
     def test_forbidden_function_call_blocked(self):
-        call = FunctionCall(callee=Identifier(name="system"), args=[Literal("rm -rf /", "string")])
+        call = FunctionCall(callee=Identifier(name="system"), args=[Literal("unauthorized_admin_call", "string")])
         is_valid, viols = MathematicalFirewall.verify_ast_node(call)
         self.assertFalse(is_valid)
         self.assertTrue(any("sensitive system primitive" in v for v in viols))
