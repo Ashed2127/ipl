@@ -343,6 +343,52 @@ class Interpreter:
                 return lst
             raise TypeError("push() requires a list as first argument")
 
+        def _sha256(arg: IValue) -> IValue:
+            raw = str(arg.raw_value).encode("utf-8")
+            h = hashlib.sha256(raw).hexdigest()
+            return IValue(h, "String", confidence=1.0, taint=arg.taint)
+
+        def _md5(arg: IValue) -> IValue:
+            raw = str(arg.raw_value).encode("utf-8")
+            h = hashlib.md5(raw).hexdigest()
+            return IValue(h, "String", confidence=1.0, taint=arg.taint)
+
+        def _base64_encode(arg: IValue) -> IValue:
+            raw = str(arg.raw_value).encode("utf-8")
+            encoded = base64.b64encode(raw).decode("utf-8")
+            return IValue(encoded, "String", confidence=1.0, taint=arg.taint)
+
+        def _base64_decode(arg: IValue) -> IValue:
+            raw = str(arg.raw_value).encode("utf-8")
+            decoded = base64.b64decode(raw).decode("utf-8", errors="replace")
+            return IValue(decoded, "String", confidence=1.0, taint=arg.taint)
+
+        def _json_encode(arg: IValue) -> IValue:
+            def serialize(v):
+                if isinstance(v, IValue):
+                    return serialize(v.raw_value)
+                elif isinstance(v, dict):
+                    return {k: serialize(val) for k, val in v.items()}
+                elif isinstance(v, (list, tuple)):
+                    return [serialize(x) for x in v]
+                return v
+            encoded = json.dumps(serialize(arg.raw_value))
+            return IValue(encoded, "String", confidence=1.0, taint=arg.taint)
+
+        def _json_decode(arg: IValue) -> IValue:
+            raw = str(arg.raw_value)
+            parsed = json.loads(raw)
+            def wrap(v):
+                if isinstance(v, dict):
+                    return {k: wrap(val) for k, val in v.items()}
+                elif isinstance(v, list):
+                    return [wrap(x) for x in v]
+                return v
+            return IValue(wrap(parsed), "Any", confidence=1.0, taint=arg.taint)
+
+        def _now() -> IValue:
+            return IValue(datetime.datetime.now(datetime.timezone.utc).isoformat(), "String", confidence=1.0)
+
         builtins = {
             "len": _len,
             "range": _range,
@@ -363,6 +409,13 @@ class Interpreter:
             "float": _float,
             "bool": _bool,
             "push": _push,
+            "sha256": _sha256,
+            "md5": _md5,
+            "base64_encode": _base64_encode,
+            "base64_decode": _base64_decode,
+            "json_encode": _json_encode,
+            "json_decode": _json_decode,
+            "now": _now,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
