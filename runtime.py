@@ -874,6 +874,40 @@ class Interpreter:
 
             raise TypeError(f"'{target_val.type_name}' object is not subscriptable")
 
+        if isinstance(expr, SanitizationNode):
+            target_val = self.evaluate_expr(expr.target, env)
+            raw = target_val.raw_value
+
+            sanitizer_name = expr.rule or "deterministic_sanitization_node"
+            if isinstance(raw, str):
+                raw = self.security_engine.sanitize_string(raw)
+            elif isinstance(raw, dict):
+                raw = {k: self.security_engine.sanitize_string(v) if isinstance(v, str) else v for k, v in raw.items()}
+
+            new_taint = target_val.taint.transition_to(TaintLevel.SANITIZED, sanitizer_name)
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION_NODE",
+                status="SANITIZED",
+                details={
+                    "type": target_val.type_name,
+                    "rule": sanitizer_name,
+                    "transition": f"{target_val.taint.level.value} -> {new_taint.level.value}"
+                }
+            )
+            return IValue(
+                raw_value=raw,
+                type_name=target_val.type_name,
+                confidence=target_val.confidence,
+                metadata=target_val.metadata,
+                taint=new_taint
+            )
+
+        if isinstance(expr, IntentExpr):
+            candidate_node, taint_tag = self.compiler.compile_intent_node(expr, expr.target_type)
+            val = self.evaluate_expr(candidate_node, env)
+            val.taint = taint_tag
+            return val
+
         if isinstance(expr, FunctionCall):
             return self.call_function(expr, env)
 
