@@ -17,14 +17,24 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 
-from taint import TaintLevel, TaintTag, TaintViolationError
-from ast_nodes import (
-    ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
-    MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
-    BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
-    AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
-)
-from semantic_engine import SemanticEngine
+try:
+    from .taint import TaintLevel, TaintTag, TaintViolationError
+    from .ast_nodes import (
+        ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
+        MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
+        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
+    )
+    from .semantic_engine import SemanticEngine
+except (ImportError, ValueError):
+    from taint import TaintLevel, TaintTag, TaintViolationError
+    from ast_nodes import (
+        ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
+        MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
+        BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
+        AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation
+    )
+    from semantic_engine import SemanticEngine
 
 
 @dataclass
