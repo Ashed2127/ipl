@@ -573,6 +573,7 @@ class Interpreter:
 
         tname = type_ann.name
         raw = ivalue.raw_value
+        target_taint = ivalue.taint
 
         # Security check for string data (skip if trusted)
         if isinstance(raw, str) and not skip_security:
@@ -599,7 +600,8 @@ class Interpreter:
                     raw_value=data,
                     type_name="Currency",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Sentiment":
                 data = SemanticEngine.extract_sentiment(raw)
@@ -607,7 +609,8 @@ class Interpreter:
                     raw_value=data,
                     type_name="Sentiment",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Date":
                 data = SemanticEngine.extract_date(raw)
@@ -615,7 +618,8 @@ class Interpreter:
                     raw_value=data,
                     type_name="Date",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Quantity":
                 data = SemanticEngine.extract_quantity(raw)
@@ -623,7 +627,8 @@ class Interpreter:
                     raw_value=data,
                     type_name="Quantity",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Intent":
                 candidates = type_ann.generic_args if type_ann.generic_args else None
@@ -632,7 +637,8 @@ class Interpreter:
                     raw_value=data,
                     type_name="Intent",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname in ("Int", "Integer"):
                 data = SemanticEngine.extract_number(raw, as_float=False)
@@ -640,7 +646,8 @@ class Interpreter:
                     raw_value=data["value"],
                     type_name="Int",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Float":
                 data = SemanticEngine.extract_number(raw, as_float=True)
@@ -648,7 +655,8 @@ class Interpreter:
                     raw_value=data["value"],
                     type_name="Float",
                     confidence=data["confidence"],
-                    metadata={"origin_text": raw}
+                    metadata={"origin_text": raw},
+                    taint=target_taint
                 )
             elif tname == "Percentage":
                 qdata = SemanticEngine.extract_quantity(raw)
@@ -656,7 +664,8 @@ class Interpreter:
                     raw_value=qdata["value"],
                     type_name="Percentage",
                     confidence=qdata["confidence"],
-                    metadata={"unit": "%", "origin_text": raw}
+                    metadata={"unit": "%", "origin_text": raw},
+                    taint=target_taint
                 )
 
         # Probabilistic wrapper: Prob<T> or Prob<T, min_conf>
@@ -669,14 +678,16 @@ class Interpreter:
                     raw_value=inner_ivalue.raw_value,
                     type_name=f"Prob<{inner_type}>",
                     confidence=inner_ivalue.confidence,
-                    metadata=inner_ivalue.metadata
+                    metadata=inner_ivalue.metadata,
+                    taint=target_taint
                 )
             else:
                 result_val = IValue(
                     raw_value=ivalue.raw_value,
                     type_name="Prob",
                     confidence=ivalue.confidence,
-                    metadata=ivalue.metadata
+                    metadata=ivalue.metadata,
+                    taint=target_taint
                 )
 
             # Check min_confidence threshold
@@ -690,13 +701,13 @@ class Interpreter:
 
         # Direct casts
         if tname in ("Int", "Integer") and isinstance(raw, (int, float)):
-            return IValue(int(raw), "Int", ivalue.confidence)
+            return IValue(int(raw), "Int", ivalue.confidence, taint=target_taint)
         if tname == "Float" and isinstance(raw, (int, float)):
-            return IValue(float(raw), "Float", ivalue.confidence)
+            return IValue(float(raw), "Float", ivalue.confidence, taint=target_taint)
         if tname == "String":
-            return IValue(str(raw), "String", ivalue.confidence)
+            return IValue(str(raw), "String", ivalue.confidence, taint=target_taint)
 
-        return IValue(raw, tname, ivalue.confidence, ivalue.metadata)
+        return IValue(raw, tname, ivalue.confidence, ivalue.metadata, taint=target_taint)
 
     def execute_print(self, stmt: PrintStatement, env: Environment):
         # 1. Evaluate printed expressions
