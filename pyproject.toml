@@ -9,7 +9,9 @@ description = "IPL (Intelligent Programming Language / Aether) - Neuro-symbolic 
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "rich>=12.0.0"
+    "rich>=12.0.0",
+    "starlette>=0.20.0",
+    "uvicorn>=0.18.0"
 ]
 
 [project.scripts]
@@ -21,6 +23,7 @@ py-modules = [
     "cli",
     "compiler",
     "formatter",
+    "gateway",
     "lexer",
     "parser",
     "runtime",
