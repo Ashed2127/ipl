@@ -124,6 +124,79 @@ class MathematicalFirewall:
         return len(violations) == 0, violations
 
     @classmethod
+    def verify_tree(cls, root: ASTNode) -> Tuple[bool, List[str]]:
+        """
+        Recursively checks the entire AST tree against the mathematical firewall schema.
+        Returns (is_valid, list_of_violations).
+        """
+        all_violations: List[str] = []
+
+        def walk(n: Any):
+            if not isinstance(n, ASTNode):
+                return
+            ok, viols = cls.verify_ast_node(n)
+            if not ok:
+                all_violations.extend(viols)
+
+            if isinstance(n, Block):
+                for s in n.statements:
+                    walk(s)
+            elif isinstance(n, IfStatement):
+                walk(n.condition)
+                walk(n.then_branch)
+                for cond, blk in n.elif_branches:
+                    walk(cond)
+                    walk(blk)
+                if n.else_branch:
+                    walk(n.else_branch)
+            elif isinstance(n, ForStatement):
+                walk(n.iterable)
+                walk(n.body)
+            elif isinstance(n, WhileStatement):
+                walk(n.condition)
+                walk(n.body)
+            elif isinstance(n, FunctionDef):
+                walk(n.body)
+            elif isinstance(n, ReturnStatement):
+                if n.value_expr:
+                    walk(n.value_expr)
+            elif isinstance(n, LetStatement):
+                walk(n.value_expr)
+                if n.refinement_expr:
+                    walk(n.refinement_expr)
+            elif isinstance(n, AssignStatement):
+                walk(n.value_expr)
+            elif isinstance(n, PrintStatement):
+                for e in n.exprs:
+                    walk(e)
+            elif isinstance(n, SanitizationNode):
+                walk(n.target)
+            elif isinstance(n, BinaryOp):
+                walk(n.left)
+                walk(n.right)
+            elif isinstance(n, UnaryOp):
+                walk(n.operand)
+            elif isinstance(n, FunctionCall):
+                walk(n.callee)
+                for a in n.args:
+                    walk(a)
+            elif isinstance(n, MemberAccess):
+                walk(n.target)
+            elif isinstance(n, IndexAccess):
+                walk(n.target)
+                walk(n.index)
+            elif isinstance(n, ListLiteral):
+                for el in n.elements:
+                    walk(el)
+            elif isinstance(n, DictLiteral):
+                for k, v in n.pairs:
+                    walk(k)
+                    walk(v)
+
+        walk(root)
+        return len(all_violations) == 0, all_violations
+
+    @classmethod
     def verify_type_contract(
         cls,
         candidate_value: Any,
