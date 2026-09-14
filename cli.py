@@ -46,24 +46,65 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
         console.print(f"[bold red]Runtime Exception:[/bold red] {e}")
 
 
-def run_file(filepath: str, show_audit: bool = False):
+def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
     console = Console()
     if not os.path.exists(filepath):
         console.print(f"[bold red]File not found:[/bold red] {filepath}")
         sys.exit(1)
 
     print_banner(console)
-    console.print(f"[dim]Executing: {filepath}[/dim]\n")
+    model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
+    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
 
-    interpreter = Interpreter(console=console)
+    interpreter = Interpreter(console=console, model_name=model_name)
     run_source(source, interpreter, console, filename=filepath)
 
     if show_audit:
         console.print("\n[bold cyan]─── Cryptographic Verified Audit Trace ───[/bold cyan]")
         interpreter.compiler.audit_trace.render_table(console)
+
+
+def list_models():
+    console = Console()
+    print_banner(console)
+    console.print("[bold cyan]🔍 Scanning for Local Neural AI Models...[/bold cyan]\n")
+
+    models = LocalInferenceRuntime.list_available_local_models()
+    table = Table(title="🤖 Detected Local AI Models (System 1 Compatible)", border_style="cyan")
+    table.add_column("Model Name", style="bold green")
+    table.add_column("Type", style="cyan")
+    table.add_column("Status", style="yellow")
+    table.add_column("Usage Command", style="white")
+
+    # Add built-in default
+    table.add_row(
+        "embedded-fast-semantic-v1",
+        "Deterministic Embedded NLP",
+        "[green]Active (Built-in)[/green]",
+        "ipl run <file.ipl> (default)"
+    )
+
+    if models:
+        for m in models:
+            table.add_row(
+                m,
+                "Local Neural LLM (Ollama)",
+                "[bold green]Available (Local)[/bold green]",
+                f"ipl run <file.ipl> --model {m}"
+            )
+    else:
+        table.add_row(
+            "[dim]No local Ollama models detected[/dim]",
+            "-",
+            "[dim]Offline[/dim]",
+            "Start Ollama at http://localhost:11434"
+        )
+
+    console.print(table)
+    console.print("\n[dim]To use a local neural model, pass [bold cyan]--model <name>[/bold cyan] or set [bold cyan]export IPL_MODEL=<name>[/bold cyan][/dim]")
 
 
 def verify_file(filepath: str):
@@ -148,13 +189,14 @@ def compile_file(filepath: str):
         sys.exit(1)
 
 
-def start_repl():
+def start_repl(model_name: Optional[str] = None):
     console = Console()
     print_banner(console)
-    console.print("[green]Welcome to the Interactive IPL REPL.[/green]")
+    model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
+    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp})[/dim]")
     console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
 
-    interpreter = Interpreter(console=console)
+    interpreter = Interpreter(console=console, model_name=model_name)
 
     while True:
         try:
@@ -190,31 +232,43 @@ def main():
         start_repl()
         return
 
-    cmd = sys.argv[1]
-    if cmd in ("run", "exec") and len(sys.argv) >= 3:
-        run_file(sys.argv[2])
-    elif cmd in ("audit", "trace") and len(sys.argv) >= 3:
-        run_file(sys.argv[2], show_audit=True)
-    elif cmd in ("verify", "check") and len(sys.argv) >= 3:
-        verify_file(sys.argv[2])
-    elif cmd in ("compile", "build") and len(sys.argv) >= 3:
-        compile_file(sys.argv[2])
+    # Extract optional --model flag
+    args = list(sys.argv[1:])
+    model_name = None
+    if "--model" in args:
+        m_idx = args.index("--model")
+        if m_idx + 1 < len(args):
+            model_name = args[m_idx + 1]
+            del args[m_idx:m_idx + 2]
+
+    cmd = args[0] if args else "help"
+    if cmd in ("models", "list-models"):
+        list_models()
+    elif cmd in ("run", "exec") and len(args) >= 2:
+        run_file(args[1], model_name=model_name)
+    elif cmd in ("audit", "trace") and len(args) >= 2:
+        run_file(args[1], show_audit=True, model_name=model_name)
+    elif cmd in ("verify", "check") and len(args) >= 2:
+        verify_file(args[1])
+    elif cmd in ("compile", "build") and len(args) >= 2:
+        compile_file(args[1])
     elif cmd in ("repl", "interactive"):
-        start_repl()
+        start_repl(model_name=model_name)
     elif cmd in ("help", "--help", "-h"):
         print_banner(console)
         console.print(
             "[bold]Usage:[/bold]\n"
-            "  ipl run <script.ipl>       Execute an IPL source file\n"
-            "  ipl audit <script.ipl>     Execute and print cryptographic audit trace\n"
-            "  ipl verify <script.ipl>    Validate AST via Mathematical Firewall\n"
-            "  ipl compile <script.ipl>   Compile and inspect AST contract readiness\n"
-            "  ipl repl                   Start interactive REPL\n"
+            "  ipl run <script.ipl> [--model <name>]   Execute an IPL source file\n"
+            "  ipl audit <script.ipl> [--model <name>] Execute and print cryptographic audit trace\n"
+            "  ipl models                              List available local neural models (Ollama)\n"
+            "  ipl verify <script.ipl>                 Validate AST via Mathematical Firewall\n"
+            "  ipl compile <script.ipl>                Compile and inspect AST contract readiness\n"
+            "  ipl repl [--model <name>]               Start interactive REPL\n"
         )
     else:
         # Default assume it's a file if exists
         if os.path.exists(cmd):
-            run_file(cmd)
+            run_file(cmd, model_name=model_name)
         else:
             console.print(f"[red]Unknown command or file: {cmd}[/red]")
             console.print("Run 'ipl --help' for usage.")
