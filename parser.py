@@ -157,6 +157,11 @@ class Parser:
         is_mutable = (start_tok.type == TokenType.VAR)
         is_trusted = (start_tok.type == TokenType.TRUSTED)
 
+        if is_trusted and self.current_token().type in (TokenType.LET, TokenType.VAR):
+            next_tok = self.advance()
+            if next_tok.type == TokenType.VAR:
+                is_mutable = True
+
         ident_tok = self.expect(TokenType.IDENTIFIER, "Expected variable name after let/var/trusted")
         var_name = ident_tok.value
 
