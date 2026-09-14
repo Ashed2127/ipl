@@ -248,6 +248,7 @@ IPL provides a comprehensive CLI binary installed globally as `ipl`:
 | `ipl audit <file.ipl>` | Executes the script and displays the SHA-256 Verified Audit Trace table. |
 | `ipl verify <file.ipl>` | Statically verifies AST nodes against the Mathematical Firewall schema. |
 | `ipl compile <file.ipl>` | Compiles source and validates structural AST contract readiness. |
+| `ipl serve [--host H] [--port P]` | Launches the Starlette + Uvicorn REST API Security Gateway (default: port 8000). |
 | `ipl repl` | Launches the interactive IPL neuro-symbolic shell. |
 
 ### Detecting Local Neural Models
@@ -264,6 +265,69 @@ $ ipl models
 │ gemma:2b                   │ Local Neural LLM (Ollama)  │ Available (Local) │ ipl run <f> --model gemma... │
 └────────────────────────────┴────────────────────────────┴───────────────────┴──────────────────────────────┘
 ```
+
+---
+
+## 🌐 REST Microservice & Security Gateway
+
+IPL includes an asynchronous, high-throughput REST API gateway built on Starlette and Uvicorn. It allows external autonomous agents, microservices, and IDE tools to remotely execute, verify, or audit IPL code with zero-trust isolation.
+
+### Launching the Gateway
+```bash
+ipl serve --port 8000 --host 0.0.0.0
+```
+
+### Endpoints
+
+| Endpoint | Method | Description |
+| :--- | :---: | :--- |
+| `/health` | `GET` | Service readiness and architecture status. |
+| `/api/v1/models` | `GET` | List available local neural Ollama models and embedded runtime. |
+| `/api/v1/verify` | `POST` | Statically verify source code against the Mathematical Firewall without execution. |
+| `/api/v1/execute` | `POST` | Execute an IPL program in a secure sandbox; returns stdout, execution time, and SHA-256 audit trace. |
+
+#### Example: Remote Execution with Audit Trace
+```bash
+curl -X POST http://localhost:8000/api/v1/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": "let amt: Currency = intent \"wire 1200 dollars\" as Currency; let safe = sanitize(amt); db_write(\"transfers\", safe);",
+    "audit": true
+  }'
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "output": "🔒 [Zero-Trust DB Sink Verified] Successfully committed record into table 'transfers' (Taint: Sanitized)\n",
+  "execution_time_ms": 11.45,
+  "model_used": "embedded-fast-semantic-v1",
+  "audit_trace": [
+    {
+      "step": 1,
+      "phase": "INTENT_INGESTION",
+      "status": "INGESTED",
+      "signature": "e2921107f6a89c1b"
+    }
+  ]
+}
+```
+
+---
+
+## 💻 Visual Studio Code Extension
+
+IPL comes with an official Visual Studio Code language extension located in `vscode-ipl/`:
+- **Full Syntax Highlighting:** Supports `.ipl` and `.aether` source files.
+- **Keywords & Primitives:** Colorizes `intent`, `where`, `sanitize`, `trusted`, `import`, `fn`, `let`, `var`, `Currency`, `Sentiment`, etc.
+- **Cryptographic & Standard Library Functions:** Highlights `sha256`, `md5`, `base64_encode`, `json_encode`, `now`, `db_write`.
+
+### Enabling in VS Code
+```bash
+ln -s "$(pwd)/vscode-ipl" ~/.vscode/extensions/vscode-ipl
+```
+Restart or reload VS Code (`Ctrl+Shift+P` -> `Developer: Reload Window`).
 
 ---
 
@@ -316,18 +380,23 @@ interpreter.run(program)
 ```
 ipl_lang/
 ├── pyproject.toml           # Package metadata, scripts (ipl=cli:main), and dependencies
-├── tokens.py                # Token definitions & TokenType enum (intent, sanitize, trusted, etc.)
+├── tokens.py                # Token definitions & TokenType enum (intent, sanitize, trusted, import, etc.)
 ├── lexer.py                 # Lexical analyzer generating tokens with exact line/col tracking
-├── parser.py                # Recursive-descent AST parser supporting generic types and where-clauses
-├── ast_nodes.py             # Pure AST node definitions (IntentExpr, SanitizationNode, Program, etc.)
+├── parser.py                # Recursive-descent AST parser supporting generic types, where-clauses, and imports
+├── ast_nodes.py             # Pure AST node definitions (IntentExpr, SanitizationNode, ImportStatement, etc.)
 ├── compiler.py              # System 1 Neural Parser, System 2 Mathematical Firewall, Audit Trace
 ├── taint.py                 # Zero-trust taint tracking engine (TaintLevel, TaintTag, TaintViolationError)
-├── runtime.py               # Deterministic VM, IValue system, environment, zero-trust sinks
+├── runtime.py               # Deterministic VM, IValue system, environment, zero-trust sinks, stdlib built-ins
+├── gateway.py               # REST API Security Gateway & microservice (Starlette + Uvicorn)
 ├── semantic_engine.py       # Deterministic NLP extraction (Currency, Sentiment, Quantity, Date, Intent)
 ├── formatter.py             # Visual terminal presentations (Rich tables, bar charts, gauges, cards)
 ├── security_engine.py       # AST pre-execution security analyzer and string sanitizers
-├── cli.py                   # Command-line interface supporting run, audit, verify, compile, models, repl
-├── examples/                # 8 comprehensive example programs
+├── cli.py                   # Command-line interface supporting run, audit, verify, compile, models, serve, repl
+├── vscode-ipl/              # Official Visual Studio Code extension (syntax highlighting, grammar)
+│   ├── package.json
+│   ├── language-configuration.json
+│   └── syntaxes/ipl.tmLanguage.json
+├── examples/                # 9 comprehensive example programs and reusable modules
 │   ├── 01_intelligent_variables.ipl
 │   ├── 02_intelligent_print_audiences.ipl
 │   ├── 03_semantic_queries_and_formats.ipl
@@ -335,29 +404,32 @@ ipl_lang/
 │   ├── 05_security_demo.ipl
 │   ├── 06_control_flow.ipl
 │   ├── 07_functions_and_logic.ipl
-│   └── 08_neuro_symbolic_compiler.ipl
-└── tests/                   # 47 unit & integration tests
+│   ├── 08_neuro_symbolic_compiler.ipl
+│   ├── 09_secure_banking_system.ipl
+│   └── modules/
+│       └── auth.ipl
+└── tests/                   # 63 unit & integration tests
     ├── test_extraction.py
     ├── test_variables_and_print.py
     ├── test_control_flow.py
     ├── test_functions.py
     ├── test_neuro_symbolic_compiler.py
-    └── test_taint_tracking.py
+    ├── test_taint_tracking.py
+    ├── test_imports_and_stdlib.py
+    └── test_gateway.py
 ```
 
 ---
 
 ## 🧪 Testing & Formal Verification
 
-Run the complete 47-test suite:
+Run the complete 63-test suite:
 ```bash
 python3 -m unittest discover -s tests
 ```
-Execution finishes in `~0.10s` with zero external dependencies:
+Execution finishes in `~0.30s` with zero external test runners:
 ```
-...............................................
-----------------------------------------------------------------------
-Ran 47 tests in 0.101s
+Ran 63 tests in 0.302s
 
 OK
 ```
