@@ -475,6 +475,8 @@ class Interpreter:
             self.execute_continue(stmt, env)
         elif isinstance(stmt, FunctionDef):
             self.execute_fn_def(stmt, env)
+        elif isinstance(stmt, ReturnStatement):
+            self.execute_return(stmt, env)
         elif isinstance(stmt, ImportStatement):
             self.execute_import(stmt, env)
         elif isinstance(stmt, Expr):
