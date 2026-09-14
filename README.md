@@ -210,6 +210,28 @@ print invoice as table             // Formatted Rich table
 print [10, 45, 80] as bar_chart    // ASCII/Unicode proportional bar chart
 ```
 
+### 8. Module System & Standard Library Primitives
+IPL provides native modular imports and built-in cryptographic & serialization primitives:
+```ipl
+// Import another IPL file with namespace alias or direct merge
+import "modules/auth.ipl" as auth
+
+// Cryptographic hashing (SHA-256 and MD5)
+let hash = sha256("transaction_secret")
+let md5_sum = md5("file_contents")
+
+// Binary encoding and decoding
+let encoded = base64_encode("IPL Neuro-Symbolic 2026")
+let decoded = base64_decode(encoded)
+
+// JSON serialization & parsing
+let payload_str = json_encode({ "tx_id": hash, "status": "approved" })
+let payload_obj = json_decode(payload_str)
+
+// High-precision UTC timestamp (ISO 8601)
+let timestamp = now()
+```
+
 ---
 
 ## ⚡ CLI Command Suite
