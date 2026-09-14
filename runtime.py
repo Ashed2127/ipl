@@ -475,12 +475,58 @@ class Interpreter:
             self.execute_continue(stmt, env)
         elif isinstance(stmt, FunctionDef):
             self.execute_fn_def(stmt, env)
-        elif isinstance(stmt, ReturnStatement):
-            self.execute_return(stmt, env)
+        elif isinstance(stmt, ImportStatement):
+            self.execute_import(stmt, env)
         elif isinstance(stmt, Expr):
             self.evaluate_expr(stmt, env)
         else:
             raise NotImplementedError(f"Statement {type(stmt).__name__} not implemented")
+
+    def execute_import(self, stmt: ImportStatement, env: Environment):
+        mod_path = stmt.module_path
+        if not mod_path.endswith(".ipl"):
+            mod_path += ".ipl"
+
+        resolved_path = None
+        candidates = [
+            Path(mod_path),
+            Path.cwd() / mod_path,
+            Path(__file__).parent / mod_path,
+            Path(__file__).parent / "examples" / mod_path,
+        ]
+        for c in candidates:
+            if c.exists() and c.is_file():
+                resolved_path = c.resolve()
+                break
+
+        if not resolved_path:
+            raise FileNotFoundError(f"Cannot find module '{stmt.module_path}'. Searched: {[str(c) for c in candidates]}")
+
+        path_str = str(resolved_path)
+        if path_str in self.loaded_modules:
+            return  # Prevent circular loop
+
+        self.loaded_modules.add(path_str)
+        with open(resolved_path, "r", encoding="utf-8") as f:
+            src = f.read()
+
+        lexer = Lexer(src)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        mod_prog = parser.parse()
+
+        # Isolate module execution environment
+        mod_env = Environment(parent=self.global_env, console=self.console)
+        for s in mod_prog.statements:
+            self.execute_statement(s, mod_env)
+
+        if stmt.alias:
+            # Bind module exports as dictionary object under alias name
+            env.set(stmt.alias, IValue(mod_env.bindings, "Module", confidence=1.0))
+        else:
+            # Merge directly into caller environment
+            for k, v in mod_env.bindings.items():
+                env.set(k, v)
 
     def execute_let(self, stmt: LetStatement, env: Environment):
         # 1. Evaluate right-hand side expression
