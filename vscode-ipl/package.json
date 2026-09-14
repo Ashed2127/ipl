@@ -1,0 +1,37 @@
+{
+  "name": "vscode-ipl",
+  "displayName": "IPL - Intelligent Programming Language",
+  "description": "Language support, syntax highlighting, and snippets for IPL (Intelligent Programming Language / Aether)",
+  "version": "0.2.0",
+  "publisher": "ipl-lang",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "ipl",
+    "neuro-symbolic",
+    "ai",
+    "security",
+    "programming-language"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ipl",
+        "aliases": ["IPL", "ipl", "Aether"],
+        "extensions": [".ipl", ".aether"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ipl",
+        "scopeName": "source.ipl",
+        "path": "./syntaxes/ipl.tmLanguage.json"
+      }
+    ]
+  }
+}
