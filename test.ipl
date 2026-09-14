@@ -1,0 +1,10 @@
+// My first IPL program
+let price: Currency = "ninety-nine dollars"
+let sentiment: Sentiment = "This product is amazing and fast"
+
+print "Price:", price
+print "Sentiment:", sentiment
+
+// Simple calculation
+let total = price * 1.1
+print "With tax:", total
