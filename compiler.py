@@ -138,7 +138,7 @@ class MathematicalFirewall:
             if not ok:
                 all_violations.extend(viols)
 
-            if isinstance(n, Block):
+            if isinstance(n, (Block, Program)):
                 for s in n.statements:
                     walk(s)
             elif isinstance(n, IfStatement):
