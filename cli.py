@@ -3,22 +3,24 @@ Command-line interface (CLI) and REPL for IPL (Intelligent Programming Language 
 """
 import sys
 import os
+from typing import Optional, List
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.markdown import Markdown
+from rich.table import Table
 
 try:
     from .lexer import Lexer, LexerError
     from .parser import Parser, ParserError
     from .runtime import Interpreter
-    from .compiler import MathematicalFirewall, NeuroSymbolicCompiler
+    from .compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from .ast_nodes import FunctionDef, IntentExpr, SanitizationNode
 except (ImportError, ValueError):
     from lexer import Lexer, LexerError
     from parser import Parser, ParserError
     from runtime import Interpreter
-    from compiler import MathematicalFirewall, NeuroSymbolicCompiler
+    from compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from ast_nodes import FunctionDef, IntentExpr, SanitizationNode
 
 
