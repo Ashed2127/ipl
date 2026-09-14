@@ -7,6 +7,9 @@ Implements:
 4. The Self-Correction Loop: Concrete error feedback repairing candidate AST nodes prior to memory allocation
 5. Per-Step Verified Audit Trace: Cryptographic-grade per-step deterministic trace for complete compliance
 """
+import os
+import json
+import urllib.request
 import time
 import re
 import hashlib
