@@ -20,4 +20,6 @@ ipl_lang.egg-info/top_level.txt
 tests/test_control_flow.py
 tests/test_extraction.py
 tests/test_functions.py
+tests/test_neuro_symbolic_compiler.py
+tests/test_taint_tracking.py
 tests/test_variables_and_print.py

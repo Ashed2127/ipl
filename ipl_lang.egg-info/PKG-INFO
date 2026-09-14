@@ -271,26 +271,79 @@ fn process_order(price: Currency, ticket: Intent<Refund, Fraud, Support>) {
 
 Built-in library: `len()`, `range()`, `confidence()`, `type_of()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
 
+### 10. Hybrid Neuro-Symbolic Compiler Architecture & Zero-Trust Firewall
+
+IPL achieves deterministic safety at compiler speeds through a hybrid neuro-symbolic architecture:
+
+```
+ Natural Language Intent
+         │
+         ▼
+ ┌───────────────────────────┐
+ │ System 1: Neural Gen      │  (Semantic parser generates candidate AST data)
+ └─────────────┬─────────────┘
+               │
+               ▼
+ ┌───────────────────────────┐
+ │ System 2: Mathematical    │◄─── Fail-closed verification
+ │ Firewall & Symbolic Checks│───► Self-Correction Repair Loop
+ └─────────────┬─────────────┘
+               │
+               ▼
+ ┌───────────────────────────┐
+ │ Zero-Trust Taint Tracking │  (Untrusted -> SanitizationNode -> Sinks)
+ └─────────────┬─────────────┘
+               │
+               ▼
+ ┌───────────────────────────┐
+ │ Cryptographic Audit Trace │  (Per-step SHA256 signatures)
+ └───────────────────────────┘
+```
+
+1. **System 1: Embedded Inference Runtime**: Operates strictly as a semantic parser, translating natural language declarations (e.g., `intent "extract user_age twenty-five from doc" as Int`) into sandboxed, unexecutable candidate AST nodes.
+2. **System 2: Symbolic Verification & Mathematical Firewall**: Validates candidate AST nodes against a hardcoded schema of safe primitives (`MathematicalFirewall.SAFE_PRIMITIVES`) and enforces strict type contracts before memory allocation.
+3. **Resilience: The Self-Correction Loop**: When symbolic verification detects an error (such as a string representation `"twenty-five"` when an `Int` is required), concrete compiler diagnostics are fed back to System 1 to structurally repair the candidate AST node without crashing.
+4. **Zero-Trust Data Taint Tracking**: Neural outputs are assigned `TaintLevel.UNTRUSTED`. Sensitive sinks (`db_write`, `file_write`) fail-closed unless data has passed through a deterministic `SanitizationNode` (`sanitize(expr[, rule])`). The `trusted` keyword allows explicit compile-time exemptions.
+5. **Cryptographic Verified Audit Trace**: Produces an immutable, per-step cryptographic trace with SHA256 hashes verifying ingestion, candidate parsing, repair cycles, taint transitions, and sink executions.
+
+```ipl
+// Neuro-symbolic intent compilation with self-correction
+let age: Int = intent "extract user_age twenty-five from record" as Int
+
+// Data taint tracking & sanitization node
+let clean_age = sanitize(age, "int_range_validator")
+
+// Critical sink commit (blocked if untrusted; succeeds once sanitized)
+db_write("users", clean_age)
+
+// Render cryptographic audit trace
+audit_trace()
+```
+
 ## 🚀 Usage
 
 ### Installation
 Install as an editable package to make the `ipl` executable globally available:
 ```bash
-pip install -e .
+pip install -e . --no-deps --break-system-packages
 ```
 
-### Running the REPL
+### CLI Subcommands
 ```bash
+# Execute an IPL source file
+ipl run examples/08_neuro_symbolic_compiler.ipl
+
+# Execute and display the cryptographic audit trace
+ipl audit examples/08_neuro_symbolic_compiler.ipl
+
+# Statically verify AST nodes against the Mathematical Firewall schema
+ipl verify examples/08_neuro_symbolic_compiler.ipl
+
+# Compile source and inspect AST contract readiness
+ipl compile examples/08_neuro_symbolic_compiler.ipl
+
+# Start the interactive REPL
 ipl repl
-# or
-python3 cli.py
-```
-
-### Running a Script
-```bash
-ipl run examples/06_control_flow.ipl
-# or
-python3 cli.py run examples/07_functions_and_logic.ipl
 ```
 
 ### Interactive Examples
@@ -303,17 +356,19 @@ ipl> help
 
 ```
 ipl_lang/
-├── pyproject.toml           # Packaging and CLI script entrypoint
+├── pyproject.toml           # Packaging, dependencies, and CLI script entrypoints
 ├── __init__.py              # Package initialization
 ├── tokens.py                # Token definitions and TokenType enum
 ├── lexer.py                 # Lexical analysis and tokenization
-├── parser.py                # AST construction from tokens
-├── ast_nodes.py             # Abstract syntax tree node definitions
-├── semantic_engine.py       # Neural-symbolic semantic processing
-├── runtime.py               # Interpreter, IValue system, environment, built-ins
+├── parser.py                # AST construction with intent, sanitize, and contracts
+├── ast_nodes.py             # Abstract syntax tree node definitions (IntentExpr, SanitizationNode, etc.)
+├── compiler.py              # Hybrid Neuro-Symbolic Compiler, Firewall, and Audit Trace
+├── taint.py                 # Zero-trust data taint tracking and sink enforcement
+├── semantic_engine.py       # Neural-symbolic semantic processing and entity extraction
+├── runtime.py               # Interpreter, IValue system, zero-trust sinks (db_write, file_write)
 ├── formatter.py             # Rich presentation formatting
 ├── security_engine.py       # Security analysis and code sanitization
-├── cli.py                   # Command-line interface and REPL
+├── cli.py                   # Command-line interface with run, audit, verify, compile, repl
 ├── examples/                # Example IPL programs
 │   ├── 01_intelligent_variables.ipl
 │   ├── 02_intelligent_print_audiences.ipl
@@ -321,12 +376,15 @@ ipl_lang/
 │   ├── 04_invariants_and_self_healing.ipl
 │   ├── 05_security_demo.ipl
 │   ├── 06_control_flow.ipl
-│   └── 07_functions_and_logic.ipl
-└── tests/                   # Comprehensive test suite
+│   ├── 07_functions_and_logic.ipl
+│   └── 08_neuro_symbolic_compiler.ipl
+└── tests/                   # Comprehensive unit & integration test suite (47 tests)
     ├── test_extraction.py
     ├── test_variables_and_print.py
     ├── test_control_flow.py
-    └── test_functions.py
+    ├── test_functions.py
+    ├── test_neuro_symbolic_compiler.py
+    └── test_taint_tracking.py
 ```
 
 ## 🔮 Design Philosophy
@@ -334,21 +392,22 @@ ipl_lang/
 IPL is built on the principle that **programming languages should understand intent, not just syntax**. Key design principles:
 
 1. **Neuro-Symbolic Integration**: Combines neural network-style pattern recognition with symbolic logic
-2. **Confidence-Aware**: All operations propagate and respect confidence scores
-3. **Audience-Adaptive**: Output adapts to who is consuming the information
-4. **Self-Healing**: The language helps correct common mistakes automatically
-5. **Type-Rich**: Semantic types carry meaning beyond traditional type systems
-6. **Query-Native**: Natural language queries are first-class citizens
+2. **Deterministic Speed**: Locally embedded inference and AST generation avoiding network latency
+3. **Mathematical Firewall**: Pure data AST sandboxing with zero-trust execution
+4. **Iterative Self-Correction**: Resilient repair loops solving contract violations prior to allocation
+5. **Data Taint Tracking**: Untrusted neural outputs mathematically isolated from sensitive sinks
+6. **Complete Cryptographic Auditing**: Per-step SHA256 verified trace for mission-critical compliance
 
 ## 🛠️ Implemented Core Features
 
+- **Neuro-Symbolic Compiler**: System 1 local inference, System 2 Mathematical Firewall, Self-Correction Loop, and Verified Audit Trace (`compiler.py`).
+- **Data Taint Tracking**: `TaintLevel` (`UNTRUSTED`, `SANITIZED`, `TRUSTED`), `TaintViolationError`, `SanitizationNode` (`sanitize()`), `trusted` declarations, and protected sinks (`db_write`, `file_write`).
 - **Intelligent Variables**: Natural language extraction (`Currency`, `Quantity`, `Sentiment`, `Date`, `Intent`), probabilistic confidence `Prob<T>`, refinement invariants (`where` clauses), immutability (`let` vs `var`).
 - **Adaptive Print**: Audience adaptation (`executive`, `developer`, `sre`, `child`, `marketer`), semantic queries (`"summary of"`, `"highlight risks in"`, `"explain"`), visual presentation (`table`, `bar_chart`, `badge`, `gauge`, `card`, `tree`).
 - **Control Flow**: Conditionals (`if`, `elif`, `else`), `for ... in` iteration over lists and `range()`, `while` loops, `break`, `continue`, subscript indexing.
 - **Functions & Closures**: User-defined `fn`, recursive calls, return values, semantic type verification on arguments, lexical scope.
-- **Built-in Standard Library**: `len()`, `range()`, `confidence()`, `type_of()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
+- **Built-in Standard Library**: `len()`, `range()`, `confidence()`, `type_of()`, `taint_of()`, `audit_trace()`, `db_write()`, `file_write()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
 - **Neuro-Symbolic Self-Healing**: Dynamic symbol resolution repairing typos in both variables and function calls.
-- **Security Engine**: Pre-execution AST/source threat detection, input sanitization, and safety warnings.
 
 ## 🧪 Testing
 
