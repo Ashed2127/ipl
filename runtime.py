@@ -205,6 +205,7 @@ class Interpreter:
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
         self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
+        self.loaded_modules: Set[str] = set()
         self._init_builtins()
 
     def _init_builtins(self):
