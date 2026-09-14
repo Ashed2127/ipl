@@ -968,14 +968,15 @@ class Interpreter:
 
         op = expr.op
         min_conf = min(left.confidence, right.confidence)
+        combined_taint = TaintTag.combine(left.taint, right.taint, op)
 
         # Logical operators
         if op == "and":
             res = bool(left.raw_value) and bool(right.raw_value)
-            return IValue(raw_value=res, type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=res, type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == "or":
             res = bool(left.raw_value) or bool(right.raw_value)
-            return IValue(raw_value=res, type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=res, type_name="Bool", confidence=min_conf, taint=combined_taint)
 
         # Arithmetic operators
         if op in ("+", "-", "*", "/", "%"):
@@ -1004,7 +1005,8 @@ class Interpreter:
                 return IValue(
                     raw_value={"amount": tot, "currency": curr, "confidence": min_conf, "formatted": f"{tot:.2f} {curr}"},
                     type_name="Currency",
-                    confidence=min_conf
+                    confidence=min_conf,
+                    taint=combined_taint
                 )
 
             # 2. Quantity arithmetic
@@ -1027,7 +1029,8 @@ class Interpreter:
                 return IValue(
                     raw_value={"value": tot, "unit": unit, "formatted": f"{tot:g} {unit}", "confidence": min_conf},
                     type_name="Quantity",
-                    confidence=min_conf
+                    confidence=min_conf,
+                    taint=combined_taint
                 )
 
             # 3. String concatenation
@@ -1035,7 +1038,8 @@ class Interpreter:
                 return IValue(
                     raw_value=str(left.get_display_value()) + str(right.get_display_value()),
                     type_name="String",
-                    confidence=min_conf
+                    confidence=min_conf,
+                    taint=combined_taint
                 )
 
             # 4. Numeric arithmetic
@@ -1051,7 +1055,7 @@ class Interpreter:
                 res = l_num / r_num if r_num != 0 else 0.0
             elif op == "%":
                 res = l_num % r_num if r_num != 0 else 0.0
-            return IValue(raw_value=res, type_name="Number", confidence=min_conf)
+            return IValue(raw_value=res, type_name="Number", confidence=min_conf, taint=combined_taint)
 
         # Comparison operators
         l_val = left.raw_value
@@ -1068,22 +1072,22 @@ class Interpreter:
             r_val = r_val["value"]
 
         if op == "==":
-            return IValue(raw_value=(l_val == r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val == r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == "!=":
-            return IValue(raw_value=(l_val != r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val != r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == "<":
-            return IValue(raw_value=(l_val < r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val < r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == "<=":
-            return IValue(raw_value=(l_val <= r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val <= r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == ">":
-            return IValue(raw_value=(l_val > r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val > r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == ">=":
-            return IValue(raw_value=(l_val >= r_val), type_name="Bool", confidence=min_conf)
+            return IValue(raw_value=(l_val >= r_val), type_name="Bool", confidence=min_conf, taint=combined_taint)
         if op == "~":
             # Fuzzy / Semantic match
             similarity = SemanticEngine.levenshtein_distance(str(l_val).lower(), str(r_val).lower())
             max_len = max(len(str(l_val)), len(str(r_val)), 1)
             score = 1.0 - (similarity / max_len)
-            return IValue(raw_value=(score >= 0.70), type_name="Bool", confidence=score)
+            return IValue(raw_value=(score >= 0.70), type_name="Bool", confidence=score, taint=combined_taint)
 
         raise NotImplementedError(f"Binary operator '{op}' not supported")
