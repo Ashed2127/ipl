@@ -18,9 +18,11 @@ IPL can be executed directly via its CLI (`ipl run`, `ipl audit`, `ipl verify`),
    - [Pillar 5: Cryptographic Verified Audit Trace](#pillar-5-cryptographic-verified-audit-trace)
 4. [Language Syntax & Quick Reference](#-language-syntax--quick-reference)
 5. [CLI Command Suite](#-cli-command-suite)
-6. [Agent Guide: How to Write & Run IPL](#-agent-guide-how-to-write--run-ipl)
-7. [Codebase Map & Module Overview](#-codebase-map--module-overview)
-8. [Testing & Formal Verification](#-testing--formal-verification)
+6. [REST Microservice & Security Gateway](#-rest-microservice--security-gateway)
+7. [Visual Studio Code Extension](#-visual-studio-code-extension)
+8. [Agent Guide: How to Write & Run IPL](#-agent-guide-how-to-write--run-ipl)
+9. [Codebase Map & Module Overview](#-codebase-map--module-overview)
+10. [Testing & Formal Verification](#-testing--formal-verification)
 
 ---
 
