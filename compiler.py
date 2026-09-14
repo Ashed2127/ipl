@@ -276,13 +276,69 @@ class MathematicalFirewall:
 
 class LocalInferenceRuntime:
     """
-    System 1: Fast Embedded Local Inference Runtime.
-    Operates strictly as a semantic parser.
-    Interprets intent-based declarations and outputs raw candidate AST nodes.
-    Treats AI outputs strictly as unexecutable data.
+    System 1: Local Inference Runtime.
+    Supports:
+    1. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
+    2. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
+    Treats AI outputs strictly as unexecutable candidate AST data structures.
     """
-    def __init__(self):
-        self.model_name = "embedded-fast-semantic-v1"
+    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None):
+        self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
+        self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
+
+    @classmethod
+    def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
+        """Detects and returns active local neural models from Ollama or compatible local endpoints."""
+        try:
+            req = urllib.request.Request(f"{endpoint}/api/tags")
+            with urllib.request.urlopen(req, timeout=1.0) as resp:
+                data = json.loads(resp.read().decode())
+                return [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+        except Exception:
+            return []
+
+    def _query_neural_model(self, intent_prompt: str, target_type: Optional[TypeAnnotation]) -> Optional[ASTNode]:
+        """Queries local neural model (Ollama) to extract structured AST data."""
+        if self.model_name == "embedded-fast-semantic-v1":
+            return None
+
+        target_desc = target_type.name if target_type else "primitive value (int, float, string, or dict)"
+        system_instruction = (
+            f"You are System 1 neural semantic parser for the IPL programming language compiler. "
+            f"Extract the exact target value and type for contract '{target_desc}' from the user text. "
+            f"Respond ONLY with valid JSON containing keys 'value' and 'type'. Never output markdown or extra words."
+        )
+        payload = {
+            "model": self.model_name,
+            "prompt": f"{system_instruction}\nInput Text: \"{intent_prompt}\"",
+            "stream": False,
+            "format": "json"
+        }
+        try:
+            req = urllib.request.Request(
+                f"{self.ollama_endpoint}/api/generate",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=45.0) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+                raw_text = result.get("response", "").strip()
+                if raw_text.startswith("```"):
+                    raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
+                    raw_text = re.sub(r"\s*```$", "", raw_text)
+                parsed = json.loads(raw_text)
+                val = parsed.get("value")
+                typ = parsed.get("type", target_desc)
+                if isinstance(val, int) and not isinstance(val, bool):
+                    return Literal(value=val, type_name="int")
+                elif isinstance(val, float):
+                    return Literal(value=val, type_name="float")
+                elif isinstance(val, dict):
+                    return Literal(value=val, type_name=typ)
+                else:
+                    return Literal(value=val, type_name=str(typ).lower())
+        except Exception:
+            return None
 
     def parse_intent(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
         """
@@ -296,6 +352,13 @@ class LocalInferenceRuntime:
             # Neutralize: Treat exclusively as raw string data literal, never executable commands
             return Literal(value=f"[NEUTRALIZED_ADVERSARIAL_INJECTION: {intent_prompt}]", type_name="string")
 
+        # 1. Try local neural model if configured
+        if self.model_name != "embedded-fast-semantic-v1":
+            neural_node = self._query_neural_model(intent_prompt, target_type)
+            if neural_node is not None:
+                return neural_node
+
+        # 2. Fast embedded deterministic NLP fallback
         # Intent: Extract user_age or numeric values
         if "user_age" in prompt_lower or "age" in prompt_lower or "integer" in prompt_lower or (target_type and target_type.name in ("Int", "Integer")):
             # Simulate semantic extraction: may produce string format initially (e.g. "twenty-five" or "25")
@@ -369,15 +432,15 @@ class NeuroSymbolicCompiler:
     """
     The Complete Hybrid Neuro-Symbolic Compiler Engine.
     Coordinates:
-    - System 1: Embedded Inference
+    - System 1: Embedded Inference & Local Neural LLM
     - System 2: Mathematical Firewall & Symbolic Contracts
     - Resilience: The Self-Correction Loop
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
     """
-    def __init__(self, console: Optional[Console] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
         self.console = console or Console()
-        self.system1 = LocalInferenceRuntime()
+        self.system1 = LocalInferenceRuntime(model_name=model_name)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
 
