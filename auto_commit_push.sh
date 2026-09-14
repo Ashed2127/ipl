@@ -14,5 +14,5 @@ while true; do
         git push origin main
         echo "Committed and pushed successfully"
     fi
-    sleep 15
+    sleep 5
 done
