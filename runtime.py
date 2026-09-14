@@ -420,7 +420,8 @@ class Interpreter:
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
 
-    def run(self, program: Program, source_code: str = ""):
+    def run(self, program: Program, source_code: str = "", current_file: Optional[str] = None):
+        self.current_file = current_file
         # Security check before execution
         if source_code:
             security_analysis = self.security_engine.analyze_code(source_code)
@@ -492,10 +493,14 @@ class Interpreter:
         resolved_path = None
         candidates = [
             Path(mod_path),
+        ]
+        if hasattr(self, "current_file") and self.current_file and self.current_file != "<stdin>":
+            candidates.append(Path(self.current_file).parent / mod_path)
+        candidates.extend([
             Path.cwd() / mod_path,
             Path(__file__).parent / mod_path,
             Path(__file__).parent / "examples" / mod_path,
-        ]
+        ])
         for c in candidates:
             if c.exists() and c.is_file():
                 resolved_path = c.resolve()

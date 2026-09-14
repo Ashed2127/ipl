@@ -44,7 +44,7 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         program = parser.parse()
-        interpreter.run(program, source_code=source)  # Pass source code for security analysis
+        interpreter.run(program, source_code=source, current_file=filename)  # Pass source code for security analysis
     except LexerError as le:
         console.print(f"[bold red]Syntax Error:[/bold red] {le}")
     except ParserError as pe:
