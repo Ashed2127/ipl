@@ -189,12 +189,12 @@ class Environment:
 
 
 class Interpreter:
-    def __init__(self, console: Optional[Console] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
         self.console = console or Console()
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
-        self.compiler = NeuroSymbolicCompiler(console=self.console)
+        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
         self._init_builtins()
 
     def _init_builtins(self):
