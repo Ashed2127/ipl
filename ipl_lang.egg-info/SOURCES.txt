@@ -3,6 +3,7 @@ ast_nodes.py
 cli.py
 compiler.py
 formatter.py
+gateway.py
 lexer.py
 parser.py
 pyproject.toml
@@ -20,6 +21,8 @@ ipl_lang.egg-info/top_level.txt
 tests/test_control_flow.py
 tests/test_extraction.py
 tests/test_functions.py
+tests/test_gateway.py
+tests/test_imports_and_stdlib.py
 tests/test_neuro_symbolic_compiler.py
 tests/test_taint_tracking.py
 tests/test_variables_and_print.py

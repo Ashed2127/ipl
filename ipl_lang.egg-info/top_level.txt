@@ -2,6 +2,7 @@ ast_nodes
 cli
 compiler
 formatter
+gateway
 lexer
 parser
 runtime
