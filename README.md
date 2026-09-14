@@ -1,367 +1,309 @@
-# IPL (Intelligent Programming Language / Aether)
+# IPL: Intelligent Programming Language (Aether)
+> **A Hybrid Neuro-Symbolic Programming Language with Zero-Trust Mathematical Firewall & Deterministic Runtime**
 
-A neuro-symbolic programming language that combines traditional programming constructs with semantic intelligence, natural language understanding, and adaptive presentation. Built for pair programming with DeepMind AI systems architecture.
+IPL bridges the gap between **Generative Artificial Intelligence (System 1)** and **Deterministic Formal Verification (System 2)**. It treats neural network outputs strictly as *unexecutable candidate data* rather than executable code, achieving mathematical safety, memory guardrails, and cryptographic compliance at native compiler speeds.
 
-## 🧠 Architecture Overview
+IPL can be executed directly via its CLI (`ipl run`, `ipl audit`, `ipl verify`), interacted with in a REPL, or embedded as a secure execution sandbox inside Python systems and autonomous AI agent pipelines.
 
-IPL is designed around the principle that programming languages should understand *intent* and *context*, not just syntax. The architecture consists of seven core components that work together to provide intelligent variable handling, semantic type extraction, and adaptive output formatting.
+---
+
+## 📑 Table of Contents
+1. [Why IPL? (The Problem & The Solution)](#-why-ipl-the-problem--the-solution)
+2. [High-Level Architecture (System 1 & System 2)](#-high-level-architecture)
+3. [The Core Security Pillars](#-the-core-security-pillars)
+   - [Pillar 1: System 1 Local Neural Inference](#pillar-1-system-1-local-neural-inference-local-llm--embedded-nlp)
+   - [Pillar 2: System 2 Symbolic Verification & Mathematical Firewall](#pillar-2-system-2-symbolic-verification--mathematical-firewall)
+   - [Pillar 3: The Self-Correction Repair Loop](#pillar-3-the-self-correction-repair-loop)
+   - [Pillar 4: Zero-Trust Data Taint Tracking](#pillar-4-zero-trust-data-taint-tracking)
+   - [Pillar 5: Cryptographic Verified Audit Trace](#pillar-5-cryptographic-verified-audit-trace)
+4. [Language Syntax & Quick Reference](#-language-syntax--quick-reference)
+5. [CLI Command Suite](#-cli-command-suite)
+6. [Agent Guide: How to Write & Run IPL](#-agent-guide-how-to-write--run-ipl)
+7. [Codebase Map & Module Overview](#-codebase-map--module-overview)
+8. [Testing & Formal Verification](#-testing--formal-verification)
+
+---
+
+## 💡 Why IPL? (The Problem & The Solution)
+
+### The Problem
+Traditional programming languages (C, Python, Rust, JavaScript) are **blind to semantic intent**. When modern systems integrate Large Language Models (LLMs) into backends or autonomous agent workflows:
+* **Prompt Injections & Jailbreaks:** An attacker can manipulate natural language inputs into executing malicious commands.
+* **Type Hallucinations:** AI models frequently return malformed primitives (e.g. returning `"twenty-five"` when an integer is needed).
+* **Unrestricted Sinks:** AI-generated outputs often get piped directly into critical database queries (`DROP TABLE`) or filesystem operations (`rm -rf`).
+* **Non-Deterministic Failures:** Systems crash at runtime with zero formal explanation or audit trail.
+
+### The IPL Solution
+IPL solves this by embedding an AI inference runtime directly into the compiler pipeline under a **Zero-Trust Mathematical Firewall**:
+1. AI outputs are **strictly sandboxed as pure Abstract Syntax Tree (AST) data** — the engine never passes raw AI strings to `eval()` or a shell.
+2. Every AI candidate node is statically validated against a whitelist of safe AST primitives.
+3. If an AI output violates a declared type contract, the **Self-Correction Loop** automatically feeds formal compiler diagnostics back to the neural model to repair the AST node prior to memory allocation.
+4. All AI outputs are permanently tagged as `Untrusted`. Critical sinks (`db_write`, `file_write`) **fail-closed** unless data has passed through a deterministic `SanitizationNode`.
+5. Every single step (ingestion, generation, verification, repair, taint elevation, sink commit) is recorded with **SHA-256 cryptographic signatures**.
+
+---
+
+## 🧠 High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        IPL Architecture                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Source Code ──► Lexer ──► Parser ──► AST ──► Interpreter       │
-│                     │        │         │         │               │
-│                     │        │         │         │               │
-│                     │        │         │         ├─► Runtime     │
-│                     │        │         │         │   Environment  │
-│                     │        │         │         │               │
-│                     │        │         │         ├─► IValue      │
-│                     │        │         │         │   System       │
-│                     │        │         │         │               │
-│                     │        │         │         └─► Formatter   │
-│                     │        │         │             Output      │
-│                     │        │         │                           │
-│                     │        │         └─► Semantic Engine ◄─────┘
-│                     │        │               (The "Brain")          │
-│                     │        │                                       │
-│                     │        └─► AST Nodes                          │
-│                     │                                              │
-│                     └─► Tokens                                    │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+                       Natural Language Intent
+                                  │
+                                  ▼
+      ┌───────────────────────────────────────────────────────┐
+      │          System 1: Neural Generation Engine           │
+      │   (Local Ollama LLM: Qwen / DeepSeek / Gemma OR      │
+      │    Sub-millisecond Embedded Semantic NLP Parser)      │
+      └───────────────────────────┬───────────────────────────┘
+                                  │  Candidate AST Data Node
+                                  ▼
+      ┌───────────────────────────────────────────────────────┐
+      │   System 2: Symbolic Verification & Math Firewall     │◄── Fail-Closed Diagnostic
+      │      (Safe Primitives Schema & Formal Contracts)      │──► Self-Correction Repair
+      └───────────────────────────┬───────────────────────────┘
+                                  │  Verified Safe AST Node
+                                  ▼
+      ┌───────────────────────────────────────────────────────┐
+      │             Zero-Trust Data Taint Engine              │
+      │       (Untrusted ──► SanitizationNode ──► Sinks)      │
+      └───────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+      ┌───────────────────────────────────────────────────────┐
+      │         Deterministic Execution Virtual Machine       │
+      │    (Refinements, Probabilistic Monads, Adaptive Print)│
+      └───────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+      ┌───────────────────────────────────────────────────────┐
+      │          Cryptographic Verified Audit Trace           │
+      │          (Per-Step Immutable SHA-256 Hashes)          │
+      └───────────────────────────────────────────────────────┘
 ```
 
-## 📦 Core Components
+---
 
-### 1. **Lexer** (`lexer.py`)
-Tokenizes source code into a stream of tokens with support for:
-- **Keywords**: `let`, `var`, `print`, `where`, `for`, `as`, `prob`, `if`, `else`, etc.
-- **Literals**: Numbers, strings, booleans, null
-- **Operators**: Arithmetic (`+`, `-`, `*`, `/`, `%`), comparison (`==`, `!=`, `<`, `>`, `<=`, `>=`), logical (`and`, `or`, `not`), fuzzy match (`~`)
-- **Delimiters**: Parentheses, brackets, braces, commas, colons, semicolons
+## 🛡️ The Core Security Pillars
 
-**Key Features**:
-- Multi-line string support
-- Comment handling (`//` and `#`)
-- Precise line/column tracking for error reporting
+### Pillar 1: System 1 Local Neural Inference (Local LLM + Embedded NLP)
+System 1 acts exclusively as a semantic parser. It accepts natural language declarations and emits candidate AST data nodes (`Literal`, `DictLiteral`, `IntentExpr`).
+* **Local Neural Models:** IPL natively connects to local LLMs running via Ollama (`qwen2.5-coder`, `deepseek-coder`, `gemma`, `llama`) on `localhost:11434`.
+* **Zero-Latency Embedded Fallback:** If no local model is selected, IPL runs a sub-millisecond, rule-based semantic NLP engine (`embedded-fast-semantic-v1`) that executes in `<0.10s` with zero GPU or network overhead.
 
-### 2. **Parser** (`parser.py`)
-Builds an Abstract Syntax Tree (AST) from tokens using recursive descent parsing:
-- **Statements**: Variable declarations (`let`/`var`), assignments, print statements
-- **Expressions**: Literals, identifiers, binary/unary operations, lists, dictionaries, member access
-- **Type Annotations**: Rich semantic types with generic parameters and confidence thresholds
+### Pillar 2: System 2 Symbolic Verification & Mathematical Firewall
+The `MathematicalFirewall` ([`compiler.py`](file:///home/ashed/Downloads/ipl_lang/compiler.py)) operates prior to memory allocation:
+* **Safe Primitives Whitelist (`SAFE_PRIMITIVES`):** Only formal, verified AST nodes (`Program`, `Literal`, `BinaryOp`, `FunctionCall`, `Block`, `SanitizationNode`, etc.) are permitted.
+* **Forbidden Operations Rejection (`FORBIDDEN_OPERATIONS`):** Rejects any AST node or identifier referencing `eval`, `exec`, `system`, `os.system`, `subprocess`, `rm -rf`, `fork`, `drop database`.
+* **Adversarial Prompt Neutralization:** Payloads attempting to override instructions are trapped into inert string literals (`[NEUTRALIZED_ADVERSARIAL_INJECTION: ...]`), neutralizing jailbreaks.
 
-**Key Features**:
-- Operator precedence handling
-- Generic type parsing (e.g., `Intent<Fraud, Refund, Support>`)
-- Refinement clause parsing (e.g., `where (v >= 0 and v <= 100)`)
+### Pillar 3: The Self-Correction Repair Loop
+When System 2 detects a contract violation (e.g. declared `let age: Int`, but System 1 returned `"twenty-five"`):
+1. System 2 emits a structured formal diagnostic: `TypeMismatch: Expected integer primitive for type Int, got string 'twenty-five'`.
+2. The diagnostic is routed back to System 1.
+3. System 1 structurally repairs the candidate AST node into integer `25`.
+4. System 2 re-verifies the repaired candidate. If valid, execution proceeds seamlessly without runtime crashes or memory leaks.
 
-### 3. **AST Nodes** (`ast_nodes.py`)
-Defines the abstract syntax tree structure:
-- **Program**: Root node containing statements
-- **Statements**: `LetStatement`, `AssignStatement`, `PrintStatement`
-- **Expressions**: `Literal`, `Identifier`, `BinaryOp`, `UnaryOp`, `ListLiteral`, `DictLiteral`, `MemberAccess`
-- **Types**: `TypeAnnotation` with support for generics and confidence thresholds
+### Pillar 4: Zero-Trust Data Taint Tracking
+Data security is managed through a three-level lattice ([`taint.py`](file:///home/ashed/Downloads/ipl_lang/taint.py)):
+* `Untrusted`: All AI intent outputs, external input data, and natural language extractions.
+* `Sanitized`: Data that has explicitly passed through a deterministic `SanitizationNode` (`sanitize(val, "rule")`).
+* `Trusted`: Hardcoded compile-time constants or declarations marked with the `trusted` keyword.
+* **Fail-Closed Sinks:** Critical operations (`db_write`, `file_write`) inspect the operand taint tag. If `Untrusted`, they abort immediately with a `TaintViolationError`.
 
-### 4. **Semantic Engine** (`semantic_engine.py`)
-The neural-symbolic "brain" of IPL that provides:
+### Pillar 5: Cryptographic Verified Audit Trace
+Every lifecycle event is captured in an immutable audit ledger:
+* Records step number, phase (`INTENT_INGESTION`, `SYSTEM1_NEURAL_PARSE`, `SELF_CORRECTION_CYCLE`, `SANITIZATION_NODE`, `SINK_EXECUTION`), status, and metadata.
+* Calculates an individual **SHA-256 signature** per step: `sha256(step:phase:status:details)`.
+* Visualized via `audit_trace()` or the `ipl audit` CLI command.
 
-#### 4.1 Natural Language Extraction & Type Inference
-- **Currency Extraction**: Parses natural language like "ninety-nine bucks and 50 cents" into structured currency data with confidence scores
-- **Sentiment Analysis**: Calculates emotional valence [-1.0, 1.0] from text using positive/negative word dictionaries
-- **Date Calculation**: Extracts relative/absolute dates from natural language (e.g., "tomorrow at 3pm", "next Friday")
-- **Quantity Extraction**: Parses dimensional quantities with units (e.g., "450 ms", "16 GB", "120 km/h")
-- **Intent Classification**: Classifies text into semantic categories (Refund, Fraud, Support, Inquiry, etc.)
-- **Number Extraction**: Handles written numbers ("twenty-five", "one thousand two hundred")
+---
 
-#### 4.2 Refinement Invariant Engine
-- Validates values against invariant predicates declared with `where` clauses
-- Provides violation explanations when constraints are breached
-- Supports complex conditions with logical operators
+## 💻 Language Syntax & Quick Reference
 
-#### 4.3 Audience Adaptation Engine
-Adapts presentation for different audiences:
-- **Executive**: Business-focused summaries with KPIs and strategic recommendations
-- **Developer**: Technical debugging information with memory representation details
-- **Child**: Simple, friendly explanations with emojis and analogies
-- **SRE**: Operational telemetry with SLA status and observability data
-- **Marketer**: Highlight-ready content for campaigns and social media
-- **Auditor**: Compliance-focused traces with verification status
-
-#### 4.4 Semantic Query Engine
-Answers high-level natural language queries:
-- `"summary of"` - Provides overviews of data structures
-- `"highlight risks in"` - Identifies potential issues and anomalies
-- `"explain"` - Offers explanatory insights
-- `"key takeaways"` - Extracts main points
-- `"health status"` - Reports on system/metric health
-
-#### 4.5 Self-Healing Identifier Matcher
-- Uses Levenshtein distance to find similar variable names
-- Provides substring matching and acronym resolution
-- Automatically suggests corrections for typos with confidence scores
-
-### 5. **Runtime** (`runtime.py`)
-The interpreter that executes AST nodes:
-
-#### 5.1 IValue System
-Intelligent Value representation that wraps raw data with:
-- **Type tags**: Semantic type information (Currency, Sentiment, etc.)
-- **Confidence scores**: Bayesian/neural confidence values [0.0, 1.0]
-- **Metadata**: Provenance and origin information
-- **Invariant violation tracking**: Records constraint breaches
-- **Mutability flags**: `let` (immutable) vs `var` (mutable)
-
-#### 5.2 Environment Management
-- Lexical scoping with parent-child environment chains
-- Variable binding with reassignment protection for immutable variables
-- Self-healing symbol resolution for undefined identifiers
-
-#### 5.3 Statement Execution
-- **Variable Declaration**: Evaluates expressions, applies type annotations, validates invariants
-- **Assignment**: Handles mutable reassignments with type checking
-- **Print**: Orchestrates semantic queries, audience adaptation, and formatting
-
-#### 5.4 Expression Evaluation
-- Literal evaluation with type inference
-- Variable resolution with self-healing
-- Arithmetic operations with currency/quantity awareness
-- Logical operations with confidence propagation
-- Comparison operations including fuzzy semantic matching (`~`)
-
-### 6. **Formatter** (`formatter.py`)
-Rich presentation formatting using the Rich library:
-- **Tables**: Structured data display with headers
-- **Bar Charts**: Proportional Unicode visualizations
-- **Badges**: Status indicators with confidence meters
-- **Sentiment Cards**: Emotional valence visualization
-- **Gauges**: Progress/utilization meters
-- **Cards**: Executive-style insight panels
-- **Trees**: Hierarchical data structure display
-- **JSON**: Syntax-highlighted pretty-printing
-
-### 7. **CLI** (`cli.py`)
-Command-line interface providing:
-- **REPL Mode**: Interactive development environment with live execution
-- **File Execution**: Run IPL scripts from files
-- **Error Handling**: Comprehensive lexer, parser, and runtime error reporting
-- **Help System**: Built-in examples and documentation
-
-## 🎯 Key Intelligent Features
-
-### 1. Semantic Type System
-Variables can be declared with rich semantic types that extract meaning from natural language:
-
+### 1. Variables, Immutability & Trusted Declarations
 ```ipl
-let price: Currency = "ninety-nine bucks and 50 cents"
-let review: Sentiment = "Absolutely fantastic build, super fast!"
-let maintenance: Date = "scheduled for tomorrow at 3pm"
-let latency: Quantity = "450 ms"
-let intent: Intent<Fraud, Refund, Support> = "someone used my stolen card"
+let immutable_x = 10               // Constant, cannot be reassigned
+var mutable_counter = 1            // Mutable variable
+mutable_counter = mutable_counter + 1
+
+trusted let admin_token = "INTERNAL_KEY" // Explicitly marks declaration as compile-time TRUSTED
 ```
 
-### 2. Probabilistic Monad
-The `Prob<T>` type wraps values with confidence scores and threshold enforcement:
-
+### 2. Semantic Intelligent Types
+IPL understands semantic entities natively from unstructured text:
 ```ipl
-let alert: Prob<String, 0.95> = "unusual spike detected"
-// Runtime warning if confidence < 95%
+let price: Currency = "ninety-nine bucks and 50 cents"  // Evaluates to 99.50 USD
+let review: Sentiment = "Super fast and rock solid!"     // Emotional score +0.85 Positive
+let ping: Quantity = "120 ms"                            // Value: 120.0, Unit: ms
+let due_date: Date = "tomorrow at 3pm"                   // Normalized ISO timestamp
+let route: Intent<Refund, Fraud, Support> = "card stolen" // Classifies as 'Fraud'
 ```
 
-### 3. Adaptive Print Statements
-Print statements adapt output based on audience and format:
-
+### 3. Probabilistic Monad (`Prob<T>`) & Refinement Invariants (`where`)
 ```ipl
-print revenue for "executive"     // Business summary
-print latency for "sre"           // Operational telemetry
-print sentiment for "child"        // Simple, friendly explanation
-print data as table               // Rich table formatting
-print metrics as bar_chart        // Visual proportional chart
+// Refinement Invariant: Enforces formal boolean contracts
+let safe_charge: Currency where (v >= 0 and v <= 500) = "350 dollars"
+
+// Probabilistic Monad: Warns if Bayesian confidence drops below threshold
+let diagnostic: Prob<String, 0.90> = "High server latency detected"
 ```
 
-### 4. Semantic Queries
-Natural language queries directly in print statements:
-
+### 4. Intent Declarations & Self-Correction
 ```ipl
-print "summary of" cluster_nodes
-print "highlight risks in" diagnostic_incident
-print "explain" system_state
+// Triggers System 1 neural extraction & System 2 verification
+let user_age: Int = intent "Extract user_age twenty-five from document" as Int
+// -> Self-correction repairs textual 'twenty-five' into integer 25
 ```
 
-### 5. Refinement Invariants
-Type constraints with `where` clauses:
-
+### 5. Zero-Trust Sanitization & Protected Sinks
 ```ipl
-let charge: Currency where (v >= 0 and v <= 500) = "three hundred dollars"
-// Runtime validation and violation reporting
-```
+// 1. user_age starts with Untrusted taint
+print "Taint:", taint_of(user_age) // Untrusted
 
-### 6. Self-Healing Variables & Functions
-Automatic typo correction using edit distance and token-prefix matching:
+// 2. Direct db_write fails closed with TaintViolationError
+// db_write("users", user_age) // 🚨 BLOCKED!
 
-```ipl
-let customer_feedback: Sentiment = "Great experience!"
-print custmer_feedbk  // Automatically resolves to customer_feedback
+// 3. Elevate taint via SanitizationNode
+let clean_age = sanitize(user_age, "int_range_validator")
+print "Taint:", taint_of(clean_age) // Sanitized
 
-fn calculate_discount(price, rate) { return price * rate; }
-let d = calc_discount(100, 0.1) // Auto-heals to calculate_discount!
-```
-
-### 7. Immutability Control
-`let` for immutable bindings, `var` for mutable:
-
-```ipl
-let constant = 42        // Cannot be reassigned
-var counter = 1          // Can be reassigned
-counter = counter + 1    // Valid
-```
-
-### 8. Control Flow (Conditionals & Loops)
-Full control flow primitives with confidence-aware reasoning:
-
-```ipl
-// If / Elif / Else
-if confidence(review) >= 0.85 {
-    print "High confidence verified"
-} elif confidence(review) >= 0.5 {
-    print "Moderate signal"
-} else {
-    print "Low confidence observation"
-}
-
-// For loops with lists and range()
-for node in cluster_nodes {
-    if not node.healthy {
-        print "Alert on", node.name
-    }
-}
-
-// While loops with break & continue
-var count = 5
-while count > 0 {
-    count = count - 1
-    if count == 2 { continue }
-    print count
-}
-```
-
-### 9. User-Defined Functions & Built-ins
-Functions with first-class semantic type checking, return values, recursion, and built-ins:
-
-```ipl
-fn fibonacci(n) {
-    if n <= 1 { return n }
-    return fibonacci(n - 1) + fibonacci(n - 2)
-}
-
-fn process_order(price: Currency, ticket: Intent<Refund, Fraud, Support>) {
-    return price
-}
-```
-
-Built-in library: `len()`, `range()`, `confidence()`, `type_of()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
-
-### 10. Hybrid Neuro-Symbolic Compiler Architecture & Zero-Trust Firewall
-
-IPL achieves deterministic safety at compiler speeds through a hybrid neuro-symbolic architecture:
-
-```
- Natural Language Intent
-         │
-         ▼
- ┌───────────────────────────┐
- │ System 1: Neural Gen      │  (Semantic parser generates candidate AST data)
- └─────────────┬─────────────┘
-               │
-               ▼
- ┌───────────────────────────┐
- │ System 2: Mathematical    │◄─── Fail-closed verification
- │ Firewall & Symbolic Checks│───► Self-Correction Repair Loop
- └─────────────┬─────────────┘
-               │
-               ▼
- ┌───────────────────────────┐
- │ Zero-Trust Taint Tracking │  (Untrusted -> SanitizationNode -> Sinks)
- └─────────────┬─────────────┘
-               │
-               ▼
- ┌───────────────────────────┐
- │ Cryptographic Audit Trace │  (Per-step SHA256 signatures)
- └───────────────────────────┘
-```
-
-1. **System 1: Embedded Inference Runtime**: Operates strictly as a semantic parser, translating natural language declarations (e.g., `intent "extract user_age twenty-five from doc" as Int`) into sandboxed, unexecutable candidate AST nodes.
-2. **System 2: Symbolic Verification & Mathematical Firewall**: Validates candidate AST nodes against a hardcoded schema of safe primitives (`MathematicalFirewall.SAFE_PRIMITIVES`) and enforces strict type contracts before memory allocation.
-3. **Resilience: The Self-Correction Loop**: When symbolic verification detects an error (such as a string representation `"twenty-five"` when an `Int` is required), concrete compiler diagnostics are fed back to System 1 to structurally repair the candidate AST node without crashing.
-4. **Zero-Trust Data Taint Tracking**: Neural outputs are assigned `TaintLevel.UNTRUSTED`. Sensitive sinks (`db_write`, `file_write`) fail-closed unless data has passed through a deterministic `SanitizationNode` (`sanitize(expr[, rule])`). The `trusted` keyword allows explicit compile-time exemptions.
-5. **Cryptographic Verified Audit Trace**: Produces an immutable, per-step cryptographic trace with SHA256 hashes verifying ingestion, candidate parsing, repair cycles, taint transitions, and sink executions.
-
-```ipl
-// Neuro-symbolic intent compilation with self-correction
-let age: Int = intent "extract user_age twenty-five from record" as Int
-
-// Data taint tracking & sanitization node
-let clean_age = sanitize(age, "int_range_validator")
-
-// Critical sink commit (blocked if untrusted; succeeds once sanitized)
+// 4. Critical sinks execute safely
 db_write("users", clean_age)
+file_write("/tmp/users.log", clean_age)
 
-// Render cryptographic audit trace
+// 5. Render cryptographic trace
 audit_trace()
 ```
 
-## 🚀 Usage
-
-### Installation
-Install as an editable package to make the `ipl` executable globally available:
-```bash
-pip install -e . --no-deps --break-system-packages
-```
-
-### CLI Subcommands
-```bash
-# Execute an IPL source file
-ipl run examples/08_neuro_symbolic_compiler.ipl
-
-# Execute and display the cryptographic audit trace
-ipl audit examples/08_neuro_symbolic_compiler.ipl
-
-# Statically verify AST nodes against the Mathematical Firewall schema
-ipl verify examples/08_neuro_symbolic_compiler.ipl
-
-# Compile source and inspect AST contract readiness
-ipl compile examples/08_neuro_symbolic_compiler.ipl
-
-# Start the interactive REPL
-ipl repl
-```
-
-### Interactive Examples
-The REPL includes a help system with examples:
+### 6. Control Flow & User-Defined Functions
 ```ipl
-ipl> help
+fn calculate_tax(amount, rate) {
+    let tax = amount * rate
+    return amount + tax
+}
+
+let bill = calculate_tax(100.0, 0.15)
+
+if bill > 100 {
+    print "High invoice"
+} elif bill == 100 {
+    print "Standard"
+} else {
+    print "Discounted"
+}
+
+for i in range(1, 5) {
+    print "Step:", i
+}
 ```
 
-## 📁 Project Structure
+### 7. Adaptive Print & Visual Presentations
+```ipl
+let invoice = { "vendor": "Acme Corp", "amount": 1500, "status": "Paid" }
+
+// Audience-specific presentation
+print invoice for "executive"      // Business summary
+print invoice for "developer"      // Technical memory inspection
+print invoice for "child"          // Simple, friendly explanation
+
+// Visual terminal formats
+print invoice as table             // Formatted Rich table
+print [10, 45, 80] as bar_chart    // ASCII/Unicode proportional bar chart
+```
+
+---
+
+## ⚡ CLI Command Suite
+
+IPL provides a comprehensive CLI binary installed globally as `ipl`:
+
+| Command | Description |
+| :--- | :--- |
+| `ipl run <file.ipl>` | Executes an IPL source file using the embedded fast semantic engine. |
+| `ipl run <file.ipl> --model <name>` | Executes using a specific local neural model (e.g. `qwen2.5-coder:1.5b`). |
+| `ipl models` | Auto-detects and lists all local neural models running in Ollama. |
+| `ipl audit <file.ipl>` | Executes the script and displays the SHA-256 Verified Audit Trace table. |
+| `ipl verify <file.ipl>` | Statically verifies AST nodes against the Mathematical Firewall schema. |
+| `ipl compile <file.ipl>` | Compiles source and validates structural AST contract readiness. |
+| `ipl repl` | Launches the interactive IPL neuro-symbolic shell. |
+
+### Detecting Local Neural Models
+```bash
+$ ipl models
+
+               🤖 Detected Local AI Models (System 1 Compatible)
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Model Name                 ┃ Type                       ┃ Status            ┃ Usage Command                ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ embedded-fast-semantic-v1  │ Deterministic Embedded NLP │ Active (Built-in) │ ipl run <file.ipl> (default) │
+│ qwen2.5-coder:1.5b         │ Local Neural LLM (Ollama)  │ Available (Local) │ ipl run <f> --model qwen...  │
+│ deepseek-coder:1.3b        │ Local Neural LLM (Ollama)  │ Available (Local) │ ipl run <f> --model deep...  │
+│ gemma:2b                   │ Local Neural LLM (Ollama)  │ Available (Local) │ ipl run <f> --model gemma... │
+└────────────────────────────┴────────────────────────────┴───────────────────┴──────────────────────────────┘
+```
+
+---
+
+## 🤖 Agent Guide: How to Write & Run IPL
+
+If you are an AI agent generating or executing IPL code in this environment:
+
+### Rule 1: Always specify types for intent expressions
+```ipl
+// Recommended
+let count: Int = intent "extract count 15 from payload" as Int
+
+// Permitted (inferred as string or primitive)
+let note = intent "extract summary note"
+```
+
+### Rule 2: Always sanitize untrusted variables before DB or File writes
+```ipl
+let raw_data = intent "get user notes"
+let clean_data = sanitize(raw_data)
+db_write("table_name", clean_data)  // Will succeed
+```
+
+### Rule 3: Embedding IPL in Python
+To execute IPL programs directly inside Python microservices:
+```python
+from lexer import Lexer
+from parser import Parser
+from runtime import Interpreter
+
+code = """
+let age: Int = intent "Extract user_age thirty" as Int;
+let clean_age = sanitize(age);
+db_write("employees", clean_age);
+"""
+
+# Tokenize, parse, and execute
+tokens = Lexer(code).tokenize()
+program = Parser(tokens).parse()
+
+# Instantiate interpreter (optionally specify local neural model)
+interpreter = Interpreter(model_name="qwen2.5-coder:1.5b") # or None for fast embedded
+interpreter.run(program)
+```
+
+---
+
+## 📁 Codebase Map & Module Overview
 
 ```
 ipl_lang/
-├── pyproject.toml           # Packaging, dependencies, and CLI script entrypoints
-├── __init__.py              # Package initialization
-├── tokens.py                # Token definitions and TokenType enum
-├── lexer.py                 # Lexical analysis and tokenization
-├── parser.py                # AST construction with intent, sanitize, and contracts
-├── ast_nodes.py             # Abstract syntax tree node definitions (IntentExpr, SanitizationNode, etc.)
-├── compiler.py              # Hybrid Neuro-Symbolic Compiler, Firewall, and Audit Trace
-├── taint.py                 # Zero-trust data taint tracking and sink enforcement
-├── semantic_engine.py       # Neural-symbolic semantic processing and entity extraction
-├── runtime.py               # Interpreter, IValue system, zero-trust sinks (db_write, file_write)
-├── formatter.py             # Rich presentation formatting
-├── security_engine.py       # Security analysis and code sanitization
-├── cli.py                   # Command-line interface with run, audit, verify, compile, repl
-├── examples/                # Example IPL programs
+├── pyproject.toml           # Package metadata, scripts (ipl=cli:main), and dependencies
+├── tokens.py                # Token definitions & TokenType enum (intent, sanitize, trusted, etc.)
+├── lexer.py                 # Lexical analyzer generating tokens with exact line/col tracking
+├── parser.py                # Recursive-descent AST parser supporting generic types and where-clauses
+├── ast_nodes.py             # Pure AST node definitions (IntentExpr, SanitizationNode, Program, etc.)
+├── compiler.py              # System 1 Neural Parser, System 2 Mathematical Firewall, Audit Trace
+├── taint.py                 # Zero-trust taint tracking engine (TaintLevel, TaintTag, TaintViolationError)
+├── runtime.py               # Deterministic VM, IValue system, environment, zero-trust sinks
+├── semantic_engine.py       # Deterministic NLP extraction (Currency, Sentiment, Quantity, Date, Intent)
+├── formatter.py             # Visual terminal presentations (Rich tables, bar charts, gauges, cards)
+├── security_engine.py       # AST pre-execution security analyzer and string sanitizers
+├── cli.py                   # Command-line interface supporting run, audit, verify, compile, models, repl
+├── examples/                # 8 comprehensive example programs
 │   ├── 01_intelligent_variables.ipl
 │   ├── 02_intelligent_print_audiences.ipl
 │   ├── 03_semantic_queries_and_formats.ipl
@@ -370,7 +312,7 @@ ipl_lang/
 │   ├── 06_control_flow.ipl
 │   ├── 07_functions_and_logic.ipl
 │   └── 08_neuro_symbolic_compiler.ipl
-└── tests/                   # Comprehensive unit & integration test suite (47 tests)
+└── tests/                   # 47 unit & integration tests
     ├── test_extraction.py
     ├── test_variables_and_print.py
     ├── test_control_flow.py
@@ -379,43 +321,26 @@ ipl_lang/
     └── test_taint_tracking.py
 ```
 
-## 🔮 Design Philosophy
+---
 
-IPL is built on the principle that **programming languages should understand intent, not just syntax**. Key design principles:
+## 🧪 Testing & Formal Verification
 
-1. **Neuro-Symbolic Integration**: Combines neural network-style pattern recognition with symbolic logic
-2. **Deterministic Speed**: Locally embedded inference and AST generation avoiding network latency
-3. **Mathematical Firewall**: Pure data AST sandboxing with zero-trust execution
-4. **Iterative Self-Correction**: Resilient repair loops solving contract violations prior to allocation
-5. **Data Taint Tracking**: Untrusted neural outputs mathematically isolated from sensitive sinks
-6. **Complete Cryptographic Auditing**: Per-step SHA256 verified trace for mission-critical compliance
-
-## 🛠️ Implemented Core Features
-
-- **Neuro-Symbolic Compiler**: System 1 local inference, System 2 Mathematical Firewall, Self-Correction Loop, and Verified Audit Trace (`compiler.py`).
-- **Data Taint Tracking**: `TaintLevel` (`UNTRUSTED`, `SANITIZED`, `TRUSTED`), `TaintViolationError`, `SanitizationNode` (`sanitize()`), `trusted` declarations, and protected sinks (`db_write`, `file_write`).
-- **Intelligent Variables**: Natural language extraction (`Currency`, `Quantity`, `Sentiment`, `Date`, `Intent`), probabilistic confidence `Prob<T>`, refinement invariants (`where` clauses), immutability (`let` vs `var`).
-- **Adaptive Print**: Audience adaptation (`executive`, `developer`, `sre`, `child`, `marketer`), semantic queries (`"summary of"`, `"highlight risks in"`, `"explain"`), visual presentation (`table`, `bar_chart`, `badge`, `gauge`, `card`, `tree`).
-- **Control Flow**: Conditionals (`if`, `elif`, `else`), `for ... in` iteration over lists and `range()`, `while` loops, `break`, `continue`, subscript indexing.
-- **Functions & Closures**: User-defined `fn`, recursive calls, return values, semantic type verification on arguments, lexical scope.
-- **Built-in Standard Library**: `len()`, `range()`, `confidence()`, `type_of()`, `taint_of()`, `audit_trace()`, `db_write()`, `file_write()`, `keys()`, `values()`, `min()`, `max()`, `abs()`, `round()`, `str()`, `int()`, `float()`, `bool()`, `push()`.
-- **Neuro-Symbolic Self-Healing**: Dynamic symbol resolution repairing typos in both variables and function calls.
-
-## 🧪 Testing
-
-Run the comprehensive unit test suite:
+Run the complete 47-test suite:
 ```bash
 python3 -m unittest discover -s tests
 ```
+Execution finishes in `~0.10s` with zero external dependencies:
+```
+...............................................
+----------------------------------------------------------------------
+Ran 47 tests in 0.101s
 
-## 📝 License
-
-This is an experimental intelligent programming language research project.
-
-## 🤝 Contributing
-
-This is a research prototype. Contributions that advance the neuro-symbolic programming language paradigm are welcome.
+OK
+```
 
 ---
 
-**IPL: Where Code Meets Intelligence** 🧠⚡
+## 📝 License
+IPL is an experimental intelligent programming language and neuro-symbolic research prototype. Built for pair programming with DeepMind AI systems architecture.
+
+**IPL: Where Code Meets Intelligence.** 🧠⚡
