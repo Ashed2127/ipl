@@ -250,14 +250,15 @@ def compile_file(filepath: str):
         sys.exit(1)
 
 
-def start_repl(model_name: Optional[str] = None):
+def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
     console = Console()
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
-    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp})[/dim]")
+    ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
+    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode})[/dim]")
     console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
 
-    interpreter = Interpreter(console=console, model_name=model_name)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
 
     while True:
         try:
