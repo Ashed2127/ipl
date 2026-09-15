@@ -376,7 +376,7 @@ class Tier2SpecializedModel(BaseModelInterface):
             "security_patterns": {
                 "dangerous_functions": ['eval', 'exec', 'system', 'subprocess', 'os.system'],
                 "path_traversal": ['../', '..\\', '/etc/', 'windows/'],
-                "injection_indicators": ['${', '#{ '%', '<?php']
+                "injection_indicators": ['${', '#{', '%', '<?php']
             }
         }
     
