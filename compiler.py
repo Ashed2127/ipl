@@ -291,14 +291,15 @@ class LocalInferenceRuntime:
         self.use_hierarchical_ai = use_hierarchical_ai
         
         # Initialize hierarchical AI engine if enabled
+        self.ai_engine = None
+        self.semantic_engine = SemanticEngine()
+        
         if self.use_hierarchical_ai:
             try:
                 self.ai_engine = get_ai_engine()
-                self.semantic_engine = SemanticEngine()
             except Exception as e:
                 print(f"Warning: Failed to initialize hierarchical AI engine: {e}")
                 self.use_hierarchical_ai = False
-                self.ai_engine = None
 
     @classmethod
     def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
