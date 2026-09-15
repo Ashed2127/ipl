@@ -216,7 +216,7 @@ def test_fallback_mechanisms():
         # Test with hierarchical AI disabled
         runtime_without_ai = LocalInferenceRuntime(use_hierarchical_ai=False)
         console.print(f"Hierarchical AI disabled: {not runtime_without_ai.use_hierarchical_ai}")
-        console.print(f"AI engine available: {runtime_without_ai.ai_engine is not None}")
+        console.print(f"AI engine available: {runtime_without_ai.ai_engine is not None if hasattr(runtime_without_ai, 'ai_engine') else False}")
         
         # Test fallback processing
         test_prompt = "extract age 25"
