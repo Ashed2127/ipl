@@ -298,22 +298,32 @@ def main():
         start_repl()
         return
 
-    # Extract optional --model flag
+    # Extract optional flags
     args = list(sys.argv[1:])
     model_name = None
+    use_hierarchical_ai = True
+    
     if "--model" in args:
         m_idx = args.index("--model")
         if m_idx + 1 < len(args):
             model_name = args[m_idx + 1]
             del args[m_idx:m_idx + 2]
+    
+    if "--no-hierarchical-ai" in args:
+        use_hierarchical_ai = False
+        args.remove("--no-hierarchical-ai")
+    
+    if "--traditional" in args:
+        use_hierarchical_ai = False
+        args.remove("--traditional")
 
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
         list_models()
     elif cmd in ("run", "exec") and len(args) >= 2:
-        run_file(args[1], model_name=model_name)
+        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
     elif cmd in ("audit", "trace") and len(args) >= 2:
-        run_file(args[1], show_audit=True, model_name=model_name)
+        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
     elif cmd in ("verify", "check") and len(args) >= 2:
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
@@ -346,23 +356,26 @@ def main():
             sys.exit(1)
         run_gateway(host=host, port=port)
     elif cmd in ("repl", "interactive"):
-        start_repl(model_name=model_name)
+        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
     elif cmd in ("help", "--help", "-h"):
         print_banner(console)
         console.print(
             "[bold]Usage:[/bold]\n"
-            "  ipl run <script.ipl> [--model <name>]   Execute an IPL source file\n"
-            "  ipl audit <script.ipl> [--model <name>] Execute and print cryptographic audit trace\n"
+            "  ipl run <script.ipl> [--model <name>] [--no-hierarchical-ai]   Execute an IPL source file\n"
+            "  ipl audit <script.ipl> [--model <name>] [--no-hierarchical-ai] Execute and print cryptographic audit trace\n"
             "  ipl models                              List available local neural models (Ollama)\n"
             "  ipl verify <script.ipl>                 Validate AST via Mathematical Firewall\n"
             "  ipl compile <script.ipl>                Compile and inspect AST contract readiness\n"
             "  ipl serve [--host H] [--port P]         Launch REST API Security Gateway\n"
-            "  ipl repl [--model <name>]               Start interactive REPL\n"
+            "  ipl repl [--model <name>] [--no-hierarchical-ai]               Start interactive REPL\n"
+            "\n[bold]Hierarchical AI Options:[/bold]\n"
+            "  --no-hierarchical-ai                   Disable hierarchical AI engine (use traditional processing)\n"
+            "  --traditional                           Same as --no-hierarchical-ai\n"
         )
     else:
         # Default assume it's a file if exists
         if os.path.exists(cmd):
-            run_file(cmd, model_name=model_name)
+            run_file(cmd, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
         else:
             console.print(f"[red]Unknown command or file: {cmd}[/red]")
             console.print("Run 'ipl --help' for usage.")
