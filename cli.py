@@ -53,7 +53,7 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
         return False
 
 
-def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
+def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
     console = Console()
     if not os.path.exists(filepath):
         console.print(f"[bold red]File not found:[/bold red] {filepath}")
@@ -61,12 +61,13 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
 
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
-    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan][/dim]\n")
+    ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
+    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
 
-    interpreter = Interpreter(console=console, model_name=model_name)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
     start_time = time.perf_counter()
     success = run_source(source, interpreter, console, filename=filepath)
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
@@ -74,6 +75,12 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
     if show_audit:
         console.print("\n[bold cyan]─── Cryptographic Verified Audit Trace ───[/bold cyan]")
         interpreter.compiler.audit_trace.render_table(console)
+        
+        # Show AI engine statistics if hierarchical AI is enabled
+        if use_hierarchical_ai:
+            console.print("\n[bold cyan]─── Hierarchical AI Engine Statistics ───[/bold cyan]")
+            ai_stats = interpreter.compiler.get_ai_engine_statistics()
+            _print_ai_stats(console, ai_stats)
 
     if success:
         console.print(f"\n[dim]⚡ Execution time: [bold green]{elapsed_ms:.2f} ms[/bold green][/dim]")
