@@ -199,13 +199,14 @@ class Environment:
 
 
 class Interpreter:
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
         self.console = console or Console()
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
-        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
+        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
         self.loaded_modules: Set[str] = set()
+        self.use_hierarchical_ai = use_hierarchical_ai
         self._init_builtins()
 
     def _init_builtins(self):
@@ -388,6 +389,13 @@ class Interpreter:
 
         def _now() -> IValue:
             return IValue(datetime.datetime.now(datetime.timezone.utc).isoformat(), "String", confidence=1.0)
+        
+        def _ai_stats() -> IValue:
+            """Get hierarchical AI engine statistics."""
+            if self.use_hierarchical_ai:
+                stats = self.compiler.get_ai_engine_statistics()
+                return IValue(stats, "Dict", confidence=1.0)
+            return IValue({"message": "Hierarchical AI engine not enabled"}, "Dict", confidence=1.0)
 
         builtins = {
             "len": _len,
@@ -416,6 +424,7 @@ class Interpreter:
             "json_encode": _json_encode,
             "json_decode": _json_decode,
             "now": _now,
+            "ai_stats": _ai_stats,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))

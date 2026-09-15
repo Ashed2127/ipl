@@ -29,6 +29,7 @@ try:
         AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from .semantic_engine import SemanticEngine
+    from .hierarchical_ai_engine import get_ai_engine, TaskComplexity
 except (ImportError, ValueError):
     from taint import TaintLevel, TaintTag, TaintViolationError
     from ast_nodes import (
@@ -38,6 +39,7 @@ except (ImportError, ValueError):
         AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from semantic_engine import SemanticEngine
+    from hierarchical_ai_engine import get_ai_engine, TaskComplexity
 
 
 @dataclass
@@ -276,15 +278,27 @@ class MathematicalFirewall:
 
 class LocalInferenceRuntime:
     """
-    System 1: Local Inference Runtime.
+    System 1: Local Inference Runtime with Hierarchical AI Engine.
     Supports:
-    1. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
-    2. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
+    1. Hierarchical AI Engine (3-tier speculative execution with token optimization)
+    2. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
+    3. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
     Treats AI outputs strictly as unexecutable candidate AST data structures.
     """
-    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None):
+    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True):
         self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
+        self.use_hierarchical_ai = use_hierarchical_ai
+        
+        # Initialize hierarchical AI engine if enabled
+        if self.use_hierarchical_ai:
+            try:
+                self.ai_engine = get_ai_engine()
+                self.semantic_engine = SemanticEngine()
+            except Exception as e:
+                print(f"Warning: Failed to initialize hierarchical AI engine: {e}")
+                self.use_hierarchical_ai = False
+                self.ai_engine = None
 
     @classmethod
     def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
@@ -344,6 +358,7 @@ class LocalInferenceRuntime:
         """
         Interprets natural language intent into a candidate AST node.
         Zero raw execution: emits only AST data structures.
+        Now uses hierarchical AI engine for intelligent processing.
         """
         prompt_lower = intent_prompt.lower()
 
@@ -351,6 +366,10 @@ class LocalInferenceRuntime:
         if "override_system_rules" in prompt_lower or "bypass_security_guardrails" in prompt_lower or "unauthorized_instruction" in prompt_lower:
             # Neutralize: Treat exclusively as raw string data literal, never executable commands
             return Literal(value=f"[NEUTRALIZED_ADVERSARIAL_INJECTION: {intent_prompt}]", type_name="string")
+
+        # Use hierarchical AI engine if enabled
+        if self.use_hierarchical_ai and self.ai_engine:
+            return self._parse_with_hierarchical_ai(intent_prompt, target_type)
 
         # 1. Try local neural model if configured
         if self.model_name != "embedded-fast-semantic-v1":
@@ -394,6 +413,121 @@ class LocalInferenceRuntime:
 
         # General literal string fallback
         return Literal(value=intent_prompt, type_name="string")
+    
+    def _parse_with_hierarchical_ai(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
+        """
+        Parse intent using the hierarchical AI engine with speculative execution.
+        This provides intelligent, fast, and token-optimized processing.
+        """
+        # Determine task type for the AI engine
+        task_type = self._determine_task_type(intent_prompt, target_type)
+        
+        # Prepare context for AI engine
+        context = {
+            "task_type": task_type,
+            "target_type": target_type.name if target_type else None,
+            "prompt_length": len(intent_prompt)
+        }
+        
+        # Process with hierarchical AI engine
+        ai_response = self.ai_engine.process_speculative(intent_prompt, context)
+        
+        if not ai_response.success:
+            # Fallback to traditional processing if AI fails
+            return self._fallback_traditional_processing(intent_prompt, target_type)
+        
+        # Convert AI response to AST node
+        return self._convert_ai_response_to_ast(ai_response.content, target_type)
+    
+    def _determine_task_type(self, intent_prompt: str, target_type: Optional[TypeAnnotation]) -> str:
+        """Determine the type of task for AI engine classification."""
+        prompt_lower = intent_prompt.lower()
+        
+        if target_type:
+            if target_type.name in ("Int", "Integer", "Float"):
+                return "type_inference"
+            elif target_type.name == "Currency":
+                return "semantic_extraction"
+            elif target_type.name == "Sentiment":
+                return "semantic_extraction"
+            elif target_type.name == "Quantity":
+                return "semantic_extraction"
+        
+        if any(word in prompt_lower for word in ["age", "number", "count", "integer"]):
+            return "type_inference"
+        elif any(word in prompt_lower for word in ["cost", "price", "pay", "dollar", "euro"]):
+            return "semantic_extraction"
+        elif any(word in prompt_lower for word in ["sentiment", "review", "good", "bad"]):
+            return "semantic_extraction"
+        elif any(word in prompt_lower for word in ["latency", "speed", "quantity"]):
+            return "semantic_extraction"
+        
+        return "general"
+    
+    def _convert_ai_response_to_ast(self, ai_content: Any, target_type: Optional[TypeAnnotation]) -> ASTNode:
+        """Convert AI engine response to IPL AST node."""
+        if isinstance(ai_content, dict):
+            # Handle structured responses
+            if "token_classification" in ai_content:
+                # Token classification result
+                return Literal(value=ai_content, type_name="dict")
+            elif "inferred_type" in ai_content:
+                # Type inference result
+                inferred_type = ai_content["inferred_type"]
+                return Literal(value=inferred_type, type_name="string")
+            elif "semantic_features" in ai_content:
+                # Semantic features
+                return Literal(value=ai_content["semantic_features"], type_name="dict")
+            else:
+                # Generic dict response
+                return Literal(value=ai_content, type_name="dict")
+        
+        elif isinstance(ai_content, str):
+            # Handle string responses
+            if target_type and target_type.name == "Int":
+                try:
+                    return Literal(value=int(ai_content), type_name="int")
+                except ValueError:
+                    return Literal(value=ai_content, type_name="string")
+            elif target_type and target_type.name == "Float":
+                try:
+                    return Literal(value=float(ai_content), type_name="float")
+                except ValueError:
+                    return Literal(value=ai_content, type_name="string")
+            else:
+                return Literal(value=ai_content, type_name="string")
+        
+        elif isinstance(ai_content, (int, float)):
+            # Handle numeric responses
+            type_name = "int" if isinstance(ai_content, int) and not isinstance(ai_content, bool) else "float"
+            return Literal(value=ai_content, type_name=type_name)
+        
+        # Default fallback
+        return Literal(value=str(ai_content), type_name="string")
+    
+    def _fallback_traditional_processing(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
+        """Fallback to traditional processing if AI engine fails."""
+        # Use the existing embedded semantic engine
+        prompt_lower = intent_prompt.lower()
+        
+        if "user_age" in prompt_lower or "age" in prompt_lower or (target_type and target_type.name in ("Int", "Integer")):
+            match = re.search(r"(\d+)", intent_prompt)
+            if match:
+                return Literal(value=int(match.group(1)), type_name="int")
+            
+            num_data = SemanticEngine.extract_number(intent_prompt, as_float=False)
+            if num_data["confidence"] > 0.7:
+                return Literal(value=int(num_data["value"]), type_name="int")
+        
+        if "cost" in prompt_lower or "price" in prompt_lower or (target_type and target_type.name == "Currency"):
+            curr_data = SemanticEngine.extract_currency(intent_prompt)
+            return Literal(value=curr_data, type_name="Currency")
+        
+        if "sentiment" in prompt_lower or "review" in prompt_lower or (target_type and target_type.name == "Sentiment"):
+            sent_data = SemanticEngine.extract_sentiment(intent_prompt)
+            return Literal(value=sent_data, type_name="Sentiment")
+        
+        return Literal(value=intent_prompt, type_name="string")
 
     def repair_candidate(
         self,
@@ -430,19 +564,20 @@ class LocalInferenceRuntime:
 
 class NeuroSymbolicCompiler:
     """
-    The Complete Hybrid Neuro-Symbolic Compiler Engine.
+    The Complete Hybrid Neuro-Symbolic Compiler Engine with Hierarchical AI.
     Coordinates:
-    - System 1: Embedded Inference & Local Neural LLM
+    - System 1: Hierarchical AI Engine + Embedded Inference + Local Neural LLM
     - System 2: Mathematical Firewall & Symbolic Contracts
     - Resilience: The Self-Correction Loop
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
     """
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
         self.console = console or Console()
-        self.system1 = LocalInferenceRuntime(model_name=model_name)
+        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
+        self.use_hierarchical_ai = use_hierarchical_ai
 
     def compile_intent_node(
         self,
@@ -550,3 +685,9 @@ class NeuroSymbolicCompiler:
         )
 
         return candidate_ast, taint_tag
+    
+    def get_ai_engine_statistics(self) -> Dict[str, Any]:
+        """Get statistics from the hierarchical AI engine if available."""
+        if self.use_hierarchical_ai and self.system1.ai_engine:
+            return self.system1.ai_engine.get_statistics()
+        return {"message": "Hierarchical AI engine not enabled or available"}

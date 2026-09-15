@@ -3,6 +3,7 @@ Command-line interface (CLI) and REPL for IPL (Intelligent Programming Language 
 """
 import sys
 import os
+import time
 from typing import Optional, List
 from rich.console import Console
 from rich.panel import Panel
@@ -16,17 +17,12 @@ try:
     from .runtime import Interpreter
     from .compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from .ast_nodes import FunctionDef, IntentExpr, SanitizationNode
-    from .gateway import run_gateway
 except (ImportError, ValueError):
     from lexer import Lexer, LexerError
     from parser import Parser, ParserError
     from runtime import Interpreter
     from compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from ast_nodes import FunctionDef, IntentExpr, SanitizationNode
-    try:
-        from gateway import run_gateway
-    except ImportError:
-        run_gateway = None
 
 
 def print_banner(console: Console):
@@ -38,19 +34,23 @@ def print_banner(console: Console):
     console.print(Panel(banner_text, border_style="cyan"))
 
 
-def run_source(source: str, interpreter: Interpreter, console: Console, filename: str = "<stdin>"):
+def run_source(source: str, interpreter: Interpreter, console: Console, filename: str = "<stdin>") -> bool:
     try:
         lexer = Lexer(source)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         program = parser.parse()
         interpreter.run(program, source_code=source, current_file=filename)  # Pass source code for security analysis
+        return True
     except LexerError as le:
         console.print(f"[bold red]Syntax Error:[/bold red] {le}")
+        return False
     except ParserError as pe:
         console.print(f"[bold red]Parser Error:[/bold red] {pe}")
+        return False
     except Exception as e:
         console.print(f"[bold red]Runtime Exception:[/bold red] {e}")
+        return False
 
 
 def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
@@ -67,11 +67,18 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
         source = f.read()
 
     interpreter = Interpreter(console=console, model_name=model_name)
-    run_source(source, interpreter, console, filename=filepath)
+    start_time = time.perf_counter()
+    success = run_source(source, interpreter, console, filename=filepath)
+    elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
     if show_audit:
         console.print("\n[bold cyan]─── Cryptographic Verified Audit Trace ───[/bold cyan]")
         interpreter.compiler.audit_trace.render_table(console)
+
+    if success:
+        console.print(f"\n[dim]⚡ Execution time: [bold green]{elapsed_ms:.2f} ms[/bold green][/dim]")
+    else:
+        console.print(f"\n[dim]⚡ Execution halted after [bold red]{elapsed_ms:.2f} ms[/bold red][/dim]")
 
 
 def list_models():
@@ -227,7 +234,11 @@ def start_repl(model_name: Optional[str] = None):
                 )
                 continue
 
-            run_source(line, interpreter, console)
+            start_time = time.perf_counter()
+            success = run_source(line, interpreter, console)
+            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+            if success:
+                console.print(f"[dim]⚡ {elapsed_ms:.2f} ms[/dim]")
         except (KeyboardInterrupt, EOFError):
             console.print("\n[dim]Session terminated.[/dim]")
             break
@@ -274,6 +285,14 @@ def main():
                 except ValueError:
                     console.print(f"[red]Invalid port number: {args[p_idx + 1]}[/red]")
                     sys.exit(1)
+        try:
+            from .gateway import run_gateway
+        except (ImportError, ValueError):
+            try:
+                from gateway import run_gateway
+            except ImportError:
+                run_gateway = None
+
         if run_gateway is None:
             console.print("[red]Gateway module not available. Please install starlette and uvicorn.[/red]")
             sys.exit(1)
