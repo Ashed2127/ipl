@@ -31,7 +31,7 @@ def print_banner(console: Console):
     banner_text = (
         "[bold cyan]⚡ IPL (Intelligent Programming Language / Aether)[/bold cyan]\n"
         "[dim]Hybrid Neuro-Symbolic Compiler Architecture & Deterministic Runtime[/dim]\n"
-        "[dim]System 1 Neural Generation | System 2 Mathematical Firewall | Zero-Trust Taint Tracking[/dim]"
+        "[dim]System 1 Neural Generation | System 2 Mathematical Firewall | System 3 Authorization | Zero-Trust Taint Tracking[/dim]"
     )
     console.print(Panel(banner_text, border_style="cyan"))
 
