@@ -111,7 +111,7 @@ class TestAuthorizationSystem(unittest.TestCase):
         # Test denied decision (admin operation)
         decision = self.auth_system.authorize_intent(context, "delete system files", None)
         self.assertFalse(decision.allowed)
-        self.assertIn("permission", decision.reason.lower())
+        self.assertIn("malicious", decision.reason.lower())
         
         # Clean up
         del self.auth_system.user_db.users["auth_test"]
@@ -215,7 +215,8 @@ class TestAuthorizationIntegration(unittest.TestCase):
         stats = self.compiler.get_authorization_statistics()
         self.assertIsNotNone(stats)
         self.assertIn("total_authorizations", stats)
-        self.assertIn("authorization_results", stats)
+        self.assertIn("total_allowed", stats)
+        self.assertIn("total_blocked", stats)
     
     def test_security_context_propagation(self):
         """Test security context propagation to runtime environment."""
