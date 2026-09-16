@@ -313,6 +313,7 @@ class LocalInferenceRuntime:
             try:
                 self.auth_system = get_authorization_system(self.ai_engine)
                 # Set default guest context if no authentication
+                from authorization_system import UserRole
                 self.security_context = SecurityContext(
                     user_id="guest",
                     role=UserRole.GUEST,
