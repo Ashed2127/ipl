@@ -251,7 +251,7 @@ def manage_users():
             console.print(f"[red]Error: {e}[/red]")
 
 
-def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
+def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
     console = Console()
     if not os.path.exists(filepath):
         console.print(f"[bold red]File not found:[/bold red] {filepath}")
@@ -260,12 +260,13 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
-    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green][/dim]\n")
+    auth_mode = "Enabled" if enable_authorization else "Disabled"
+    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green] | Auth: [bold yellow]{auth_mode}[/bold yellow][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
     start_time = time.perf_counter()
     success = run_source(source, interpreter, console, filename=filepath)
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
@@ -279,6 +280,12 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
             console.print("\n[bold cyan]─── Hierarchical AI Engine Statistics ───[/bold cyan]")
             ai_stats = interpreter.compiler.get_ai_engine_statistics()
             _print_ai_stats(console, ai_stats)
+        
+        # Show authorization statistics if enabled
+        if enable_authorization:
+            console.print("\n[bold cyan]─── Authorization System Statistics ───[/bold cyan]")
+            auth_stats = interpreter.compiler.get_authorization_statistics()
+            _print_auth_stats(console, auth_stats)
 
     if success:
         console.print(f"\n[dim]⚡ Execution time: [bold green]{elapsed_ms:.2f} ms[/bold green][/dim]")
