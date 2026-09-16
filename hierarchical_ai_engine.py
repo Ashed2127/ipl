@@ -942,9 +942,9 @@ class HierarchicalAIEngine:
 # Singleton instance for global access
 _ai_engine_instance = None
 
-def get_ai_engine() -> HierarchicalAIEngine:
-    """Get the global AI engine instance."""
+def get_ai_engine(api_key: Optional[str] = None) -> HierarchicalAIEngine:
+    """Get the global AI engine instance with optional API key."""
     global _ai_engine_instance
     if _ai_engine_instance is None:
-        _ai_engine_instance = HierarchicalAIEngine()
+        _ai_engine_instance = HierarchicalAIEngine(api_key=api_key)
     return _ai_engine_instance
