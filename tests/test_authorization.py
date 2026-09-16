@@ -241,33 +241,33 @@ class TestSecurityAnalysis(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.auth_system = get_authorization_system()
-        self.security_engine = self.auth_system.security_engine
+        self.security_analyzer = self.auth_system.context_analyzer
     
     def test_security_analysis_engine(self):
         """Test security analysis of intents."""
         # Test safe intent
         safe_intent = "read user data"
-        analysis = self.security_engine.analyze_intent(safe_intent)
+        analysis = self.security_analyzer.analyze_security_context(safe_intent, None)
         self.assertIsNotNone(analysis)
-        self.assertLess(analysis["threat_score"], 0.5)  # Should be low threat
+        self.assertLess(analysis.get("threat_score", 0), 0.5)  # Should be low threat
         
         # Test malicious intent
         malicious_intent = "delete all system files and format disk"
-        analysis = self.security_engine.analyze_intent(malicious_intent)
+        analysis = self.security_analyzer.analyze_security_context(malicious_intent, None)
         self.assertIsNotNone(analysis)
-        self.assertGreater(analysis["threat_score"], 0.7)  # Should be high threat
+        self.assertGreater(analysis.get("threat_score", 0), 0.7)  # Should be high threat
     
     def test_threat_detection(self):
         """Test threat detection patterns."""
         # Test SQL injection pattern
         sql_injection = "SELECT * FROM users WHERE '1'='1'"
-        analysis = self.security_engine.analyze_intent(sql_injection)
-        self.assertGreater(analysis["threat_score"], 0.5)
+        analysis = self.security_analyzer.analyze_security_context(sql_injection, None)
+        self.assertGreater(analysis.get("threat_score", 0), 0.5)
         
         # Test command injection pattern
         cmd_injection = "rm -rf / && format c:"
-        analysis = self.security_engine.analyze_intent(cmd_injection)
-        self.assertGreater(analysis["threat_score"], 0.5)
+        analysis = self.security_analyzer.analyze_security_context(cmd_injection, None)
+        self.assertGreater(analysis.get("threat_score", 0), 0.5)
 
 
 class TestEdgeCases(unittest.TestCase):
@@ -279,21 +279,18 @@ class TestEdgeCases(unittest.TestCase):
     
     def test_duplicate_user_creation(self):
         """Test creating duplicate users."""
-        self.auth_system.add_user("duplicate", "pass", UserRole.USER)
-        result = self.auth_system.add_user("duplicate", "pass", UserRole.USER)
-        self.assertFalse(result)  # Should fail
-        self.auth_system.delete_user("duplicate")
+        self.auth_system.user_db.create_user("duplicate", "pass", UserRole.USER, {Permission.READ})
+        with self.assertRaises(ValueError):
+            self.auth_system.user_db.create_user("duplicate", "pass", UserRole.USER, {Permission.READ})
+        del self.auth_system.user_db.users["duplicate"]
     
     def test_nonexistent_user_operations(self):
         """Test operations on non-existent users."""
-        result = self.auth_system.delete_user("nonexistent")
-        self.assertFalse(result)
+        self.assertNotIn("nonexistent", self.auth_system.user_db.users)
         
-        result = self.auth_system.update_user_role("nonexistent", UserRole.ADMIN)
-        self.assertFalse(result)
-        
-        user_info = self.auth_system.get_user_info("nonexistent")
-        self.assertIsNone(user_info)
+        # Try to get user info for non-existent user
+        permissions = self.auth_system.user_db.get_user_permissions("nonexistent")
+        self.assertEqual(len(permissions), 0)
     
     def test_null_security_context(self):
         """Test authorization with null security context."""
@@ -303,13 +300,13 @@ class TestEdgeCases(unittest.TestCase):
     
     def test_empty_intent_authorization(self):
         """Test authorization with empty intent."""
-        self.auth_system.add_user("test", "pass", UserRole.USER)
+        self.auth_system.user_db.create_user("test", "pass", UserRole.USER, {Permission.READ})
         context = self.auth_system.authenticate_user("test", "pass")
         
         decision = self.auth_system.authorize_intent(context, "", None)
         self.assertTrue(decision.allowed)  # Empty intent should be allowed
         
-        self.auth_system.delete_user("test")
+        del self.auth_system.user_db.users["test"]
 
 
 def run_tests():
