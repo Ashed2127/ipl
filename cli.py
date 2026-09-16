@@ -492,6 +492,12 @@ def main():
     if "--no-authorization" in args:
         enable_authorization = False
         args.remove("--no-authorization")
+    
+    if "--openai-api-key" in args:
+        key_idx = args.index("--openai-api-key")
+        if key_idx + 1 < len(args):
+            openai_api_key = args[key_idx + 1]
+            del args[key_idx:key_idx + 2]
 
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
@@ -499,9 +505,9 @@ def main():
     elif cmd in ("users", "user-management", "manage-users"):
         manage_users()
     elif cmd in ("run", "exec") and len(args) >= 2:
-        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
+        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
     elif cmd in ("audit", "trace") and len(args) >= 2:
-        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
+        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
     elif cmd in ("verify", "check") and len(args) >= 2:
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
