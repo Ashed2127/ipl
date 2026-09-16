@@ -1,5 +1,0 @@
-# Test real AI integration
-let message = "Testing real AI without simulations"
-let sentiment: Sentiment = "This is absolutely fantastic and amazing!"
-print sentiment for "developer"
-print "Real AI integration test completed"
