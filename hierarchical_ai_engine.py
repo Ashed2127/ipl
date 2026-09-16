@@ -643,9 +643,82 @@ class Tier3ReasoningModel(BaseModelInterface):
             )
     
     def _deep_reasoning(self, prompt: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Perform deep reasoning analysis."""
+        """Perform deep reasoning analysis using real API."""
+        if not self.is_available:
+            # Fallback to rule-based reasoning if API unavailable
+            return self._fallback_reasoning(prompt, context)
+        
         task_type = context.get("task_type", "general")
-        result = {"method": "deep_reasoning", "tier": "tier_3"}
+        
+        # Build API request
+        system_prompt = self._build_system_prompt(task_type)
+        user_prompt = self._build_user_prompt(prompt, context, task_type)
+        
+        try:
+            api_url = f"{self.api_base}/chat/completions"
+            payload = {
+                "model": self.model_name,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 500
+            }
+            
+            req = urllib.request.Request(
+                api_url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.api_key}"
+                }
+            )
+            
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+                
+                if "choices" in result and len(result["choices"]) > 0:
+                    api_response = result["choices"][0]["message"]["content"]
+                    return {
+                        "method": "deep_reasoning_api",
+                        "tier": "tier_3",
+                        "api_response": api_response,
+                        "model_used": self.model_name,
+                        "task_type": task_type
+                    }
+                else:
+                    raise Exception("Invalid API response format")
+                    
+        except Exception as e:
+            print(f"API call failed, falling back to rule-based reasoning: {e}")
+            return self._fallback_reasoning(prompt, context)
+    
+    def _build_system_prompt(self, task_type: str) -> str:
+        """Build system prompt based on task type."""
+        base_prompt = "You are an expert programming language assistant for IPL (Intelligent Programming Language). "
+        
+        task_prompts = {
+            "complex_optimization": "Analyze the provided code and suggest comprehensive optimizations focusing on algorithmic efficiency, memory usage, and parallelization.",
+            "security_deep_analysis": "Perform deep security analysis on the provided code, identifying vulnerabilities, injection risks, and compliance issues.",
+            "code_generation": "Generate clean, secure, and efficient IPL code based on the provided requirements.",
+            "general": "Provide intelligent analysis and suggestions for the provided programming task."
+        }
+        
+        return base_prompt + task_prompts.get(task_type, task_prompts["general"])
+    
+    def _build_user_prompt(self, prompt: str, context: Dict[str, Any], task_type: str) -> str:
+        """Build user prompt with context."""
+        context_info = ""
+        if context:
+            context_info = f"\nContext: {json.dumps(context, indent=2)}"
+        
+        return f"Task: {task_type}\nInput: {prompt}{context_info}\n\nProvide your analysis and suggestions."
+    
+    def _fallback_reasoning(self, prompt: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Fallback rule-based reasoning when API is unavailable."""
+        task_type = context.get("task_type", "general")
+        result = {"method": "fallback_reasoning", "tier": "tier_3", "api_available": False}
         
         if task_type == "complex_optimization":
             result["optimization_plan"] = self._create_optimization_plan(prompt, context)
