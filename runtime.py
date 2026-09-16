@@ -564,20 +564,6 @@ class Interpreter:
     def execute_let(self, stmt: LetStatement, env: Environment):
         # 1. Evaluate right-hand side expression
         if isinstance(stmt.value_expr, IntentExpr):
-            # Authorization check for intent-based declarations
-            if self.enable_authorization and self.compiler.system1.auth_system:
-                auth_decision = self.compiler.system1.auth_system.authorize_intent(
-                    self.compiler.system1.security_context,
-                    stmt.value_expr.intent_prompt,
-                    stmt.type_annotation.name if stmt.type_annotation else None
-                )
-                
-                if not auth_decision.allowed:
-                    self.console.print(
-                        f"[bold red]🚫 Authorization Denied: {auth_decision.reason}[/bold red]"
-                    )
-                    raise PermissionError(f"Authorization Denied: {auth_decision.reason}")
-            
             candidate_node, taint_tag = self.compiler.compile_intent_node(stmt.value_expr, stmt.type_annotation)
             evaluated = self.evaluate_expr(candidate_node, env)
             evaluated.taint = taint_tag
@@ -1077,6 +1063,20 @@ class Interpreter:
             )
 
         if isinstance(expr, IntentExpr):
+            # Authorization check for intent-based expressions
+            if self.enable_authorization and self.compiler.system1.auth_system:
+                auth_decision = self.compiler.system1.auth_system.authorize_intent(
+                    self.compiler.system1.security_context,
+                    expr.intent_prompt,
+                    expr.target_type.name if expr.target_type else None
+                )
+                
+                if not auth_decision.allowed:
+                    self.console.print(
+                        f"[bold red]🚫 Authorization Denied: {auth_decision.reason}[/bold red]"
+                    )
+                    raise PermissionError(f"Authorization Denied: {auth_decision.reason}")
+            
             candidate_node, taint_tag = self.compiler.compile_intent_node(expr, expr.target_type)
             val = self.evaluate_expr(candidate_node, env)
             val.taint = taint_tag
