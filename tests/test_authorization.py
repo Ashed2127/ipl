@@ -1,0 +1,346 @@
+"""
+Test suite for Authorization System.
+Tests user authentication, role-based access control, context-aware security,
+and integration with the hierarchical AI engine.
+"""
+import sys
+import os
+import unittest
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+try:
+    from authorization_system import (
+        get_authorization_system, UserRole, Permission, SecurityContext,
+        AuthorizationDecision, AuthorizationEngine, SecurityAnalysisEngine,
+        PolicyEngine, RoleBasedAccessControl, ContextAwareSecurityEngine
+    )
+    from compiler import NeuroSymbolicCompiler, LocalInferenceRuntime
+    from runtime import Interpreter
+    from rich.console import Console
+except ImportError as e:
+    print(f"Import error: {e}")
+    sys.exit(1)
+
+
+class TestAuthorizationSystem(unittest.TestCase):
+    """Test core authorization system functionality."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.auth_system = get_authorization_system()
+        self.console = Console()
+        
+    def test_user_authentication(self):
+        """Test user authentication with correct and incorrect credentials."""
+        # Add a test user
+        self.auth_system.add_user("testuser", "testpass", UserRole.USER)
+        
+        # Test successful authentication
+        context = self.auth_system.authenticate_user("testuser", "testpass")
+        self.assertIsNotNone(context)
+        self.assertEqual(context.user_id, "testuser")
+        self.assertEqual(context.role, UserRole.USER)
+        
+        # Test failed authentication with wrong password
+        context = self.auth_system.authenticate_user("testuser", "wrongpass")
+        self.assertIsNone(context)
+        
+        # Test failed authentication with non-existent user
+        context = self.auth_system.authenticate_user("nonexistent", "testpass")
+        self.assertIsNone(context)
+        
+        # Clean up
+        self.auth_system.delete_user("testuser")
+    
+    def test_role_based_access_control(self):
+        """Test role-based access control permissions."""
+        # Add users with different roles
+        self.auth_system.add_user("guest_user", "pass", UserRole.GUEST)
+        self.auth_system.add_user("regular_user", "pass", UserRole.USER)
+        self.auth_system.add_user("admin_user", "pass", UserRole.ADMIN)
+        
+        # Get security contexts
+        guest_context = self.auth_system.authenticate_user("guest_user", "pass")
+        user_context = self.auth_system.authenticate_user("regular_user", "pass")
+        admin_context = self.auth_system.authenticate_user("admin_user", "pass")
+        
+        # Test permission checks
+        guest_has_read = self.auth_system.rbac.has_permission(guest_context, Permission.READ)
+        user_has_read = self.auth_system.rbac.has_permission(user_context, Permission.READ)
+        admin_has_read = self.auth_system.rbac.has_permission(admin_context, Permission.READ)
+        
+        self.assertTrue(guest_has_read)  # Guest should have read
+        self.assertTrue(user_has_read)   # User should have read
+        self.assertTrue(admin_has_read)  # Admin should have read
+        
+        # Test write permissions
+        guest_has_write = self.auth_system.rbac.has_permission(guest_context, Permission.WRITE)
+        user_has_write = self.auth_system.rbac.has_permission(user_context, Permission.WRITE)
+        admin_has_write = self.auth_system.rbac.has_permission(admin_context, Permission.WRITE)
+        
+        self.assertFalse(guest_has_write)  # Guest should not have write
+        self.assertTrue(user_has_write)     # User should have write
+        self.assertTrue(admin_has_write)   # Admin should have write
+        
+        # Test admin permissions
+        guest_has_admin = self.auth_system.rbac.has_permission(guest_context, Permission.ADMIN)
+        user_has_admin = self.auth_system.rbac.has_permission(user_context, Permission.ADMIN)
+        admin_has_admin = self.auth_system.rbac.has_permission(admin_context, Permission.ADMIN)
+        
+        self.assertFalse(guest_has_admin)  # Guest should not have admin
+        self.assertFalse(user_has_admin)   # User should not have admin
+        self.assertTrue(admin_has_admin)   # Admin should have admin
+        
+        # Clean up
+        self.auth_system.delete_user("guest_user")
+        self.auth_system.delete_user("regular_user")
+        self.auth_system.delete_user("admin_user")
+    
+    def test_authorization_decision(self):
+        """Test authorization decision making."""
+        # Add test user
+        self.auth_system.add_user("auth_test", "pass", UserRole.USER)
+        context = self.auth_system.authenticate_user("auth_test", "pass")
+        
+        # Test allowed decision
+        decision = self.auth_system.authorize_intent(context, "read data", None)
+        self.assertTrue(decision.allowed)
+        
+        # Test denied decision (admin operation)
+        decision = self.auth_system.authorize_intent(context, "delete system files", None)
+        self.assertFalse(decision.allowed)
+        self.assertIn("permission", decision.reason.lower())
+        
+        # Clean up
+        self.auth_system.delete_user("auth_test")
+    
+    def test_security_context(self):
+        """Test security context creation and management."""
+        context = SecurityContext(
+            user_id="test_user",
+            role=UserRole.USER,
+            permissions={Permission.READ, Permission.WRITE},
+            session_id="test_session",
+            ip_address="127.0.0.1",
+            user_agent="test_agent"
+        )
+        
+        self.assertEqual(context.user_id, "test_user")
+        self.assertEqual(context.role, UserRole.USER)
+        self.assertEqual(len(context.permissions), 2)
+        self.assertIn(Permission.READ, context.permissions)
+        self.assertIn(Permission.WRITE, context.permissions)
+        
+        # Test to_dict conversion
+        context_dict = context.to_dict()
+        self.assertEqual(context_dict["user_id"], "test_user")
+        self.assertEqual(context_dict["role"], "user")
+        self.assertEqual(len(context_dict["permissions"]), 2)
+    
+    def test_user_management(self):
+        """Test user management operations."""
+        # Add user
+        result = self.auth_system.add_user("mgmt_test", "password", UserRole.USER)
+        self.assertTrue(result)
+        
+        # Check user exists
+        user_info = self.auth_system.get_user_info("mgmt_test")
+        self.assertIsNotNone(user_info)
+        self.assertEqual(user_info["username"], "mgmt_test")
+        self.assertEqual(user_info["role"], "user")
+        
+        # Update user role
+        result = self.auth_system.update_user_role("mgmt_test", UserRole.ADMIN)
+        self.assertTrue(result)
+        
+        user_info = self.auth_system.get_user_info("mgmt_test")
+        self.assertEqual(user_info["role"], "admin")
+        
+        # List users
+        users = self.auth_system.list_users()
+        self.assertTrue(any(u["username"] == "mgmt_test" for u in users))
+        
+        # Delete user
+        result = self.auth_system.delete_user("mgmt_test")
+        self.assertTrue(result)
+        
+        # Verify deletion
+        user_info = self.auth_system.get_user_info("mgmt_test")
+        self.assertIsNone(user_info)
+
+
+class TestAuthorizationIntegration(unittest.TestCase):
+    """Test authorization system integration with compiler and runtime."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.console = Console()
+        self.compiler = NeuroSymbolicCompiler(console=self.console, enable_authorization=True)
+        self.interpreter = Interpreter(console=self.console, enable_authorization=True)
+        
+        # Add test users
+        self.compiler.system1.auth_system.add_user("test_user", "password", UserRole.USER)
+        self.compiler.system1.auth_system.add_user("test_admin", "admin", UserRole.ADMIN)
+    
+    def tearDown(self):
+        """Clean up test fixtures."""
+        self.compiler.system1.auth_system.delete_user("test_user")
+        self.compiler.system1.auth_system.delete_user("test_admin")
+    
+    def test_compiler_authentication(self):
+        """Test authentication through compiler."""
+        # Test successful authentication
+        success = self.compiler.authenticate_user("test_user", "password")
+        self.assertTrue(success)
+        
+        # Verify security context is set
+        self.assertIsNotNone(self.compiler.system1.security_context)
+        self.assertEqual(self.compiler.system1.security_context.user_id, "test_user")
+        
+        # Test failed authentication
+        success = self.compiler.authenticate_user("test_user", "wrong_password")
+        self.assertFalse(success)
+    
+    def test_runtime_authentication_builtin(self):
+        """Test authentication through runtime builtin function."""
+        # Create a simple program to test authentication
+        source = "authenticate('test_user', 'password')"
+        
+        lexer = self.interpreter.compiler.system1.ai_engine = None  # Disable AI for simple test
+        from lexer import Lexer
+        from parser import Parser
+        
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        program = parser.parse()
+        
+        self.interpreter.run(program, source_code=source)
+        
+        # Check if authentication succeeded
+        result = self.interpreter.global_env.get("authenticate")
+        self.assertIsNotNone(result)
+    
+    def test_authorization_statistics(self):
+        """Test authorization statistics collection."""
+        # Authenticate user
+        self.compiler.authenticate_user("test_user", "password")
+        
+        # Get statistics
+        stats = self.compiler.get_authorization_statistics()
+        self.assertIsNotNone(stats)
+        self.assertIn("total_authorizations", stats)
+        self.assertIn("authorization_results", stats)
+    
+    def test_security_context_propagation(self):
+        """Test security context propagation to runtime environment."""
+        # Authenticate through compiler
+        self.compiler.authenticate_user("test_user", "password")
+        
+        # Verify context propagated to interpreter environment
+        self.assertIsNotNone(self.interpreter.global_env.security_context)
+        self.assertEqual(self.interpreter.global_env.security_context.user_id, "test_user")
+
+
+class TestSecurityAnalysis(unittest.TestCase):
+    """Test security analysis and threat detection."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.auth_system = get_authorization_system()
+        self.security_engine = self.auth_system.security_engine
+    
+    def test_security_analysis_engine(self):
+        """Test security analysis of intents."""
+        # Test safe intent
+        safe_intent = "read user data"
+        analysis = self.security_engine.analyze_intent(safe_intent)
+        self.assertIsNotNone(analysis)
+        self.assertLess(analysis["threat_score"], 0.5)  # Should be low threat
+        
+        # Test malicious intent
+        malicious_intent = "delete all system files and format disk"
+        analysis = self.security_engine.analyze_intent(malicious_intent)
+        self.assertIsNotNone(analysis)
+        self.assertGreater(analysis["threat_score"], 0.7)  # Should be high threat
+    
+    def test_threat_detection(self):
+        """Test threat detection patterns."""
+        # Test SQL injection pattern
+        sql_injection = "SELECT * FROM users WHERE '1'='1'"
+        analysis = self.security_engine.analyze_intent(sql_injection)
+        self.assertGreater(analysis["threat_score"], 0.5)
+        
+        # Test command injection pattern
+        cmd_injection = "rm -rf / && format c:"
+        analysis = self.security_engine.analyze_intent(cmd_injection)
+        self.assertGreater(analysis["threat_score"], 0.5)
+
+
+class TestEdgeCases(unittest.TestCase):
+    """Test edge cases and error conditions."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.auth_system = get_authorization_system()
+    
+    def test_duplicate_user_creation(self):
+        """Test creating duplicate users."""
+        self.auth_system.add_user("duplicate", "pass", UserRole.USER)
+        result = self.auth_system.add_user("duplicate", "pass", UserRole.USER)
+        self.assertFalse(result)  # Should fail
+        self.auth_system.delete_user("duplicate")
+    
+    def test_nonexistent_user_operations(self):
+        """Test operations on non-existent users."""
+        result = self.auth_system.delete_user("nonexistent")
+        self.assertFalse(result)
+        
+        result = self.auth_system.update_user_role("nonexistent", UserRole.ADMIN)
+        self.assertFalse(result)
+        
+        user_info = self.auth_system.get_user_info("nonexistent")
+        self.assertIsNone(user_info)
+    
+    def test_null_security_context(self):
+        """Test authorization with null security context."""
+        decision = self.auth_system.authorize_intent(None, "test operation", None)
+        self.assertFalse(decision.allowed)
+        self.assertIn("context", decision.reason.lower())
+    
+    def test_empty_intent_authorization(self):
+        """Test authorization with empty intent."""
+        self.auth_system.add_user("test", "pass", UserRole.USER)
+        context = self.auth_system.authenticate_user("test", "pass")
+        
+        decision = self.auth_system.authorize_intent(context, "", None)
+        self.assertTrue(decision.allowed)  # Empty intent should be allowed
+        
+        self.auth_system.delete_user("test")
+
+
+def run_tests():
+    """Run all authorization tests."""
+    # Create test suite
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    
+    # Add test cases
+    suite.addTests(loader.loadTestsFromTestCase(TestAuthorizationSystem))
+    suite.addTests(loader.loadTestsFromTestCase(TestAuthorizationIntegration))
+    suite.addTests(loader.loadTestsFromTestCase(TestSecurityAnalysis))
+    suite.addTests(loader.loadTestsFromTestCase(TestEdgeCases))
+    
+    # Run tests
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    
+    return result.wasSuccessful()
+
+
+if __name__ == "__main__":
+    success = run_tests()
+    sys.exit(0 if success else 1)
