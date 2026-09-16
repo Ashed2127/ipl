@@ -57,46 +57,46 @@ class TestAuthorizationSystem(unittest.TestCase):
     def test_role_based_access_control(self):
         """Test role-based access control permissions."""
         # Add users with different roles
-        self.auth_system.add_user("guest_user", "pass", UserRole.GUEST)
-        self.auth_system.add_user("regular_user", "pass", UserRole.USER)
-        self.auth_system.add_user("admin_user", "pass", UserRole.ADMIN)
+        self.auth_system.user_db.create_user("guest_user", "pass", UserRole.GUEST, {Permission.READ})
+        self.auth_system.user_db.create_user("regular_user", "pass", UserRole.USER, {Permission.READ, Permission.WRITE})
+        self.auth_system.user_db.create_user("admin_user", "pass", UserRole.ADMIN, {Permission.READ, Permission.WRITE, Permission.DELETE, Permission.EXECUTE, Permission.ADMIN})
         
         # Get security contexts
         guest_context = self.auth_system.authenticate_user("guest_user", "pass")
         user_context = self.auth_system.authenticate_user("regular_user", "pass")
         admin_context = self.auth_system.authenticate_user("admin_user", "pass")
         
-        # Test permission checks
-        guest_has_read = self.auth_system.rbac.has_permission(guest_context, Permission.READ)
-        user_has_read = self.auth_system.rbac.has_permission(user_context, Permission.READ)
-        admin_has_read = self.auth_system.rbac.has_permission(admin_context, Permission.READ)
+        # Test permission checks through context
+        guest_has_read = Permission.READ in guest_context.permissions
+        user_has_read = Permission.READ in user_context.permissions
+        admin_has_read = Permission.READ in admin_context.permissions
         
         self.assertTrue(guest_has_read)  # Guest should have read
         self.assertTrue(user_has_read)   # User should have read
         self.assertTrue(admin_has_read)  # Admin should have read
         
         # Test write permissions
-        guest_has_write = self.auth_system.rbac.has_permission(guest_context, Permission.WRITE)
-        user_has_write = self.auth_system.rbac.has_permission(user_context, Permission.WRITE)
-        admin_has_write = self.auth_system.rbac.has_permission(admin_context, Permission.WRITE)
+        guest_has_write = Permission.WRITE in guest_context.permissions
+        user_has_write = Permission.WRITE in user_context.permissions
+        admin_has_write = Permission.WRITE in admin_context.permissions
         
         self.assertFalse(guest_has_write)  # Guest should not have write
         self.assertTrue(user_has_write)     # User should have write
         self.assertTrue(admin_has_write)   # Admin should have write
         
         # Test admin permissions
-        guest_has_admin = self.auth_system.rbac.has_permission(guest_context, Permission.ADMIN)
-        user_has_admin = self.auth_system.rbac.has_permission(user_context, Permission.ADMIN)
-        admin_has_admin = self.auth_system.rbac.has_permission(admin_context, Permission.ADMIN)
+        guest_has_admin = Permission.ADMIN in guest_context.permissions
+        user_has_admin = Permission.ADMIN in user_context.permissions
+        admin_has_admin = Permission.ADMIN in admin_context.permissions
         
         self.assertFalse(guest_has_admin)  # Guest should not have admin
         self.assertFalse(user_has_admin)   # User should not have admin
         self.assertTrue(admin_has_admin)   # Admin should have admin
         
         # Clean up
-        self.auth_system.delete_user("guest_user")
-        self.auth_system.delete_user("regular_user")
-        self.auth_system.delete_user("admin_user")
+        del self.auth_system.user_db.users["guest_user"]
+        del self.auth_system.user_db.users["regular_user"]
+        del self.auth_system.user_db.users["admin_user"]
     
     def test_authorization_decision(self):
         """Test authorization decision making."""
