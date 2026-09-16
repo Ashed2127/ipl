@@ -95,6 +95,162 @@ def _print_ai_stats(console: Console, stats: Dict[str, Any]):
     ))
 
 
+def _print_auth_stats(console: Console, stats: Dict[str, Any]):
+    """Print authorization system statistics."""
+    from rich.table import Table
+    from rich.panel import Panel
+    
+    # Overall statistics
+    console.print(Panel(f"[bold green]Total Authorization Checks:[/bold green] {stats.get('total_authorizations', 0)}", title="Authorization System Overview"))
+    
+    # Authorization results
+    auth_table = Table(title="Authorization Results", border_style="cyan")
+    auth_table.add_column("Result", style="bold")
+    auth_table.add_column("Count", style="green")
+    auth_table.add_column("Percentage", style="yellow")
+    
+    total = sum(stats.get('authorization_results', {}).values())
+    for result, count in stats.get('authorization_results', {}).items():
+        percentage = (count / total * 100) if total > 0 else 0
+        auth_table.add_row(result, str(count), f"{percentage:.1f}%")
+    
+    console.print(auth_table)
+    
+    # Cache statistics
+    cache_stats = stats.get('cache_statistics', {})
+    console.print(Panel(
+        f"[bold green]Cache Hit Rate:[/bold green] {cache_stats.get('hit_rate', 0.0):.1%}\n"
+        f"[bold green]Cache Size:[/bold green] {cache_stats.get('cache_size', 0)}/{cache_stats.get('max_size', 0)}\n"
+        f"[bold green]Hits:[/bold green] {cache_stats.get('hit_count', 0)} | [bold red]Misses:[/bold red] {cache_stats.get('miss_count', 0)}",
+        title="Authorization Cache Performance"
+    ))
+
+
+def manage_users():
+    """User management CLI interface."""
+    console = Console()
+    print_banner(console)
+    console.print("[bold cyan]👤 User Management System[/bold cyan]\n")
+    
+    auth_system = get_authorization_system()
+    
+    while True:
+        console.print("[bold]Available Commands:[/bold]")
+        console.print("  1. List all users")
+        console.print("  2. Add new user")
+        console.print("  3. Delete user")
+        console.print("  4. Change user role")
+        console.print("  5. Show user permissions")
+        console.print("  6. Exit")
+        
+        try:
+            choice = input("\nSelect option (1-6): ").strip()
+            
+            if choice == "1":
+                users = auth_system.list_users()
+                if not users:
+                    console.print("[yellow]No users found in the system.[/yellow]")
+                else:
+                    table = Table(title="System Users", border_style="cyan")
+                    table.add_column("Username", style="bold green")
+                    table.add_column("Role", style="cyan")
+                    table.add_column("Permissions", style="white")
+                    
+                    for user in users:
+                        permissions_str = ", ".join(user.get('permissions', []))
+                        table.add_row(user['username'], user['role'], permissions_str)
+                    
+                    console.print(table)
+            
+            elif choice == "2":
+                username = input("Enter username: ").strip()
+                if not username:
+                    console.print("[red]Username cannot be empty.[/red]")
+                    continue
+                
+                console.print("[bold]Available Roles:[/bold]")
+                console.print("  1. ADMIN")
+                console.print("  2. DEVELOPER")
+                console.print("  3. USER")
+                console.print("  4. GUEST")
+                
+                role_choice = input("Select role (1-4): ").strip()
+                role_map = {
+                    "1": UserRole.ADMIN,
+                    "2": UserRole.DEVELOPER,
+                    "3": UserRole.USER,
+                    "4": UserRole.GUEST
+                }
+                
+                if role_choice not in role_map:
+                    console.print("[red]Invalid role selection.[/red]")
+                    continue
+                
+                role = role_map[role_choice]
+                password = input("Enter password: ").strip()
+                
+                if auth_system.add_user(username, password, role):
+                    console.print(f"[green]✓ User '{username}' added successfully as {role.name}.[/green]")
+                else:
+                    console.print(f"[red]✗ Failed to add user '{username}'. User may already exist.[/red]")
+            
+            elif choice == "3":
+                username = input("Enter username to delete: ").strip()
+                if auth_system.delete_user(username):
+                    console.print(f"[green]✓ User '{username}' deleted successfully.[/green]")
+                else:
+                    console.print(f"[red]✗ Failed to delete user '{username}'. User may not exist.[/red]")
+            
+            elif choice == "4":
+                username = input("Enter username: ").strip()
+                console.print("[bold]Available Roles:[/bold]")
+                console.print("  1. ADMIN")
+                console.print("  2. DEVELOPER")
+                console.print("  3. USER")
+                console.print("  4. GUEST")
+                
+                role_choice = input("Select new role (1-4): ").strip()
+                role_map = {
+                    "1": UserRole.ADMIN,
+                    "2": UserRole.DEVELOPER,
+                    "3": UserRole.USER,
+                    "4": UserRole.GUEST
+                }
+                
+                if role_choice not in role_map:
+                    console.print("[red]Invalid role selection.[/red]")
+                    continue
+                
+                role = role_map[role_choice]
+                if auth_system.update_user_role(username, role):
+                    console.print(f"[green]✓ User '{username}' role updated to {role.name}.[/green]")
+                else:
+                    console.print(f"[red]✗ Failed to update user '{username}' role. User may not exist.[/red]")
+            
+            elif choice == "5":
+                username = input("Enter username: ").strip()
+                user_info = auth_system.get_user_info(username)
+                if user_info:
+                    console.print(f"[bold cyan]User: {username}[/bold cyan]")
+                    console.print(f"Role: {user_info['role']}")
+                    console.print(f"Permissions: {', '.join(user_info['permissions'])}")
+                else:
+                    console.print(f"[red]User '{username}' not found.[/red]")
+            
+            elif choice == "6":
+                console.print("[dim]Exiting user management.[/dim]")
+                break
+            
+            else:
+                console.print("[red]Invalid option. Please select 1-6.[/red]")
+        
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[dim]User management terminated.[/dim]")
+            break
+        except Exception as e:
+            console.print(f"[red]Error: {e}[/red]")
+
+
 def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
     console = Console()
     if not os.path.exists(filepath):
