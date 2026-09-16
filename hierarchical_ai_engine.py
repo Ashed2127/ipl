@@ -566,8 +566,10 @@ class Tier2SpecializedModel(BaseModelInterface):
 class Tier3ReasoningModel(BaseModelInterface):
     """Tier 3: Large reasoning models for complex scenarios."""
     
-    def __init__(self, model_name: str = "gpt-4"):
+    def __init__(self, model_name: str = "gpt-4", api_key: Optional[str] = None):
         super().__init__(model_name, ModelTier.TIER_3_REASONING)
+        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        self.api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
         
     def initialize(self) -> bool:
         """Initialize reasoning model (would connect to external API in production)."""
