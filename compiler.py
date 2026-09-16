@@ -288,11 +288,12 @@ class LocalInferenceRuntime:
     4. Authorization System (User authentication, role-based access, context-aware security)
     Treats AI outputs strictly as unexecutable candidate AST data structures.
     """
-    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
+    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, openai_api_key: Optional[str] = None):
         self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
+        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         
         # Initialize hierarchical AI engine if enabled
         self.ai_engine = None
@@ -300,7 +301,7 @@ class LocalInferenceRuntime:
         
         if self.use_hierarchical_ai:
             try:
-                self.ai_engine = get_ai_engine()
+                self.ai_engine = get_ai_engine(api_key=self.openai_api_key)
             except Exception as e:
                 print(f"Warning: Failed to initialize hierarchical AI engine: {e}")
                 self.use_hierarchical_ai = False
