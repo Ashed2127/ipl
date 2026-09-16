@@ -251,7 +251,7 @@ def manage_users():
             console.print(f"[red]Error: {e}[/red]")
 
 
-def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, openai_api_key: Optional[str] = None):
+def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
     console = Console()
     if not os.path.exists(filepath):
         console.print(f"[bold red]File not found:[/bold red] {filepath}")
@@ -261,13 +261,13 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
     auth_mode = "Enabled" if enable_authorization else "Disabled"
-    api_status = "Configured" if openai_api_key or os.environ.get("OPENAI_API_KEY") else "Not configured"
-    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green] | Auth: [bold yellow]{auth_mode}[/bold yellow] | OpenAI: [bold magenta]{api_status}[/bold magenta][/dim]\n")
+    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "deepseek-coder:1.3b")
+    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green] | Auth: [bold yellow]{auth_mode}[/bold yellow] | Tier 3: [bold magenta]{tier3_disp}[/bold magenta][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
     start_time = time.perf_counter()
     success = run_source(source, interpreter, console, filename=filepath)
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
