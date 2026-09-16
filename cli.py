@@ -53,6 +53,46 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
         return False
 
 
+def _print_ai_stats(console: Console, stats: Dict[str, Any]):
+    """Print hierarchical AI engine statistics."""
+    from rich.table import Table
+    from rich.panel import Panel
+    
+    # Overall statistics
+    console.print(Panel(f"[bold green]Total Requests:[/bold green] {stats.get('total_requests', 0)}", title="AI Engine Overview"))
+    
+    # Tier usage
+    tier_table = Table(title="Model Tier Usage", border_style="cyan")
+    tier_table.add_column("Tier", style="bold")
+    tier_table.add_column("Requests", style="green")
+    tier_table.add_column("Percentage", style="yellow")
+    
+    total = sum(stats.get('tier_usage', {}).values())
+    for tier, count in stats.get('tier_usage', {}).items():
+        percentage = (count / total * 100) if total > 0 else 0
+        tier_table.add_row(tier, str(count), f"{percentage:.1f}%")
+    
+    console.print(tier_table)
+    
+    # Token statistics
+    token_stats = stats.get('token_statistics', {})
+    console.print(Panel(
+        f"[bold green]Total Tokens:[/bold green] {token_stats.get('total_tokens_used', 0)}\n"
+        f"[bold green]Total Cost:[/bold green] ${token_stats.get('total_cost_usd', 0.0):.4f}\n"
+        f"[bold green]Avg Tokens/Request:[/bold green] {token_stats.get('average_tokens_per_request', 0):.1f}",
+        title="Token Usage & Cost"
+    ))
+    
+    # Cache statistics
+    cache_stats = stats.get('cache_statistics', {})
+    console.print(Panel(
+        f"[bold green]Cache Hit Rate:[/bold green] {cache_stats.get('hit_rate', 0.0):.1%}\n"
+        f"[bold green]Cache Size:[/bold green] {cache_stats.get('cache_size', 0)}/{cache_stats.get('max_size', 0)}\n"
+        f"[bold green]Hits:[/bold green] {cache_stats.get('hit_count', 0)} | [bold red]Misses:[/bold red] {cache_stats.get('miss_count', 0)}",
+        title="Intelligent Cache Performance"
+    ))
+
+
 def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
     console = Console()
     if not os.path.exists(filepath):
