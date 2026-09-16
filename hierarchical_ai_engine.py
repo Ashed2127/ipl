@@ -643,55 +643,52 @@ class Tier3ReasoningModel(BaseModelInterface):
             )
     
     def _deep_reasoning(self, prompt: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Perform deep reasoning analysis using real API."""
+        """Perform deep reasoning analysis using local Ollama model."""
         if not self.is_available:
-            # Fallback to rule-based reasoning if API unavailable
+            # Fallback to rule-based reasoning if Ollama unavailable
             return self._fallback_reasoning(prompt, context)
         
         task_type = context.get("task_type", "general")
         
-        # Build API request
+        # Build Ollama API request
         system_prompt = self._build_system_prompt(task_type)
         user_prompt = self._build_user_prompt(prompt, context, task_type)
         
         try:
-            api_url = f"{self.api_base}/chat/completions"
+            api_url = f"{self.ollama_endpoint}/api/generate"
             payload = {
                 "model": self.model_name,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 500
+                "prompt": f"{system_prompt}\n\n{user_prompt}",
+                "stream": False,
+                "options": {
+                    "temperature": 0.7,
+                    "num_predict": 500
+                }
             }
             
             req = urllib.request.Request(
                 api_url,
                 data=json.dumps(payload).encode("utf-8"),
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.api_key}"
-                }
+                headers={"Content-Type": "application/json"}
             )
             
             with urllib.request.urlopen(req, timeout=30) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
                 
-                if "choices" in result and len(result["choices"]) > 0:
-                    api_response = result["choices"][0]["message"]["content"]
+                if "response" in result:
+                    api_response = result["response"]
                     return {
-                        "method": "deep_reasoning_api",
+                        "method": "deep_reasoning_ollama",
                         "tier": "tier_3",
                         "api_response": api_response,
                         "model_used": self.model_name,
                         "task_type": task_type
                     }
                 else:
-                    raise Exception("Invalid API response format")
+                    raise Exception("Invalid Ollama response format")
                     
         except Exception as e:
-            print(f"API call failed, falling back to rule-based reasoning: {e}")
+            print(f"Ollama call failed, falling back to rule-based reasoning: {e}")
             return self._fallback_reasoning(prompt, context)
     
     def _build_system_prompt(self, task_type: str) -> str:
