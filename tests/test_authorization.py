@@ -101,7 +101,7 @@ class TestAuthorizationSystem(unittest.TestCase):
     def test_authorization_decision(self):
         """Test authorization decision making."""
         # Add test user
-        self.auth_system.add_user("auth_test", "pass", UserRole.USER)
+        self.auth_system.user_db.create_user("auth_test", "pass", UserRole.USER, {Permission.READ, Permission.WRITE})
         context = self.auth_system.authenticate_user("auth_test", "pass")
         
         # Test allowed decision
@@ -114,7 +114,7 @@ class TestAuthorizationSystem(unittest.TestCase):
         self.assertIn("permission", decision.reason.lower())
         
         # Clean up
-        self.auth_system.delete_user("auth_test")
+        del self.auth_system.user_db.users["auth_test"]
     
     def test_security_context(self):
         """Test security context creation and management."""
