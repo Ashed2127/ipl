@@ -473,6 +473,7 @@ def main():
     model_name = None
     use_hierarchical_ai = True
     enable_authorization = True
+    openai_api_key = None
     
     if "--model" in args:
         m_idx = args.index("--model")
