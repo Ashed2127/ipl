@@ -198,6 +198,33 @@ class Environment:
             symbols.update(self.parent.all_symbols())
         symbols.update(self.bindings)
         return symbols
+    
+    def set_security_context(self, context):
+        """Set security context for this environment."""
+        self.security_context = context
+        if self.parent:
+            self.parent.set_security_context(context)
+    
+    def log_authorization(self, operation: str, allowed: bool, reason: str = ""):
+        """Log authorization decision for audit trail."""
+        log_entry = {
+            "operation": operation,
+            "allowed": allowed,
+            "reason": reason,
+            "timestamp": time.time(),
+            "user": self.security_context.user_id if self.security_context else "unknown"
+        }
+        self.authorization_log.append(log_entry)
+        if self.parent:
+            self.parent.log_authorization(operation, allowed, reason)
+    
+    def get_authorization_log(self) -> list:
+        """Get authorization log for this environment."""
+        log = []
+        if self.parent:
+            log.extend(self.parent.get_authorization_log())
+        log.extend(self.authorization_log)
+        return log
 
 
 class Interpreter:
