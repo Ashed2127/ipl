@@ -440,6 +440,8 @@ class Interpreter:
             "json_decode": _json_decode,
             "now": _now,
             "ai_stats": _ai_stats,
+            "auth_stats": _auth_stats,
+            "authenticate": _authenticate,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
