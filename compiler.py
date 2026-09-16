@@ -675,6 +675,31 @@ class NeuroSymbolicCompiler:
             details={"intent": prompt, "declared_contract": effective_type.name if effective_type else "Any"}
         )
 
+        # Step 1.5: Authorization Check
+        if self.enable_authorization and self.system1.auth_system and self.system1.security_context:
+            auth_decision = self.system1.auth_system.authorize_intent(
+                self.system1.security_context,
+                prompt,
+                effective_type.name if effective_type else None
+            )
+            
+            if not auth_decision.allowed:
+                self.audit_trace.record(
+                    phase="AUTHORIZATION_CHECK",
+                    status="DENIED",
+                    details={"reason": auth_decision.reason, "user": self.system1.security_context.user_id}
+                )
+                raise PermissionError(
+                    f"Authorization Denied: {auth_decision.reason}. "
+                    f"User: {self.system1.security_context.user_id}, Role: {self.system1.security_context.role.name}"
+                )
+            
+            self.audit_trace.record(
+                phase="AUTHORIZATION_CHECK",
+                status="APPROVED",
+                details={"user": self.system1.security_context.user_id, "role": self.system1.security_context.role.name}
+            )
+
         # Step 2: System 1 Neural Candidate Generation
         candidate_ast = self.system1.parse_intent(prompt, effective_type)
         self.audit_trace.record(
