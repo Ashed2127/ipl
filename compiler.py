@@ -635,20 +635,22 @@ class LocalInferenceRuntime:
 
 class NeuroSymbolicCompiler:
     """
-    The Complete Hybrid Neuro-Symbolic Compiler Engine with Hierarchical AI.
+    The Complete Hybrid Neuro-Symbolic Compiler Engine with Hierarchical AI and Authorization.
     Coordinates:
     - System 1: Hierarchical AI Engine + Embedded Inference + Local Neural LLM
     - System 2: Mathematical Firewall & Symbolic Contracts
+    - System 3: Authorization System with Context-Aware Security
     - Resilience: The Self-Correction Loop
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
     """
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
         self.console = console or Console()
-        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
         self.use_hierarchical_ai = use_hierarchical_ai
+        self.enable_authorization = enable_authorization
 
     def compile_intent_node(
         self,
