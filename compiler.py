@@ -30,6 +30,7 @@ try:
     )
     from .semantic_engine import SemanticEngine
     from .hierarchical_ai_engine import get_ai_engine, TaskComplexity
+    from .authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision
 except (ImportError, ValueError):
     from taint import TaintLevel, TaintTag, TaintViolationError
     from ast_nodes import (
@@ -40,6 +41,7 @@ except (ImportError, ValueError):
     )
     from semantic_engine import SemanticEngine
     from hierarchical_ai_engine import get_ai_engine, TaskComplexity
+    from authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision
 
 
 @dataclass
