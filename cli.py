@@ -447,6 +447,7 @@ def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = Tru
                     "  print cost for 'executive'\n"
                     "  authenticate('username', 'password')  # Login (if auth enabled)\n"
                     "  auth_stats()  # Show authorization statistics\n"
+                    "  auth_log()    # Show authorization audit log\n"
                 )
                 continue
 

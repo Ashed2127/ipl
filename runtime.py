@@ -208,7 +208,6 @@ class Environment:
     
     def log_authorization(self, operation: str, allowed: bool, reason: str = ""):
         """Log authorization decision for audit trail."""
-        import time
         log_entry = {
             "operation": operation,
             "allowed": allowed,
