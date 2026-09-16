@@ -777,14 +777,17 @@ class Tier3ReasoningModel(BaseModelInterface):
 class HierarchicalAIEngine:
     """Main hierarchical AI engine with speculative execution."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, ollama_endpoint: Optional[str] = None, tier3_model: Optional[str] = None):
         self.token_optimizer = TokenOptimizer()
         self.cache = IntelligentCache(max_size=1000, ttl_seconds=3600)
         
         # Initialize model tiers
         self.tier1 = Tier1LightningModel()
         self.tier2 = Tier2SpecializedModel()
-        self.tier3 = Tier3ReasoningModel(api_key=api_key)
+        self.tier3 = Tier3ReasoningModel(
+            model_name=tier3_model or "deepseek-coder:1.3b",
+            ollama_endpoint=ollama_endpoint
+        )
         
         # Initialize models
         self.tier1.initialize()
