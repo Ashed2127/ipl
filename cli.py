@@ -169,17 +169,17 @@ def manage_users():
                     continue
                 
                 console.print("[bold]Available Roles:[/bold]")
-                console.print("  1. ADMIN")
-                console.print("  2. DEVELOPER")
-                console.print("  3. USER")
-                console.print("  4. GUEST")
+                console.print("  1. GUEST")
+                console.print("  2. USER")
+                console.print("  3. ADMIN")
+                console.print("  4. SUPER_ADMIN")
                 
                 role_choice = input("Select role (1-4): ").strip()
                 role_map = {
-                    "1": UserRole.ADMIN,
-                    "2": UserRole.DEVELOPER,
-                    "3": UserRole.USER,
-                    "4": UserRole.GUEST
+                    "1": UserRole.GUEST,
+                    "2": UserRole.USER,
+                    "3": UserRole.ADMIN,
+                    "4": UserRole.SUPER_ADMIN
                 }
                 
                 if role_choice not in role_map:
@@ -204,17 +204,17 @@ def manage_users():
             elif choice == "4":
                 username = input("Enter username: ").strip()
                 console.print("[bold]Available Roles:[/bold]")
-                console.print("  1. ADMIN")
-                console.print("  2. DEVELOPER")
-                console.print("  3. USER")
-                console.print("  4. GUEST")
+                console.print("  1. GUEST")
+                console.print("  2. USER")
+                console.print("  3. ADMIN")
+                console.print("  4. SUPER_ADMIN")
                 
                 role_choice = input("Select new role (1-4): ").strip()
                 role_map = {
-                    "1": UserRole.ADMIN,
-                    "2": UserRole.DEVELOPER,
-                    "3": UserRole.USER,
-                    "4": UserRole.GUEST
+                    "1": UserRole.GUEST,
+                    "2": UserRole.USER,
+                    "3": UserRole.ADMIN,
+                    "4": UserRole.SUPER_ADMIN
                 }
                 
                 if role_choice not in role_map:
