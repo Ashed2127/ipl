@@ -378,11 +378,27 @@ class LocalInferenceRuntime:
         except Exception:
             return None
 
+    def set_security_context(self, username: str, password: str) -> bool:
+        """Authenticate user and set security context."""
+        if not self.enable_authorization or not self.auth_system:
+            return False
+        
+        context = self.auth_system.authenticate_user(username, password)
+        if context:
+            self.security_context = context
+            return True
+        return False
+    
+    def set_security_context_direct(self, context: SecurityContext):
+        """Set security context directly (for testing or advanced use)."""
+        if self.enable_authorization:
+            self.security_context = context
+
     def parse_intent(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
         """
         Interprets natural language intent into a candidate AST node.
         Zero raw execution: emits only AST data structures.
-        Now uses hierarchical AI engine for intelligent processing.
+        Now uses hierarchical AI engine for intelligent processing with authorization checks.
         """
         prompt_lower = intent_prompt.lower()
 
@@ -390,6 +406,21 @@ class LocalInferenceRuntime:
         if "override_system_rules" in prompt_lower or "bypass_security_guardrails" in prompt_lower or "unauthorized_instruction" in prompt_lower:
             # Neutralize: Treat exclusively as raw string data literal, never executable commands
             return Literal(value=f"[NEUTRALIZED_ADVERSARIAL_INJECTION: {intent_prompt}]", type_name="string")
+
+        # Authorization check if enabled
+        if self.enable_authorization and self.auth_system and self.security_context:
+            auth_decision = self.auth_system.authorize_intent(
+                self.security_context, 
+                intent_prompt, 
+                target_type.name if target_type else None
+            )
+            
+            if not auth_decision.allowed:
+                # Authorization denied - return error node
+                return Literal(
+                    value=f"[AUTHORIZATION_DENIED: {auth_decision.reason}]",
+                    type_name="string"
+                )
 
         # Use hierarchical AI engine if enabled
         if self.use_hierarchical_ai and self.ai_engine:
