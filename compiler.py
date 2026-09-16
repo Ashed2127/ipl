@@ -479,6 +479,14 @@ class LocalInferenceRuntime:
             elif "semantic_features" in ai_content:
                 # Semantic features
                 return Literal(value=ai_content["semantic_features"], type_name="dict")
+            elif target_type and target_type.name == "Sentiment":
+                # For sentiment type, use the semantic engine directly
+                sent_data = SemanticEngine.extract_sentiment(str(ai_content))
+                return Literal(value=sent_data, type_name="Sentiment")
+            elif target_type and target_type.name == "Currency":
+                # For currency type, use the semantic engine directly
+                curr_data = SemanticEngine.extract_currency(str(ai_content))
+                return Literal(value=curr_data, type_name="Currency")
             else:
                 # Generic dict response
                 return Literal(value=ai_content, type_name="dict")
@@ -495,6 +503,14 @@ class LocalInferenceRuntime:
                     return Literal(value=float(ai_content), type_name="float")
                 except ValueError:
                     return Literal(value=ai_content, type_name="string")
+            elif target_type and target_type.name == "Sentiment":
+                # Use semantic engine for sentiment
+                sent_data = SemanticEngine.extract_sentiment(ai_content)
+                return Literal(value=sent_data, type_name="Sentiment")
+            elif target_type and target_type.name == "Currency":
+                # Use semantic engine for currency
+                curr_data = SemanticEngine.extract_currency(ai_content)
+                return Literal(value=curr_data, type_name="Currency")
             else:
                 return Literal(value=ai_content, type_name="string")
         
