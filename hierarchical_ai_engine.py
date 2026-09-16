@@ -391,9 +391,7 @@ class Tier2SpecializedModel(BaseModelInterface):
         start_time = time.time()
         
         try:
-            # Simulate processing time for medium model
-            time.sleep(0.01)  # 10ms simulation
-            
+            # Real semantic analysis without artificial delays
             result = self._semantic_analysis(prompt, context)
             
             execution_time = (time.time() - start_time) * 1000
