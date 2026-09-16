@@ -17,7 +17,7 @@ try:
         AuthorizationDecision, PolicyEngine, ContextAwareSecurityAnalyzer, AuthorizationSystem
     )
     from compiler import NeuroSymbolicCompiler, LocalInferenceRuntime
-    from runtime import Interpreter
+    from runtime import Interpreter, IValue
     from rich.console import Console
 except ImportError as e:
     print(f"Import error: {e}")
