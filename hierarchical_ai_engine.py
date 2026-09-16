@@ -580,9 +580,7 @@ class Tier3ReasoningModel(BaseModelInterface):
         start_time = time.time()
         
         try:
-            # Simulate processing time for large model
-            time.sleep(0.1)  # 100ms simulation
-            
+            # Real deep reasoning without artificial delays
             result = self._deep_reasoning(prompt, context)
             
             execution_time = (time.time() - start_time) * 1000
