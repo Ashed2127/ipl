@@ -229,12 +229,12 @@ class Environment:
 
 
 class Interpreter:
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, openai_api_key: Optional[str] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
         self.console = console or Console()
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
-        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
+        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
         self.loaded_modules: Set[str] = set()
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
