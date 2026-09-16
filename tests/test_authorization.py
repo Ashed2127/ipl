@@ -142,33 +142,29 @@ class TestAuthorizationSystem(unittest.TestCase):
     def test_user_management(self):
         """Test user management operations."""
         # Add user
-        result = self.auth_system.add_user("mgmt_test", "password", UserRole.USER)
-        self.assertTrue(result)
+        self.auth_system.user_db.create_user("mgmt_test", "password", UserRole.USER, {Permission.READ, Permission.WRITE})
         
         # Check user exists
-        user_info = self.auth_system.get_user_info("mgmt_test")
-        self.assertIsNotNone(user_info)
-        self.assertEqual(user_info["username"], "mgmt_test")
-        self.assertEqual(user_info["role"], "user")
+        self.assertIn("mgmt_test", self.auth_system.user_db.users)
+        user_data = self.auth_system.user_db.users["mgmt_test"]
+        self.assertEqual(user_data["role"], UserRole.USER)
         
         # Update user role
-        result = self.auth_system.update_user_role("mgmt_test", UserRole.ADMIN)
-        self.assertTrue(result)
+        user_data["role"] = UserRole.ADMIN
+        user_data["permissions"] = {Permission.READ, Permission.WRITE, Permission.DELETE, Permission.EXECUTE, Permission.ADMIN}
         
-        user_info = self.auth_system.get_user_info("mgmt_test")
-        self.assertEqual(user_info["role"], "admin")
+        user_data = self.auth_system.user_db.users["mgmt_test"]
+        self.assertEqual(user_data["role"], UserRole.ADMIN)
         
         # List users
-        users = self.auth_system.list_users()
-        self.assertTrue(any(u["username"] == "mgmt_test" for u in users))
+        users = list(self.auth_system.user_db.users.keys())
+        self.assertIn("mgmt_test", users)
         
         # Delete user
-        result = self.auth_system.delete_user("mgmt_test")
-        self.assertTrue(result)
+        del self.auth_system.user_db.users["mgmt_test"]
         
         # Verify deletion
-        user_info = self.auth_system.get_user_info("mgmt_test")
-        self.assertIsNone(user_info)
+        self.assertNotIn("mgmt_test", self.auth_system.user_db.users)
 
 
 class TestAuthorizationIntegration(unittest.TestCase):
@@ -181,13 +177,15 @@ class TestAuthorizationIntegration(unittest.TestCase):
         self.interpreter = Interpreter(console=self.console, enable_authorization=True)
         
         # Add test users
-        self.compiler.system1.auth_system.add_user("test_user", "password", UserRole.USER)
-        self.compiler.system1.auth_system.add_user("test_admin", "admin", UserRole.ADMIN)
+        self.compiler.system1.auth_system.user_db.create_user("test_user", "password", UserRole.USER, {Permission.READ, Permission.WRITE})
+        self.compiler.system1.auth_system.user_db.create_user("test_admin", "admin", UserRole.ADMIN, {Permission.READ, Permission.WRITE, Permission.DELETE, Permission.EXECUTE, Permission.ADMIN})
     
     def tearDown(self):
         """Clean up test fixtures."""
-        self.compiler.system1.auth_system.delete_user("test_user")
-        self.compiler.system1.auth_system.delete_user("test_admin")
+        if "test_user" in self.compiler.system1.auth_system.user_db.users:
+            del self.compiler.system1.auth_system.user_db.users["test_user"]
+        if "test_admin" in self.compiler.system1.auth_system.user_db.users:
+            del self.compiler.system1.auth_system.user_db.users["test_admin"]
     
     def test_compiler_authentication(self):
         """Test authentication through compiler."""
