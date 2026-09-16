@@ -142,6 +142,8 @@ class Environment:
         self.bindings: Dict[str, IValue] = {}
         self.parent = parent
         self.console = console or Console()
+        self.security_context = None  # Track security context for authorization
+        self.authorization_log = []  # Log authorization decisions for audit trail
 
     def set(self, name: str, value: IValue, is_reassignment: bool = False):
         if is_reassignment:
