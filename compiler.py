@@ -764,3 +764,17 @@ class NeuroSymbolicCompiler:
         if self.use_hierarchical_ai and self.system1.ai_engine:
             return self.system1.ai_engine.get_statistics()
         return {"message": "Hierarchical AI engine not enabled or available"}
+    
+    def authenticate_user(self, username: str, password: str) -> bool:
+        """Authenticate user and set security context."""
+        return self.system1.set_security_context(username, password)
+    
+    def set_security_context(self, context: SecurityContext):
+        """Set security context directly."""
+        self.system1.set_security_context_direct(context)
+    
+    def get_authorization_statistics(self) -> Dict[str, Any]:
+        """Get authorization system statistics."""
+        if self.enable_authorization and self.system1.auth_system:
+            return self.system1.auth_system.get_statistics()
+        return {"message": "Authorization system not enabled or available"}
