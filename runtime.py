@@ -199,14 +199,15 @@ class Environment:
 
 
 class Interpreter:
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
         self.console = console or Console()
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
-        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
         self.loaded_modules: Set[str] = set()
         self.use_hierarchical_ai = use_hierarchical_ai
+        self.enable_authorization = enable_authorization
         self._init_builtins()
 
     def _init_builtins(self):
@@ -396,6 +397,20 @@ class Interpreter:
                 stats = self.compiler.get_ai_engine_statistics()
                 return IValue(stats, "Dict", confidence=1.0)
             return IValue({"message": "Hierarchical AI engine not enabled"}, "Dict", confidence=1.0)
+        
+        def _auth_stats() -> IValue:
+            """Get authorization system statistics."""
+            if self.enable_authorization:
+                stats = self.compiler.get_authorization_statistics()
+                return IValue(stats, "Dict", confidence=1.0)
+            return IValue({"message": "Authorization system not enabled"}, "Dict", confidence=1.0)
+        
+        def _authenticate(username_val: IValue, password_val: IValue) -> IValue:
+            """Authenticate user with username and password."""
+            username = str(username_val.raw_value)
+            password = str(password_val.raw_value)
+            success = self.compiler.authenticate_user(username, password)
+            return IValue(success, "Bool", confidence=1.0)
 
         builtins = {
             "len": _len,
