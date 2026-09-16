@@ -241,28 +241,44 @@ class TestSecurityAnalysis(unittest.TestCase):
     
     def test_security_analysis_engine(self):
         """Test security analysis of intents."""
+        # Create a test context
+        test_context = SecurityContext(
+            user_id="test_user",
+            role=UserRole.USER,
+            permissions={Permission.READ, Permission.WRITE},
+            session_id="test"
+        )
+        
         # Test safe intent
         safe_intent = "read user data"
-        analysis = self.security_analyzer.analyze_intent_with_context(safe_intent, None, "test")
+        analysis = self.security_analyzer.analyze_intent_with_context(safe_intent, test_context, "test")
         self.assertIsNotNone(analysis)
         self.assertTrue(analysis.allowed)  # Should be allowed
         
         # Test malicious intent
         malicious_intent = "delete all system files and format disk"
-        analysis = self.security_analyzer.analyze_intent_with_context(malicious_intent, None, "test")
+        analysis = self.security_analyzer.analyze_intent_with_context(malicious_intent, test_context, "test")
         self.assertIsNotNone(analysis)
         self.assertFalse(analysis.allowed)  # Should be denied
     
     def test_threat_detection(self):
         """Test threat detection patterns."""
+        # Create a test context
+        test_context = SecurityContext(
+            user_id="test_user",
+            role=UserRole.USER,
+            permissions={Permission.READ, Permission.WRITE},
+            session_id="test"
+        )
+        
         # Test SQL injection pattern
         sql_injection = "SELECT * FROM users WHERE '1'='1'"
-        analysis = self.security_analyzer.analyze_intent_with_context(sql_injection, None, "test")
+        analysis = self.security_analyzer.analyze_intent_with_context(sql_injection, test_context, "test")
         self.assertFalse(analysis.allowed)  # Should be denied
         
         # Test command injection pattern
         cmd_injection = "rm -rf / && format c:"
-        analysis = self.security_analyzer.analyze_intent_with_context(cmd_injection, None, "test")
+        analysis = self.security_analyzer.analyze_intent_with_context(cmd_injection, test_context, "test")
         self.assertFalse(analysis.allowed)  # Should be denied
 
 
