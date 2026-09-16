@@ -454,6 +454,13 @@ class Interpreter:
                 self.global_env.log_authorization("authenticate", False, f"Authentication failed for user {username}")
             
             return IValue(success, "Bool", confidence=1.0)
+        
+        def _auth_log() -> IValue:
+            """Get authorization log from current environment."""
+            if self.enable_authorization:
+                log = self.global_env.get_authorization_log()
+                return IValue(log, "List", confidence=1.0)
+            return IValue([], "List", confidence=1.0)
 
         builtins = {
             "len": _len,
@@ -485,6 +492,7 @@ class Interpreter:
             "ai_stats": _ai_stats,
             "auth_stats": _auth_stats,
             "authenticate": _authenticate,
+            "auth_log": _auth_log,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
