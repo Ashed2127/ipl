@@ -1,0 +1,5 @@
+# Test local AI integration with deepseek-coder
+let message = "Testing local AI integration"
+let sentiment: Sentiment = "This is absolutely fantastic and amazing!"
+print sentiment for "developer"
+print "Local AI integration test completed"
