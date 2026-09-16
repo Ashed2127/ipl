@@ -34,8 +34,8 @@ class TestAuthorizationSystem(unittest.TestCase):
         
     def test_user_authentication(self):
         """Test user authentication with correct and incorrect credentials."""
-        # Add a test user
-        self.auth_system.add_user("testuser", "testpass", UserRole.USER)
+        # Add a test user using the user database directly
+        self.auth_system.user_db.create_user("testuser", "testpass", UserRole.USER, {Permission.READ, Permission.WRITE})
         
         # Test successful authentication
         context = self.auth_system.authenticate_user("testuser", "testpass")
@@ -52,7 +52,7 @@ class TestAuthorizationSystem(unittest.TestCase):
         self.assertIsNone(context)
         
         # Clean up
-        self.auth_system.delete_user("testuser")
+        del self.auth_system.user_db.users["testuser"]
     
     def test_role_based_access_control(self):
         """Test role-based access control permissions."""
