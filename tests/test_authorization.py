@@ -239,27 +239,27 @@ class TestSecurityAnalysis(unittest.TestCase):
         """Test security analysis of intents."""
         # Test safe intent
         safe_intent = "read user data"
-        analysis = self.security_analyzer.analyze_security_context(safe_intent, None)
+        analysis = self.security_analyzer.analyze_intent_with_context(safe_intent, None, "test")
         self.assertIsNotNone(analysis)
-        self.assertLess(analysis.get("threat_score", 0), 0.5)  # Should be low threat
+        self.assertTrue(analysis.allowed)  # Should be allowed
         
         # Test malicious intent
         malicious_intent = "delete all system files and format disk"
-        analysis = self.security_analyzer.analyze_security_context(malicious_intent, None)
+        analysis = self.security_analyzer.analyze_intent_with_context(malicious_intent, None, "test")
         self.assertIsNotNone(analysis)
-        self.assertGreater(analysis.get("threat_score", 0), 0.7)  # Should be high threat
+        self.assertFalse(analysis.allowed)  # Should be denied
     
     def test_threat_detection(self):
         """Test threat detection patterns."""
         # Test SQL injection pattern
         sql_injection = "SELECT * FROM users WHERE '1'='1'"
-        analysis = self.security_analyzer.analyze_security_context(sql_injection, None)
-        self.assertGreater(analysis.get("threat_score", 0), 0.5)
+        analysis = self.security_analyzer.analyze_intent_with_context(sql_injection, None, "test")
+        self.assertFalse(analysis.allowed)  # Should be denied
         
         # Test command injection pattern
         cmd_injection = "rm -rf / && format c:"
-        analysis = self.security_analyzer.analyze_security_context(cmd_injection, None)
-        self.assertGreater(analysis.get("threat_score", 0), 0.5)
+        analysis = self.security_analyzer.analyze_intent_with_context(cmd_injection, None, "test")
+        self.assertFalse(analysis.allowed)  # Should be denied
 
 
 class TestEdgeCases(unittest.TestCase):
