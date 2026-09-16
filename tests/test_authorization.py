@@ -17,7 +17,7 @@ try:
         AuthorizationDecision, PolicyEngine, ContextAwareSecurityAnalyzer, AuthorizationSystem
     )
     from compiler import NeuroSymbolicCompiler, LocalInferenceRuntime
-    from runtime import Interpreter
+    from runtime import Interpreter, IValue
     from rich.console import Console
 except ImportError as e:
     print(f"Import error: {e}")
@@ -203,23 +203,17 @@ class TestAuthorizationIntegration(unittest.TestCase):
     
     def test_runtime_authentication_builtin(self):
         """Test authentication through runtime builtin function."""
-        # Create a simple program to test authentication
-        source = "authenticate('test_user', 'password')"
+        # Test that the authenticate builtin exists
+        self.assertIn("authenticate", self.interpreter.global_env.bindings)
         
-        lexer = self.interpreter.compiler.system1.ai_engine = None  # Disable AI for simple test
-        from lexer import Lexer
-        from parser import Parser
+        # Call the authenticate function directly
+        from iValue import IValue
+        username_val = IValue("test_user", "String")
+        password_val = IValue("password", "String")
         
-        lexer = Lexer(source)
-        tokens = lexer.tokenize()
-        parser = Parser(tokens)
-        program = parser.parse()
-        
-        self.interpreter.run(program, source_code=source)
-        
-        # Check if authentication succeeded
-        result = self.interpreter.global_env.get("authenticate")
-        self.assertIsNotNone(result)
+        # This should succeed
+        result = self.interpreter.global_env.bindings["authenticate"].raw_value(username_val, password_val)
+        self.assertTrue(result.raw_value)
     
     def test_authorization_statistics(self):
         """Test authorization statistics collection."""
