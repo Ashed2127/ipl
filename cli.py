@@ -474,7 +474,7 @@ def main():
     model_name = None
     use_hierarchical_ai = True
     enable_authorization = True
-    openai_api_key = None
+    tier3_model = None
     
     if "--model" in args:
         m_idx = args.index("--model")
@@ -494,11 +494,11 @@ def main():
         enable_authorization = False
         args.remove("--no-authorization")
     
-    if "--openai-api-key" in args:
-        key_idx = args.index("--openai-api-key")
-        if key_idx + 1 < len(args):
-            openai_api_key = args[key_idx + 1]
-            del args[key_idx:key_idx + 2]
+    if "--tier3-model" in args:
+        model_idx = args.index("--tier3-model")
+        if model_idx + 1 < len(args):
+            tier3_model = args[model_idx + 1]
+            del args[model_idx:model_idx + 2]
 
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
