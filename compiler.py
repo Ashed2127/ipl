@@ -280,17 +280,19 @@ class MathematicalFirewall:
 
 class LocalInferenceRuntime:
     """
-    System 1: Local Inference Runtime with Hierarchical AI Engine.
+    System 1: Local Inference Runtime with Hierarchical AI Engine and Authorization.
     Supports:
     1. Hierarchical AI Engine (3-tier speculative execution with token optimization)
     2. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
     3. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
+    4. Authorization System (User authentication, role-based access, context-aware security)
     Treats AI outputs strictly as unexecutable candidate AST data structures.
     """
-    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True):
+    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
         self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         self.use_hierarchical_ai = use_hierarchical_ai
+        self.enable_authorization = enable_authorization
         
         # Initialize hierarchical AI engine if enabled
         self.ai_engine = None
@@ -302,6 +304,24 @@ class LocalInferenceRuntime:
             except Exception as e:
                 print(f"Warning: Failed to initialize hierarchical AI engine: {e}")
                 self.use_hierarchical_ai = False
+        
+        # Initialize authorization system if enabled
+        self.auth_system = None
+        self.security_context = None
+        
+        if self.enable_authorization:
+            try:
+                self.auth_system = get_authorization_system(self.ai_engine)
+                # Set default guest context if no authentication
+                self.security_context = SecurityContext(
+                    user_id="guest",
+                    role=UserRole.GUEST,
+                    permissions=set(),
+                    session_id="default"
+                )
+            except Exception as e:
+                print(f"Warning: Failed to initialize authorization system: {e}")
+                self.enable_authorization = False
 
     @classmethod
     def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
