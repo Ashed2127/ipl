@@ -415,15 +415,16 @@ def compile_file(filepath: str):
         sys.exit(1)
 
 
-def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True):
+def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
     console = Console()
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
-    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode})[/dim]")
+    auth_mode = "Enabled" if enable_authorization else "Disabled"
+    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode} | Auth: {auth_mode})[/dim]")
     console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
 
     while True:
         try:
@@ -444,6 +445,8 @@ def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = Tru
                     "  db_write('users', clean_age)\n"
                     "  audit_trace()\n"
                     "  print cost for 'executive'\n"
+                    "  authenticate('username', 'password')  # Login (if auth enabled)\n"
+                    "  auth_stats()  # Show authorization statistics\n"
                 )
                 continue
 
