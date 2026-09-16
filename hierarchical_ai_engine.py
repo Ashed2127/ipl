@@ -5,6 +5,9 @@ Implements 3-tier model architecture with speculative execution and token optimi
 import time
 import hashlib
 import threading
+import os
+import urllib.request
+import urllib.error
 from typing import Any, Dict, List, Optional, Tuple, Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -572,10 +575,28 @@ class Tier3ReasoningModel(BaseModelInterface):
         self.api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
         
     def initialize(self) -> bool:
-        """Initialize reasoning model (would connect to external API in production)."""
-        # For now, simulate availability
-        self.is_available = True
-        return True
+        """Initialize reasoning model with real API connection."""
+        if not self.api_key:
+            print("Warning: No OpenAI API key found. Set OPENAI_API_KEY environment variable.")
+            self.is_available = False
+            return False
+        
+        # Test API connection
+        try:
+            test_url = f"{self.api_base}/models"
+            req = urllib.request.Request(
+                test_url,
+                headers={"Authorization": f"Bearer {self.api_key}"}
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                if resp.status == 200:
+                    self.is_available = True
+                    return True
+        except Exception as e:
+            print(f"Warning: Failed to connect to OpenAI API: {e}")
+        
+        self.is_available = False
+        return False
     
     def process(self, prompt: str, context: Dict[str, Any]) -> AIResponse:
         """Process with deep reasoning capabilities."""
