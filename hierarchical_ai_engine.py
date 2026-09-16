@@ -942,9 +942,9 @@ class HierarchicalAIEngine:
 # Singleton instance for global access
 _ai_engine_instance = None
 
-def get_ai_engine(api_key: Optional[str] = None) -> HierarchicalAIEngine:
-    """Get the global AI engine instance with optional API key."""
+def get_ai_engine(ollama_endpoint: Optional[str] = None, tier3_model: Optional[str] = None) -> HierarchicalAIEngine:
+    """Get the global AI engine instance with optional Ollama configuration."""
     global _ai_engine_instance
     if _ai_engine_instance is None:
-        _ai_engine_instance = HierarchicalAIEngine(api_key=api_key)
+        _ai_engine_instance = HierarchicalAIEngine(ollama_endpoint=ollama_endpoint, tier3_model=tier3_model)
     return _ai_engine_instance
