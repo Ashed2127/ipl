@@ -240,6 +240,10 @@ class Interpreter:
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
         self._init_builtins()
+        
+        # Sync security context from compiler to environment
+        if self.enable_authorization and self.compiler.system1.security_context:
+            self.global_env.set_security_context(self.compiler.system1.security_context)
 
     def _init_builtins(self):
         def _len(arg_val: IValue) -> IValue:
@@ -441,6 +445,14 @@ class Interpreter:
             username = str(username_val.raw_value)
             password = str(password_val.raw_value)
             success = self.compiler.authenticate_user(username, password)
+            
+            # Update environment security context on successful authentication
+            if success and self.enable_authorization:
+                self.global_env.set_security_context(self.compiler.system1.security_context)
+                self.global_env.log_authorization("authenticate", True, f"User {username} authenticated successfully")
+            elif not success:
+                self.global_env.log_authorization("authenticate", False, f"Authentication failed for user {username}")
+            
             return IValue(success, "Bool", confidence=1.0)
 
         builtins = {
