@@ -4,7 +4,7 @@ Command-line interface (CLI) and REPL for IPL (Intelligent Programming Language 
 import sys
 import os
 import time
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
