@@ -473,6 +473,44 @@ class Tier2SpecializedModel(BaseModelInterface):
         
         return "String"  # Default fallback
     
+    def _analyze_sentiment_direct(self, text: str) -> dict:
+        """Direct sentiment analysis returning IPL-compatible format."""
+        # Import the actual semantic engine for proper sentiment analysis
+        try:
+            from semantic_engine import SemanticEngine
+            engine = SemanticEngine()
+            return engine.extract_sentiment(text)
+        except Exception:
+            # Fallback to basic sentiment analysis
+            positive_words = ['good', 'great', 'excellent', 'amazing', 'fantastic', 'wonderful', 'super', 'delightful', 'responsive', 'breathtaking', 'rock solid']
+            negative_words = ['bad', 'terrible', 'awful', 'poor', 'horrible', 'broke', 'crashed', 'hate']
+            
+            text_lower = text.lower()
+            positive_count = sum(1 for word in positive_words if word in text_lower)
+            negative_count = sum(1 for word in negative_words if word in text_lower)
+            
+            if positive_count > negative_count:
+                return {
+                    "score": 0.8 + (0.2 * min(positive_count, 1)),
+                    "label": "Positive",
+                    "valence": 1.0,
+                    "confidence": 0.9
+                }
+            elif negative_count > positive_count:
+                return {
+                    "score": -0.8 - (0.2 * min(negative_count, 1)),
+                    "label": "Negative", 
+                    "valence": -1.0,
+                    "confidence": 0.9
+                }
+            else:
+                return {
+                    "score": 0.0,
+                    "label": "Neutral",
+                    "valence": 0.0,
+                    "confidence": 0.5
+                }
+    
     def _analyze_security(self, code: str) -> Dict[str, Any]:
         """Analyze code for security issues."""
         import re
