@@ -416,16 +416,17 @@ def compile_file(filepath: str):
         sys.exit(1)
 
 
-def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
+def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, openai_api_key: Optional[str] = None):
     console = Console()
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
     auth_mode = "Enabled" if enable_authorization else "Disabled"
-    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode} | Auth: {auth_mode})[/dim]")
+    api_status = "Configured" if openai_api_key or os.environ.get("OPENAI_API_KEY") else "Not configured"
+    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode} | Auth: {auth_mode} | OpenAI: {api_status})[/dim]")
     console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
+    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
 
     while True:
         try:
