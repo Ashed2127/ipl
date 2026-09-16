@@ -17,7 +17,7 @@ try:
         AuthorizationDecision, PolicyEngine, ContextAwareSecurityAnalyzer, AuthorizationSystem
     )
     from compiler import NeuroSymbolicCompiler, LocalInferenceRuntime
-    from runtime import Interpreter
+    from runtime import Interpreter, IValue
     from rich.console import Console
 except ImportError as e:
     print(f"Import error: {e}")
@@ -207,6 +207,7 @@ class TestAuthorizationIntegration(unittest.TestCase):
         self.assertIn("authenticate", self.interpreter.global_env.bindings)
         
         # Call the authenticate function directly
+        from runtime import IValue
         username_val = IValue("test_user", "String")
         password_val = IValue("password", "String")
         
