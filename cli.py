@@ -470,6 +470,7 @@ def main():
     args = list(sys.argv[1:])
     model_name = None
     use_hierarchical_ai = True
+    enable_authorization = True
     
     if "--model" in args:
         m_idx = args.index("--model")
@@ -484,14 +485,20 @@ def main():
     if "--traditional" in args:
         use_hierarchical_ai = False
         args.remove("--traditional")
+    
+    if "--no-authorization" in args:
+        enable_authorization = False
+        args.remove("--no-authorization")
 
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
         list_models()
+    elif cmd in ("users", "user-management", "manage-users"):
+        manage_users()
     elif cmd in ("run", "exec") and len(args) >= 2:
-        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
     elif cmd in ("audit", "trace") and len(args) >= 2:
-        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
     elif cmd in ("verify", "check") and len(args) >= 2:
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
@@ -524,26 +531,29 @@ def main():
             sys.exit(1)
         run_gateway(host=host, port=port)
     elif cmd in ("repl", "interactive"):
-        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
     elif cmd in ("help", "--help", "-h"):
         print_banner(console)
         console.print(
             "[bold]Usage:[/bold]\n"
-            "  ipl run <script.ipl> [--model <name>] [--no-hierarchical-ai]   Execute an IPL source file\n"
-            "  ipl audit <script.ipl> [--model <name>] [--no-hierarchical-ai] Execute and print cryptographic audit trace\n"
+            "  ipl run <script.ipl> [--model <name>] [--no-hierarchical-ai] [--no-authorization]   Execute an IPL source file\n"
+            "  ipl audit <script.ipl> [--model <name>] [--no-hierarchical-ai] [--no-authorization] Execute and print cryptographic audit trace\n"
             "  ipl models                              List available local neural models (Ollama)\n"
+            "  ipl users                               User management system\n"
             "  ipl verify <script.ipl>                 Validate AST via Mathematical Firewall\n"
             "  ipl compile <script.ipl>                Compile and inspect AST contract readiness\n"
             "  ipl serve [--host H] [--port P]         Launch REST API Security Gateway\n"
-            "  ipl repl [--model <name>] [--no-hierarchical-ai]               Start interactive REPL\n"
+            "  ipl repl [--model <name>] [--no-hierarchical-ai] [--no-authorization]               Start interactive REPL\n"
             "\n[bold]Hierarchical AI Options:[/bold]\n"
             "  --no-hierarchical-ai                   Disable hierarchical AI engine (use traditional processing)\n"
             "  --traditional                           Same as --no-hierarchical-ai\n"
+            "\n[bold]Authorization Options:[/bold]\n"
+            "  --no-authorization                      Disable authorization system\n"
         )
     else:
         # Default assume it's a file if exists
         if os.path.exists(cmd):
-            run_file(cmd, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai)
+            run_file(cmd, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
         else:
             console.print(f"[red]Unknown command or file: {cmd}[/red]")
             console.print("Run 'ipl --help' for usage.")
