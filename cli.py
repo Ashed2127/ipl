@@ -541,7 +541,7 @@ def main():
             sys.exit(1)
         run_gateway(host=host, port=port)
     elif cmd in ("repl", "interactive"):
-        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
+        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
     elif cmd in ("help", "--help", "-h"):
         print_banner(console)
         console.print(
