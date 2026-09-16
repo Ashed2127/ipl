@@ -644,9 +644,9 @@ class NeuroSymbolicCompiler:
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
     """
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, openai_api_key: Optional[str] = None):
         self.console = console or Console()
-        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
+        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, openai_api_key=openai_api_key)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
         self.use_hierarchical_ai = use_hierarchical_ai
