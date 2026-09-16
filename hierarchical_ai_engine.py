@@ -567,33 +567,33 @@ class Tier2SpecializedModel(BaseModelInterface):
 
 
 class Tier3ReasoningModel(BaseModelInterface):
-    """Tier 3: Large reasoning models for complex scenarios."""
+    """Tier 3: Local reasoning models for complex scenarios using Ollama."""
     
-    def __init__(self, model_name: str = "gpt-4", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "deepseek-coder:1.3b", ollama_endpoint: Optional[str] = None):
         super().__init__(model_name, ModelTier.TIER_3_REASONING)
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
-        self.api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+        self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         
     def initialize(self) -> bool:
-        """Initialize reasoning model with real API connection."""
-        if not self.api_key:
-            print("Warning: No OpenAI API key found. Set OPENAI_API_KEY environment variable.")
-            self.is_available = False
-            return False
-        
-        # Test API connection
+        """Initialize reasoning model with local Ollama connection."""
+        # Test Ollama connection
         try:
-            test_url = f"{self.api_base}/models"
-            req = urllib.request.Request(
-                test_url,
-                headers={"Authorization": f"Bearer {self.api_key}"}
-            )
+            test_url = f"{self.ollama_endpoint}/api/tags"
+            req = urllib.request.Request(test_url)
             with urllib.request.urlopen(req, timeout=10) as resp:
                 if resp.status == 200:
-                    self.is_available = True
-                    return True
+                    result = json.loads(resp.read().decode("utf-8"))
+                    # Check if the specific model is available
+                    models = [m["name"] for m in result.get("models", [])]
+                    if self.model_name in models:
+                        self.is_available = True
+                        print(f"Tier 3: Connected to Ollama with model: {self.model_name}")
+                        return True
+                    else:
+                        print(f"Warning: Model {self.model_name} not found in Ollama. Available models: {models}")
+                        self.is_available = False
+                        return False
         except Exception as e:
-            print(f"Warning: Failed to connect to OpenAI API: {e}")
+            print(f"Warning: Failed to connect to Ollama: {e}")
         
         self.is_available = False
         return False
