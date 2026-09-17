@@ -65,7 +65,7 @@
     │  Fast Pattern  │    │  Semantic       │    │  Deep API       │
     │  Matching       │    │  Analysis       │    │  Integration    │
     │                 │    │                 │    │                 │
-    │ • Token Class   │    │ • Type Infer    │    │ • OpenAI API    │
+    │ • Token Class   │    │ • Type Infer    │    │ • Local LLM     │
     │ • Fast Extract  │    │ • Security      │    │ • Complex       │
     │ • <0.1ms        │    │ • Optimizations │    │   Optimization  │
     │ • Always Avail  │    │ • Rule-based    │    │ • Security      │
