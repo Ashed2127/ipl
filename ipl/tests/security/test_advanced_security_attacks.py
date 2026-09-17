@@ -357,17 +357,32 @@ class IPLAdvancedSecurityAIProvider(CustomCompilerAIProvider):
         
         # Analyze timing attack patterns
         if code_patterns["timing_indicators"]:
-            for indicator in code_patterns["timing_indicators"]:
-                vulnerabilities.append({
-                    "type": "TIMING_ATTACK",
-                    "location": indicator,
-                    "severity": "medium",
-                    "description": "Timing attack vulnerability detected"
-                })
-            
-            if risk_level == "low":
-                risk_level = "medium"
-            confidence = max(confidence, 75)
+            timing_count = len(code_patterns["timing_indicators"])
+            # If multiple timing-related patterns detected, it's likely a timing attack
+            if timing_count >= 3:
+                for indicator in code_patterns["timing_indicators"]:
+                    vulnerabilities.append({
+                        "type": "TIMING_ATTACK",
+                        "location": indicator,
+                        "severity": "high",
+                        "description": "Timing attack vulnerability detected - multiple timing patterns"
+                    })
+                
+                if risk_level != "critical":
+                    risk_level = "high"
+                confidence = max(confidence, 80)
+            else:
+                for indicator in code_patterns["timing_indicators"]:
+                    vulnerabilities.append({
+                        "type": "TIMING_ATTACK",
+                        "location": indicator,
+                        "severity": "medium",
+                        "description": "Timing attack vulnerability detected"
+                    })
+                
+                if risk_level == "low":
+                    risk_level = "medium"
+                confidence = max(confidence, 75)
         
         # Analyze NoSQL injection patterns
         if code_patterns["nosql_indicators"]:
