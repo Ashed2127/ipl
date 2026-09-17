@@ -155,7 +155,7 @@ print("Code Patterns Analyzed:")
 for key, value in code_patterns.items():
     print(f"  - {key}: {value}")
 
-def custom_security_analysis(patterns, context):
+def custom_security_analysis(code_patterns, context):
     """Simulated AI security analysis"""
     print(f"  🧠 AI performing deep security analysis in context: {context}")
     
