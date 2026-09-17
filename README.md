@@ -90,14 +90,15 @@ print invoice for "developer"  # Technical details
 - **Python Embedding**: Import interpreter class for programmatic execution
 - **REST API**: `python3 -m cli serve` or `ipl serve` (launches security gateway)
 
-### AI Integration
-- **Pluggable Architecture**: Integrate any AI model (local or cloud) via standardized interface
-- **Local AI**: Ollama, llama.cpp, or any local LLM (privacy-focused, cost-effective)
-- **Cloud AI**: OpenAI, Anthropic, or any cloud API (powerful capabilities)
-- **Custom AI**: Implement your own AI integration for specific needs
-- **No AI Required**: Core language works standalone with built-in text processing
+### Compiler-Level AI Integration
+- **AI in Compilation Pipeline**: AI models integrated directly into compiler phases
+- **Semantic Analysis**: AI-enhanced type inference and context understanding during compilation
+- **Code Transformation**: AI-driven optimization and security transformations during compilation
+- **Pluggable Architecture**: Integrate any AI model (local Ollama, cloud OpenAI, or custom)
+- **Security Blocking**: AI can block compilation based on deep security analysis
+- **Error Recovery**: AI-powered error understanding and fix suggestions during compilation
 
-> **Architecture**: IPL is a programming language designed for AI integration. Choose your AI provider based on your needs (cost, privacy, performance).
+> **Key Distinction**: IPL is intelligent at the **compiler level**, not the code suggestion level. AI transforms the compilation process itself rather than just providing suggestions.
 
 ### Current Status
 IPL is a functional neuro-symbolic programming language with:
