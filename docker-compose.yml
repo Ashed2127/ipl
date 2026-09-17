@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  ipl-gateway:
+    build: .
+    container_name: ipl-gateway
+    ports:
+      - "8000:8000"    # IPL Gateway API
+      - "11434:11434"  # Ollama API (optional, for direct access)
+    environment:
+      - IPL_ENV=production
+      - IPL_OLLAMA_ENDPOINT=http://localhost:11434
+      - IPL_TIER3_MODEL=qwen2.5-coder:0.5b
+    volumes:
+      # Mount scripts directory for live updates
+      - ./examples:/app/examples:ro
+      - ./scripts:/app/scripts:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Redis for caching AI responses
+  redis:
+    image: redis:7-alpine
+    container_name: ipl-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    profiles:
+      - with-redis
+
+  # Optional: PostgreSQL for audit trail storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: ipl-postgres
+    environment:
+      - POSTGRES_DB=ipl_audit
+      - POSTGRES_USER=ipl_user
+      - POSTGRES_PASSWORD=secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    profiles:
+      - with-postgres
+
+volumes:
+  postgres_data:
