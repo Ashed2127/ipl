@@ -158,7 +158,7 @@ class IPLAdvancedSecurityCompiler:
                 patterns["session_indicators"].append(f"Line {line_num}: {line.strip()}")
             
             # Timing attack patterns
-            if any(pattern in line.lower() for pattern in ["timing", "high_precision_time", "sleep(", "benchmark("]):
+            if any(pattern in line.lower() for pattern in ["timing", "high_precision_time", "sleep(", "benchmark(", "verify_password", "log_timing"]):
                 patterns["timing_indicators"].append(f"Line {line_num}: {line.strip()}")
             
             # NoSQL injection patterns
