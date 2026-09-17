@@ -221,17 +221,12 @@ def custom_error_analysis(error_context):
     print(f"  🧠 AI analyzing compilation error...")
     
     analysis = {
-        "root_cause": "String type cannot be directly used in arithmetic operations",
+        "root_cause": f"{error_context['error_type']}: {error_context['expected_type']} expected but {error_context['actual_type']} found",
         "fix_suggestions": [
             {
-                "suggestion": "Convert string length to integer",
-                "code": "let count = Int(error_context['surrounding_code'].split()[-1].length) + 5",
-                "explanation": "Use Int() constructor to convert string length to integer"
-            },
-            {
-                "suggestion": "Use string concatenation instead",
-                "code": "let count = user_input.length + '5'",
-                "explanation": "If string operation was intended, use string concatenation"
+                "suggestion": f"Convert {error_context['actual_type']} to {error_context['expected_type']}",
+                "code": f"let count = Int({error_context['actual_type'].lower()}_operation) + 5",
+                "explanation": f"Use explicit type conversion from {error_context['actual_type']} to {error_context['expected_type']}"
             }
         ],
         "prevention": "Use explicit type conversions when mixing types in arithmetic operations"
