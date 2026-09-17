@@ -2,6 +2,38 @@
 
 IPL is a hybrid neuro-symbolic programming language that combines AI-powered semantic understanding with deterministic security verification. It executes natural language programming through a multi-tier AI architecture with mathematical safety guarantees.
 
+## Installation
+
+### Quick Start (Embedded Intelligence - No Dependencies)
+```bash
+# Install IPL with built-in intelligence (no Ollama required)
+pip install ipl-lang
+
+# Run immediately with semantic capabilities
+ipl run examples/01_intelligent_variables.ipl
+```
+
+### With Advanced AI (Optional Ollama Integration)
+```bash
+# Automated installation with Ollama + Qwen model
+curl -sSL https://install.ipl-lang.sh | bash
+
+# Or manually:
+# 1. Install Ollama: curl -fsSL https://ollama.com/install.sh | sh
+# 2. Download model: ollama pull qwen2.5-coder:0.5b
+# 3. Run IPL: ipl run script.ipl --model qwen2.5-coder:0.5b
+```
+
+### Docker Deployment (Production-Ready)
+```bash
+# Single container with IPL + Ollama + Qwen model
+docker build -t ipl-lang .
+docker run -p 8000:8000 ipl-lang
+
+# Or use docker-compose
+docker-compose up
+```
+
 ## Current Functionality
 
 ### Core Features
@@ -47,10 +79,10 @@ print invoice for "developer"  # Technical details
 ```
 
 ### Execution Methods
-- **CLI**: `python3 -m cli run <file.ipl>`
-- **REPL**: `python3 -m cli repl`
+- **CLI**: `python3 -m cli run <file.ipl>` or `ipl run <file.ipl>`
+- **REPL**: `python3 -m cli repl` or `ipl repl`
 - **Python Embedding**: Import interpreter class for programmatic execution
-- **REST API**: `python3 -m cli serve` (launches security gateway)
+- **REST API**: `python3 -m cli serve` or `ipl serve` (launches security gateway)
 
 ### AI Configuration
 - **Default**: Uses embedded fast semantic engine (sub-millisecond, no external dependencies)
