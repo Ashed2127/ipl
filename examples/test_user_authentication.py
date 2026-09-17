@@ -9,7 +9,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from compiler_ai_providers import CustomCompilerAIProvider
-from test_compiler_ai_security import IPLSecurityCompiler
 
 
 class IPLUserAuthentication:
