@@ -272,7 +272,7 @@ def test_legitimate_system():
     return compiler
 
 
-def test_sql_injection_attack():
+def test_sql_injection_attack(compiler):
     """Test that SQL injection attacks are blocked during compilation"""
     print("\n" + "="*70)
     print("TEST 2: SQL Injection Attack - Should Be BLOCKED")
@@ -288,9 +288,6 @@ class SQLInjectionAttack {
 }
 """
     
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "sql_injection_attack.ipl")
     
     if result.get("blocked"):
@@ -300,7 +297,7 @@ class SQLInjectionAttack {
         print("\n❌ FAILED: SQL injection attack was not blocked")
 
 
-def test_xss_attack():
+def test_xss_attack(compiler):
     """Test that XSS attacks are blocked during compilation"""
     print("\n" + "="*70)
     print("TEST 3: XSS Attack - Should Be BLOCKED")
@@ -315,9 +312,6 @@ class XSSAttack {
     }
 }
 """
-    
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(attack_code, "xss_attack.ipl")
     
