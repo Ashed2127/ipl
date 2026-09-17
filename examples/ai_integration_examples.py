@@ -26,7 +26,19 @@ try:
         endpoint="http://localhost:11434"
     )
     
-    if ollama_provider.is_available():
+    # Quick availability check with timeout
+    import socket
+    def check_ollama_running():
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(("localhost", 11434))
+            sock.close()
+            return result == 0
+        except:
+            return False
+    
+    if check_ollama_running() and ollama_provider.is_available():
         print("✅ Ollama provider is available")
         
         # Test intent processing
@@ -44,7 +56,7 @@ try:
         print(f"Generated code snippet: {code[:100]}...")
         
     else:
-        print("⚠️  Ollama provider not available")
+        print("⚠️  Ollama provider not available (this is expected if Ollama isn't running)")
         
 except Exception as e:
     print(f"❌ Ollama integration failed: {e}")
