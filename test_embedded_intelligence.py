@@ -46,7 +46,7 @@ print(f"Output: {result['formatted']}")
 print("\n5. INTENT CLASSIFICATION")
 print("-" * 40)
 test_intent = "someone used my stolen credit card for unauthorized transactions"
-result = SemanticEngine.classify_intent(test_intent)
+result = SemanticEngine.extract_intent(test_intent)
 print(f"Input:  '{test_intent}'")
 print(f"Output: Intent: {result['intent']} (confidence: {result['confidence']:.0%})")
 
