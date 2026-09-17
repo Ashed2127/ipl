@@ -100,7 +100,7 @@ try:
     # Note: Requires ANTHROPIC_API_KEY environment variable
     anthropic_provider = AnthropicProvider(
         model_name="claude-3-opus-20240229",
-        api_key=None  # Will use environment variable
+        api_key="test_key_12345"  # Test key for demonstration
     )
     
     if anthropic_provider.is_available():
@@ -114,7 +114,7 @@ try:
         print(f"Generated code snippet: {code[:100]}...")
         
     else:
-        print("⚠️  Anthropic API key not configured")
+        print("⚠️  Anthropic API key not configured (set ANTHROPIC_API_KEY environment variable)")
         
 except Exception as e:
     print(f"❌ Anthropic integration failed: {e}")
