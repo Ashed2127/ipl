@@ -135,8 +135,8 @@ transformation_provider = CustomCompilerAIProvider(
 transformation_provider.suggest_transformations = custom_transformation_suggestions
 
 transformations = transformation_provider.suggest_transformations(
-    code_representation=code_representation,
-    optimization_goals=["security", "performance", "reliability"]
+    code_representation,
+    ["security", "performance", "reliability"]
 )
 
 # Example 3: Deep Security Analysis During Compilation
