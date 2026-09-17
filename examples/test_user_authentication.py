@@ -11,6 +11,131 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from compiler_ai_providers import CustomCompilerAIProvider
 
 
+class IPLSecurityCompiler:
+    """IPL Compiler with AI security analysis integrated"""
+    
+    def __init__(self, ai_provider=None):
+        self.ai_provider = ai_provider
+        self.security_blocks = []
+        self.warnings = []
+        
+    def compile(self, source_code: str, filename: str = "unknown") -> dict:
+        """Compile IPL source code with AI security analysis"""
+        print(f"\n{'='*70}")
+        print(f"Compiling: {filename}")
+        print(f"{'='*70}")
+        
+        # Traditional compilation phases (simplified)
+        try:
+            tokens = self._lex(source_code)
+            ast = self._parse(tokens)
+            
+            # AI-Enhanced Security Analysis
+            if self.ai_provider:
+                print("\n🧠 AI Security Analysis Phase...")
+                security_result = self._ai_security_analysis(ast, source_code)
+                
+                if security_result["risk_level"] in ["high", "critical"]:
+                    print(f"\n❌ COMPILATION BLOCKED BY AI SECURITY")
+                    print(f"Risk Level: {security_result['risk_level'].upper()}")
+                    print(f"Reason: {security_result['reason']}")
+                    print(f"Confidence: {security_result['confidence']}%")
+                    
+                    self.security_blocks.append({
+                        "file": filename,
+                        "risk_level": security_result["risk_level"],
+                        "reason": security_result["reason"],
+                        "suggestions": security_result.get("suggestions", [])
+                    })
+                    
+                    return {"success": False, "blocked": True, "reason": security_result["reason"]}
+                
+                if security_result["warnings"]:
+                    print(f"\n⚠️  AI Security Warnings:")
+                    for warning in security_result["warnings"]:
+                        print(f"   - {warning}")
+                        self.warnings.append(warning)
+            
+            # Continue with code generation
+            print("\n✅ Compilation proceeding...")
+            generated_code = self._generate_code(ast)
+            
+            return {"success": True, "generated_code": generated_code}
+            
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def _lex(self, source_code: str) -> list:
+        """Simple lexer for demonstration"""
+        print("  📝 Lexing source code...")
+        return source_code.split()
+    
+    def _parse(self, tokens: list) -> dict:
+        """Simple parser for demonstration"""
+        print("  🌳 Parsing tokens into AST...")
+        return {"tokens": tokens, "structure": "program"}
+    
+    def _ai_security_analysis(self, ast: dict, source_code: str) -> dict:
+        """AI-powered security analysis during compilation"""
+        print("  🔍 AI analyzing code patterns...")
+        
+        # Extract code patterns for AI analysis
+        code_patterns = self._extract_security_patterns(source_code)
+        
+        # Call AI provider for deep security analysis
+        analysis = self.ai_provider.analyze_security_deep(
+            code_patterns=code_patterns,
+            context="compilation"
+        )
+        
+        return analysis
+    
+    def _extract_security_patterns(self, source_code: str) -> dict:
+        """Extract security-relevant patterns from source code"""
+        patterns = {
+            "sql_indicators": [],
+            "xss_indicators": [],
+            "command_indicators": [],
+            "path_indicators": [],
+            "function_calls": [],
+            "string_operations": [],
+            "data_flow": []
+        }
+        
+        lines = source_code.split('\n')
+        for line_num, line in enumerate(lines, 1):
+            # SQL Injection patterns
+            if any(pattern in line.lower() for pattern in ["' or '", "' drop ", "'; --", "1='1"]):
+                patterns["sql_indicators"].append(f"Line {line_num}: {line.strip()}")
+            
+            # XSS patterns
+            if any(pattern in line.lower() for pattern in ["<script", "onerror=", "onload=", "javascript:"]):
+                patterns["xss_indicators"].append(f"Line {line_num}: {line.strip()}")
+            
+            # Command injection patterns
+            if any(pattern in line.lower() for pattern in ["; rm -", "; cat /", "&&", "|"]):
+                patterns["command_indicators"].append(f"Line {line_num}: {line.strip()}")
+            
+            # Path traversal patterns
+            if "../" in line or "..\\" in line:
+                patterns["path_indicators"].append(f"Line {line_num}: {line.strip()}")
+            
+            # Function calls
+            if "function " in line or ".execute(" in line or ".query(" in line:
+                patterns["function_calls"].append(f"Line {line_num}: {line.strip()}")
+            
+            # String concatenation (potential injection points)
+            if "+" in line and '"' in line and "'" in line:
+                patterns["string_operations"].append(f"Line {line_num}: {line.strip()}")
+        
+        return patterns
+    
+    def _generate_code(self, ast: dict) -> str:
+        """Simple code generation for demonstration"""
+        print("  ⚙️  Generating executable code...")
+        return "generated_bytecode"
+
+
 class IPLUserAuthentication:
     """Simulate user authentication with AI security monitoring"""
     
