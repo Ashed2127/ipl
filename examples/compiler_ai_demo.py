@@ -216,7 +216,7 @@ print(f"  Location: {error_context['error_location']}")
 print(f"  Expected: {error_context['expected_type']}, Got: {error_context['actual_type']}")
 print(f"  Code: {error_context['surrounding_code']}")
 
-def custom_error_analysis(error_ctx):
+def custom_error_analysis(error_context):
     """Simulated AI error analysis"""
     print(f"  🧠 AI analyzing compilation error...")
     
@@ -225,7 +225,7 @@ def custom_error_analysis(error_ctx):
         "fix_suggestions": [
             {
                 "suggestion": "Convert string length to integer",
-                "code": "let count = Int(user_input.length) + 5",
+                "code": "let count = Int(error_context['surrounding_code'].split()[-1].length) + 5",
                 "explanation": "Use Int() constructor to convert string length to integer"
             },
             {
