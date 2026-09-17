@@ -322,7 +322,7 @@ class XSSAttack {
         print("\n❌ FAILED: XSS attack was not blocked")
 
 
-def test_command_injection():
+def test_command_injection(compiler):
     """Test that command injection attacks are blocked during compilation"""
     print("\n" + "="*70)
     print("TEST 4: Command Injection Attack - Should Be BLOCKED")
@@ -338,9 +338,6 @@ class CommandInjection {
 }
 """
     
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "command_injection.ipl")
     
     if result.get("blocked"):
@@ -350,7 +347,7 @@ class CommandInjection {
         print("\n❌ FAILED: Command injection attack was not blocked")
 
 
-def test_path_traversal():
+def test_path_traversal(compiler):
     """Test that path traversal attacks are blocked during compilation"""
     print("\n" + "="*70)
     print("TEST 5: Path Traversal Attack - Should Be BLOCKED")
@@ -365,9 +362,6 @@ class PathTraversal {
     }
 }
 """
-    
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(attack_code, "path_traversal.ipl")
     
