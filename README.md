@@ -1,35 +1,35 @@
-# IPL: Intelligent Programming Language (Aether)
+# IPL (Intelligent Programming Language)
 
-IPL is a **compiler-level AI programming language** that integrates powerful AI models directly into the compilation pipeline. Unlike traditional code suggestion tools, IPL becomes intelligent at the compiler level - AI transforms how the compiler understands, analyzes, and optimizes code during compilation itself.
+IPL is a programming language that integrates AI models directly into the compilation pipeline. Unlike traditional code suggestion tools, IPL uses AI at the compiler level to understand, analyze, and optimize code during compilation.
 
 ## Installation
 
-### Quick Start (Core Language)
+### Quick Start
 ```bash
-# Install IPL core language
 pip install ipl-lang
-
-# Run immediately with built-in features
 ipl run examples/01_intelligent_variables.ipl
 ```
 
-### AI Integration (Choose Your AI Provider)
+### AI Provider Options
+
+**Local AI (Ollama)**
 ```bash
-# Option 1: Local AI (Ollama)
 pip install ipl-lang
-# Install Ollama separately: curl -fsSL https://ollama.com/install.sh | sh
-# Use with IPL: ipl run script.ipl --ai-provider ollama --ai-model qwen2.5-coder:0.5b
-
-# Option 2: Cloud AI (OpenAI)
-pip install ipl-lang openai
-export OPENAI_API_KEY=your_key
-# Use with IPL: ipl run script.ipl --ai-provider openai --ai-model gpt-4
-
-# Option 3: Custom AI Integration
-# Implement your own AI provider (see AI_INTEGRATION_ARCHITECTURE.md)
+# Install Ollama: curl -fsSL https://ollama.com/install.sh | sh
+ipl run script.ipl --ai-provider ollama --ai-model qwen2.5-coder:0.5b
 ```
 
-### Docker Deployment
+**Cloud AI (OpenAI)**
+```bash
+pip install ipl-lang openai
+export OPENAI_API_KEY=your_key
+ipl run script.ipl --ai-provider openai --ai-model gpt-4
+```
+
+**Custom AI**
+Implement your own AI provider (see AI_INTEGRATION_ARCHITECTURE.md)
+
+### Docker
 ```bash
 # Core language only
 docker build -f Dockerfile.core -t ipl-lang-core .
@@ -40,30 +40,29 @@ docker build -f Dockerfile.ai -t ipl-lang-ai .
 docker run -p 8000:8000 ipl-lang-ai
 ```
 
-## Current Functionality
+## Features
 
-### Core Features
-- **Semantic Type System**: Automatically extracts and types semantic entities from natural language
-  - `Currency`: Extracts monetary values from text (e.g., "ninety-nine bucks" → 99.50)
-  - `Sentiment`: Analyzes emotional tone (e.g., "fantastic" → positive score)
-  - `Quantity`: Parses measurements with units (e.g., "120 ms" → 120.0 with unit)
-  - `Date`: Normalizes temporal expressions
-  - `Intent`: Classifies natural language into predefined categories
+### Semantic Type System
+Automatically extracts and types semantic entities from natural language:
+- `Currency`: Extracts monetary values ("ninety-nine bucks" → 99.50)
+- `Sentiment`: Analyzes emotional tone ("fantastic" → positive score)
+- `Quantity`: Parses measurements with units ("120 ms" → 120.0)
+- `Date`: Normalizes temporal expressions
+- `Intent`: Classifies natural language into categories
 
-- **Multi-Tier AI Architecture**:
-  - **Tier 1**: Lightning-fast pattern matching for token classification
-  - **Tier 2**: Specialized semantic analysis using rule-based NLP
-  - **Tier 3**: Deep reasoning with OpenAI API integration (when API key provided)
+### Multi-Tier AI Architecture
+- **Tier 1**: Fast pattern matching for token classification
+- **Tier 2**: Semantic analysis using rule-based NLP
+- **Tier 3**: Deep reasoning with OpenAI API integration
 
-- **Security System**:
-  - **Mathematical Firewall**: Validates all AI outputs against safe primitive schemas
-  - **Zero-Trust Taint Tracking**: Tags data as Untrusted/Sanitized/Trusted
-  - **Self-Correction Loop**: Automatically repairs type mismatches between AI intent and declared types
-  - **Cryptographic Audit Trail**: SHA-256 signed execution traces
+### Security System
+- **Mathematical Firewall**: Validates AI outputs against safe schemas
+- **Zero-Trust Taint Tracking**: Tags data as Untrusted/Sanitized/Trusted
+- **Self-Correction Loop**: Repairs type mismatches automatically
+- **Cryptographic Audit Trail**: SHA-256 signed execution traces
 
-- **Deterministic Runtime**: Safe execution environment with fail-closed security sinks
+## Syntax
 
-### Language Syntax
 ```ipl
 # Semantic variables with automatic type extraction
 let price: Currency = "ninety-nine bucks and 50 cents"
@@ -74,7 +73,7 @@ let age: Int = intent "Extract user_age twenty-five" as Int
 let clean_age = sanitize(age)
 db_write("users", clean_age)
 
-# Control flow and functions
+# Functions
 fn calculate_tax(amount, rate) {
     return amount * rate
 }
@@ -84,32 +83,38 @@ print invoice for "executive"  # Business summary
 print invoice for "developer"  # Technical details
 ```
 
-### Execution Methods
-- **CLI**: `python3 -m cli run <file.ipl>` or `ipl run <file.ipl>`
-- **REPL**: `python3 -m cli repl` or `ipl repl`
-- **Python Embedding**: Import interpreter class for programmatic execution
-- **REST API**: `python3 -m cli serve` or `ipl serve` (launches security gateway)
+## Execution Methods
 
-### Compiler-Level AI Integration
-- **AI in Compilation Pipeline**: AI models integrated directly into compiler phases
-- **Semantic Analysis**: AI-enhanced type inference and context understanding during compilation
-- **Code Transformation**: AI-driven optimization and security transformations during compilation
-- **Pluggable Architecture**: Integrate any AI model (local Ollama, cloud OpenAI, or custom)
-- **Security Blocking**: AI can block compilation based on deep security analysis
-- **Error Recovery**: AI-powered error understanding and fix suggestions during compilation
+- **CLI**: `ipl run <file.ipl>`
+- **REPL**: `ipl repl`
+- **Python Embedding**: Import interpreter class
+- **REST API**: `ipl serve` (launches security gateway)
 
-> **Key Distinction**: IPL is intelligent at the **compiler level**, not the code suggestion level. AI transforms the compilation process itself rather than just providing suggestions.
+## Compiler-Level AI Integration
 
-### Security Testing
-IPL includes comprehensive security tests to validate compiler-level AI intelligence:
-- **20+ Attack Scenarios**: SQL injection, XSS, command injection, path traversal, etc.
-- **100% Attack Prevention**: All malicious code blocked during compilation
-- **Zero False Positives**: Legitimate code compiles successfully
-- **Run Tests**: `python3 ipl/tests/security/run_security_tests.py`
+- AI models integrated directly into compiler phases
+- AI-enhanced type inference and context understanding
+- AI-driven optimization and security transformations
+- Pluggable architecture for any AI model
+- AI can block compilation based on security analysis
+- AI-powered error understanding and fix suggestions
 
-**Use these tests after every architecture change to ensure IPL's compiler-level AI intelligence is maintained.**
+> IPL is intelligent at the compiler level, not the code suggestion level. AI transforms the compilation process itself.
 
-### Current Status
+## Security Testing
+
+Comprehensive security tests validate compiler-level AI intelligence:
+- 20+ attack scenarios (SQL injection, XSS, command injection, path traversal)
+- 100% attack prevention
+- Zero false positives
+
+Run tests:
+```bash
+python3 ipl/tests/security/run_security_tests.py
+```
+
+## Current Status
+
 IPL is a functional neuro-symbolic programming language with:
 - Working compiler and runtime system
 - Semantic type extraction and analysis
