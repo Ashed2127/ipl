@@ -71,7 +71,7 @@ try:
     # Note: Requires OPENAI_API_KEY environment variable
     openai_provider = OpenAIProvider(
         model_name="gpt-4",
-        api_key=None  # Will use environment variable
+        api_key="test_key_12345"  # Test key for demonstration
     )
     
     if openai_provider.is_available():
@@ -85,7 +85,7 @@ try:
         print(f"Intent result: {result}")
         
     else:
-        print("⚠️  OpenAI API key not configured")
+        print("⚠️  OpenAI API key not configured (set OPENAI_API_KEY environment variable)")
         
 except Exception as e:
     print(f"❌ OpenAI integration failed: {e}")
