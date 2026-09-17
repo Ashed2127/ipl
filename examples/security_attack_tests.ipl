@@ -1,0 +1,311 @@
+# Security Attack Tests for IPL Registration/Login System
+# These demonstrate various attack vectors that IPL's compiler-level AI should detect
+
+// ATTACK 1: SQL Injection in Username
+class SQLInjectionAttack1 {
+    function attack_username() {
+        let malicious_username = "admin' OR '1'='1"
+        let email = "attacker@example.com"
+        let password = "password123"
+        
+        // This should be detected by AI during compilation
+        let result = registration_service.register(malicious_username, email, password)
+    }
+}
+
+// ATTACK 2: SQL Injection in Email
+class SQLInjectionAttack2 {
+    function attack_email() {
+        let username = "attacker"
+        let malicious_email = "test@example.com' DROP TABLE users; --"
+        let password = "password123"
+        
+        // This should be detected by AI during compilation
+        let result = registration_service.register(username, malicious_email, password)
+    }
+}
+
+// ATTACK 3: SQL Injection in Login
+class SQLInjectionAttack3 {
+    function attack_login() {
+        let malicious_username = "admin' --"
+        let password = "anything"
+        
+        // This should be detected by AI during compilation
+        let result = login_service.login(malicious_username, password)
+    }
+}
+
+// ATTACK 4: Stored XSS in Username
+class XSSAttack1 {
+    function attack_xss_username() {
+        let malicious_username = "<script>alert('XSS')</script>"
+        let email = "attacker@example.com"
+        let password = "password123"
+        
+        // This should be detected by AI during compilation
+        let result = registration_service.register(malicious_username, email, password)
+    }
+}
+
+// ATTACK 5: Stored XSS in Email
+class XSSAttack2 {
+    function attack_xss_email() {
+        let username = "attacker"
+        let malicious_email = "<img src=x onerror=alert('XSS')>@example.com"
+        let password = "password123"
+        
+        // This should be detected by AI during compilation
+        let result = registration_service.register(username, malicious_email, password)
+    }
+}
+
+// ATTACK 6: Reflected XSS via Query Parameter
+class XSSAttack3 {
+    function attack_reflected_xss() {
+        let malicious_input = "<script>document.cookie='stolen'</script>"
+        let query = "search=" + malicious_input
+        
+        // This should be detected by AI during compilation
+        let result = handle_search(query)
+    }
+}
+
+// ATTACK 7: Command Injection
+class CommandInjectionAttack {
+    function attack_command() {
+        let malicious_input = "user; rm -rf /"
+        let command = "echo " + malicious_input
+        
+        // This should be detected by AI during compilation
+        let result = execute_command(command)
+    }
+}
+
+// ATTACK 8: Path Traversal
+class PathTraversalAttack {
+    function attack_path_traversal() {
+        let malicious_filename = "../../../etc/passwd"
+        let file_path = "/var/www/uploads/" + malicious_filename
+        
+        // This should be detected by AI during compilation
+        let result = read_file(file_path)
+    }
+}
+
+// ATTACK 9: LDAP Injection
+class LDAPInjectionAttack {
+    function attack_ldap() {
+        let malicious_input = "admin)(|(password=*))"
+        let filter = "(uid=" + malicious_input + ")"
+        
+        // This should be detected by AI during compilation
+        let result = ldap_search(filter)
+    }
+}
+
+// ATTACK 10: XML Injection
+class XMLInjectionAttack {
+    function attack_xml() {
+        let malicious_input = "<user><admin>true</admin></user>"
+        let xml = "<data>" + malicious_input + "</data>"
+        
+        // This should be detected by AI during compilation
+        let result = parse_xml(xml)
+    }
+}
+
+// ATTACK 11: Buffer Overflow (Simulated)
+class BufferOverflowAttack {
+    function attack_buffer() {
+        let malicious_input = "A" * 10000
+        let buffer = String(100) // Small buffer
+        
+        // This should be detected by AI during compilation
+        buffer = malicious_input // Overflow
+    }
+}
+
+// ATTACK 12: Integer Overflow
+class IntegerOverflowAttack {
+    function attack_integer() {
+        let max_int = 2147483647
+        let result = max_int + 1
+        
+        // This should be detected by AI during compilation
+        let value = Int(result)
+    }
+}
+
+// ATTACK 13: Format String Attack
+class FormatStringAttack {
+    function attack_format() {
+        let malicious_input = "%s%s%s%s%s%s"
+        let output = printf(malicious_input)
+        
+        // This should be detected by AI during compilation
+        print(output)
+    }
+}
+
+// ATTACK 14: CSRF Token Bypass
+class CSRFAttack {
+    function attack_csrf() {
+        let malicious_request = Request(
+            url: "http://example.com/transfer",
+            body: {"to": "attacker", "amount": 1000},
+            headers: {} // No CSRF token
+        )
+        
+        // This should be detected by AI during compilation
+        let result = handle_transfer(malicious_request)
+    }
+}
+
+// ATTACK 15: Session Fixation
+class SessionFixationAttack {
+    function attack_session_fixation() {
+        let malicious_session_id = "fixed_session_id_12345"
+        let request = Request(
+            url: "http://example.com/login",
+            body: {"username": "victim", "password": "password"},
+            headers: {"Cookie": "session=" + malicious_session_id}
+        )
+        
+        // This should be detected by AI during compilation
+        let result = handle_login(request)
+    }
+}
+
+// ATTACK 16: Timing Attack on Password
+class TimingAttack {
+    function attack_timing() {
+        let password = "password"
+        let guess = "passwor" // One character short
+        
+        // Repeated timing measurements
+        for i in 1..1000 {
+            let start = now()
+            let result = verify_password(guess, stored_hash)
+            let end = now()
+            let duration = end - start
+            log_timing(duration)
+        }
+    }
+}
+
+// ATTACK 17: Race Condition
+class RaceConditionAttack {
+    function attack_race() {
+        // Thread 1
+        let balance1 = get_balance(user_id)
+        
+        // Thread 2 (simulated concurrent access)
+        let balance2 = get_balance(user_id)
+        
+        // Both threads withdraw
+        withdraw(user_id, 100)
+        withdraw(user_id, 100)
+        
+        // Could result in negative balance
+    }
+}
+
+// ATTACK 18: NoSQL Injection
+class NoSQLInjectionAttack {
+    function attack_nosql() {
+        let malicious_input = "{\"$ne\": null}"
+        let query = "{\"username\": " + malicious_input + "}"
+        
+        // This should be detected by AI during compilation
+        let result = nosql_query(query)
+    }
+}
+
+// ATTACK 19: Header Injection
+class HeaderInjectionAttack {
+    function attack_header() {
+        let malicious_input = "test\r\nX-Forwarded-For: attacker.com"
+        let header = "X-Real-IP: " + malicious_input
+        
+        // This should be detected by AI during compilation
+        let response = add_header(header)
+    }
+}
+
+// ATTACK 20: Zero-Width Character Attack
+class ZeroWidthAttack {
+    function attack_zero_width() {
+        let malicious_username = "admin\u200B" // Zero-width space
+        let password = "password"
+        
+        // This should be detected by AI during compilation
+        let result = login_service.login(malicious_username, password)
+    }
+}
+
+// Advanced Combined Attack
+class AdvancedCombinedAttack {
+    function combined_attack() {
+        // Combine multiple attack vectors
+        let malicious_input = "admin' OR '1'='1' -- <script>alert('XSS')</script>"
+        let query = "SELECT * FROM users WHERE username = '" + malicious_input + "'"
+        
+        // This should definitely be detected by AI during compilation
+        let result = execute_query(query)
+    }
+}
+
+// Real-world Attack Scenario: Credential Stuffing
+class CredentialStuffingAttack {
+    function attack_credential_stuffing() {
+        let credentials = [
+            ("admin", "password123"),
+            ("admin", "admin"),
+            ("root", "root"),
+            ("test", "test")
+        ]
+        
+        for (username, password) in credentials {
+            let result = login_service.login(username, password)
+            if result.success {
+                log_success(username)
+                break
+            }
+        }
+    }
+}
+
+// Real-world Attack Scenario: Brute Force
+class BruteForceAttack {
+    function attack_brute_force() {
+        let charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+        
+        for length in 1..6 {
+            for combination in generate_combinations(charset, length) {
+                let result = login_service.login("admin", combination)
+                if result.success {
+                    log_success(combination)
+                    return
+                }
+            }
+        }
+    }
+}
+
+// Real-world Attack Scenario: Password Spray
+class PasswordSprayAttack {
+    function attack_password_spray() {
+        let common_passwords = ["password123", "admin", "123456", "password"]
+        let usernames = ["admin", "user1", "user2", "test"]
+        
+        for password in common_passwords {
+            for username in usernames {
+                let result = login_service.login(username, password)
+                if result.success {
+                    log_success(username, password)
+                }
+            }
+        }
+    }
+}
