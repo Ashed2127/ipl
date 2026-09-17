@@ -6,9 +6,10 @@ This demonstrates IPL's compiler-level AI security in a real user registration/l
 
 import sys
 import os
-# Add project root to path
+# Add project root to path (go up 3 levels from ipl/tests/security to project root)
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, project_root)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from ipl.compiler.compiler_ai_providers import CustomCompilerAIProvider
 
