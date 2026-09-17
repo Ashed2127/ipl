@@ -901,23 +901,23 @@ def main():
     print("Testing compiler-level AI against sophisticated attack vectors")
     print("="*70)
     
-    # Initialize AI provider and compiler
+    # Initialize AI provider and shared compiler for tracking
     ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
     compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
     
-    # Run tests
-    test_advanced_auth_system()
-    test_advanced_sql_injection()
-    test_advanced_xss()
-    test_command_injection_advanced()
-    test_ldap_injection()
-    test_xxe_attack()
-    test_buffer_overflow()
-    test_csrf_attack()
-    test_session_fixation()
-    test_timing_attack()
-    test_nosql_injection()
-    test_combined_attack()
+    # Run tests with shared compiler
+    test_advanced_auth_system_with_compiler(compiler)
+    test_advanced_sql_injection_with_compiler(compiler)
+    test_advanced_xss_with_compiler(compiler)
+    test_command_injection_advanced_with_compiler(compiler)
+    test_ldap_injection_with_compiler(compiler)
+    test_xxe_attack_with_compiler(compiler)
+    test_buffer_overflow_with_compiler(compiler)
+    test_csrf_attack_with_compiler(compiler)
+    test_session_fixation_with_compiler(compiler)
+    test_timing_attack_with_compiler(compiler)
+    test_nosql_injection_with_compiler(compiler)
+    test_combined_attack_with_compiler(compiler)
     
     # Print summary
     print_summary(compiler)
