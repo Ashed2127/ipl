@@ -32,11 +32,7 @@ while true; do
         git add -A
         
         # Commit with descriptive message
-        git commit -m "$COMMIT_MSG
-
-Generated with [Devin](https://devin.ai)
-
-Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>"
+        git commit -m "$COMMIT_MSG"
         
         # Push to remote
         git push
