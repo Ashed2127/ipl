@@ -97,9 +97,9 @@ if is_valid(clean_data) {
 print("Input Code:")
 print(code_representation)
 
-def custom_transformation_suggestions(code_repr, goals):
+def custom_transformation_suggestions(code_repr, optimization_goals):
     """Simulated AI transformation suggestions"""
-    print(f"  🧠 AI analyzing for optimization goals: {goals}")
+    print(f"  🧠 AI analyzing for optimization goals: {optimization_goals}")
     
     suggestions = [
         {
