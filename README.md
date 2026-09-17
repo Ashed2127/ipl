@@ -1,6 +1,6 @@
 # IPL: Intelligent Programming Language (Aether)
 
-IPL is a hybrid neuro-symbolic programming language that combines AI-powered semantic understanding with deterministic security verification. It executes natural language programming through a multi-tier AI architecture with mathematical safety guarantees.
+IPL is a **compiler-level AI programming language** that integrates powerful AI models directly into the compilation pipeline. Unlike traditional code suggestion tools, IPL becomes intelligent at the compiler level - AI transforms how the compiler understands, analyzes, and optimizes code during compilation itself.
 
 ## Installation
 
