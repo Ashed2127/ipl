@@ -54,7 +54,7 @@ print invoice for "developer"  # Technical details
 
 ### AI Configuration
 - **Default**: Uses embedded fast semantic engine (sub-millisecond, no external dependencies)
-- **Local LLM**: Connects to Ollama models (qwen, deepseek, gemma, etc.)
+- **Local LLM**: Connects to Ollama models (default: qwen2.5-coder:0.5b, also supports deepseek, gemma, etc.)
 - **OpenAI Integration**: Real AI deep reasoning when API key provided via `--openai-api-key` flag or `OPENAI_API_KEY` environment variable
 
 ### Current Status
