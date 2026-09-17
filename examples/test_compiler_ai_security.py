@@ -254,7 +254,7 @@ def test_legitimate_system():
             legitimate_code = f.read()
     except FileNotFoundError:
         print("File not found: examples/registration_login_system.ipl")
-        return
+        return None
     
     # Create compiler with AI
     ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
@@ -268,6 +268,8 @@ def test_legitimate_system():
         print("   Note: The system has some security warnings but is allowed to compile")
     else:
         print(f"\n❌ FAILED: {result.get('reason', 'Unknown error')}")
+    
+    return compiler
 
 
 def test_sql_injection_attack():
