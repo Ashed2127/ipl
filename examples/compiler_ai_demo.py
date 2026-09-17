@@ -193,8 +193,8 @@ security_provider = CustomCompilerAIProvider(
 security_provider.analyze_security_deep = custom_security_analysis
 
 security_analysis = security_provider.analyze_security_deep(
-    code_patterns=code_patterns,
-    context="compilation"
+    code_patterns,
+    "compilation"
 )
 
 # Example 4: AI Error Analysis and Recovery
