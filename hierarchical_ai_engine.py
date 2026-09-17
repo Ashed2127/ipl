@@ -785,7 +785,7 @@ class HierarchicalAIEngine:
         self.tier1 = Tier1LightningModel()
         self.tier2 = Tier2SpecializedModel()
         self.tier3 = Tier3ReasoningModel(
-            model_name=tier3_model or "deepseek-coder:1.3b",
+            model_name=tier3_model or "qwen2.5-coder:0.5b",
             ollama_endpoint=ollama_endpoint
         )
         

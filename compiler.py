@@ -293,7 +293,7 @@ class LocalInferenceRuntime:
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
-        self.tier3_model = tier3_model or os.environ.get("IPL_TIER3_MODEL", "deepseek-coder:1.3b")
+        self.tier3_model = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
         
         # Initialize hierarchical AI engine if enabled
         self.ai_engine = None
