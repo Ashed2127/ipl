@@ -1,0 +1,273 @@
+# IPL Registration and Login System
+# This demonstrates IPL's compiler-level AI security without external security tools
+
+// User Database Structure
+struct User {
+    id: Int
+    username: String
+    email: String
+    password_hash: String
+    created_at: DateTime
+    is_active: Bool
+}
+
+// Session Management
+struct Session {
+    session_id: String
+    user_id: Int
+    created_at: DateTime
+    expires_at: DateTime
+    is_valid: Bool
+}
+
+// Database Connection (simplified)
+class UserDatabase {
+    function connect() -> Connection {
+        // In real implementation, this would establish actual database connection
+        return Connection("postgresql://localhost:5432/ipl_users")
+    }
+    
+    function user_exists(username: String) -> Bool {
+        let conn = self.connect()
+        let query = "SELECT id FROM users WHERE username = '" + username + "'"
+        let result = conn.execute(query)
+        return result.rows.length > 0
+    }
+    
+    function email_exists(email: String) -> Bool {
+        let conn = self.connect()
+        let query = "SELECT id FROM users WHERE email = '" + email + "'"
+        let result = conn.execute(query)
+        return result.rows.length > 0
+    }
+    
+    function create_user(user: User) -> Bool {
+        let conn = self.connect()
+        let query = "INSERT INTO users (username, email, password_hash, created_at, is_active) VALUES ('" + 
+                   user.username + "', '" + user.email + "', '" + user.password_hash + "', '" + 
+                   user.created_at + "', " + user.is_active + ")"
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function get_user_by_username(username: String) -> User? {
+        let conn = self.connect()
+        let query = "SELECT * FROM users WHERE username = '" + username + "'"
+        let result = conn.execute(query)
+        
+        if result.rows.length > 0 {
+            return User(
+                id: result.rows[0].id,
+                username: result.rows[0].username,
+                email: result.rows[0].email,
+                password_hash: result.rows[0].password_hash,
+                created_at: result.rows[0].created_at,
+                is_active: result.rows[0].is_active
+            )
+        }
+        return null
+    }
+    
+    function create_session(session: Session) -> Bool {
+        let conn = self.connect()
+        let query = "INSERT INTO sessions (session_id, user_id, created_at, expires_at, is_valid) VALUES ('" + 
+                   session.session_id + "', " + session.user_id + ", '" + session.created_at + "', '" + 
+                   session.expires_at + "', " + session.is_valid + ")"
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function validate_session(session_id: String) -> Session? {
+        let conn = self.connect()
+        let query = "SELECT * FROM sessions WHERE session_id = '" + session_id + "' AND is_valid = true"
+        let result = conn.execute(query)
+        
+        if result.rows.length > 0 {
+            return Session(
+                session_id: result.rows[0].session_id,
+                user_id: result.rows[0].user_id,
+                created_at: result.rows[0].created_at,
+                expires_at: result.rows[0].expires_at,
+                is_valid: result.rows[0].is_valid
+            )
+        }
+        return null
+    }
+}
+
+// Password Hashing (simplified - in production use proper crypto)
+class PasswordManager {
+    function hash_password(password: String) -> String {
+        // Simplified hashing - in production use bcrypt/argon2
+        let salt = generate_salt()
+        let hash = sha256(password + salt)
+        return salt + ":" + hash
+    }
+    
+    function verify_password(password: String, hash: String) -> Bool {
+        let parts = hash.split(":")
+        let salt = parts[0]
+        let stored_hash = parts[1]
+        let computed_hash = sha256(password + salt)
+        return computed_hash == stored_hash
+    }
+}
+
+// Registration Service
+class RegistrationService {
+    let db: UserDatabase
+    let password_manager: PasswordManager
+    
+    function register(username: String, email: String, password: String) -> Result {
+        // Validate input
+        if username.length < 3 {
+            return Result(success: false, message: "Username must be at least 3 characters")
+        }
+        
+        if email.contains("@") == false {
+            return Result(success: false, message: "Invalid email format")
+        }
+        
+        if password.length < 8 {
+            return Result(success: false, message: "Password must be at least 8 characters")
+        }
+        
+        // Check if user exists
+        if self.db.user_exists(username) {
+            return Result(success: false, message: "Username already exists")
+        }
+        
+        if self.db.email_exists(email) {
+            return Result(success: false, message: "Email already registered")
+        }
+        
+        // Create user
+        let password_hash = self.password_manager.hash_password(password)
+        let user = User(
+            id: generate_id(),
+            username: username,
+            email: email,
+            password_hash: password_hash,
+            created_at: now(),
+            is_active: true
+        )
+        
+        if self.db.create_user(user) {
+            return Result(success: true, message: "Registration successful")
+        } else {
+            return Result(success: false, message: "Failed to create user")
+        }
+    }
+}
+
+// Login Service
+class LoginService {
+    let db: UserDatabase
+    let password_manager: PasswordManager
+    
+    function login(username: String, password: String) -> Result {
+        // Get user
+        let user = self.db.get_user_by_username(username)
+        
+        if user == null {
+            return Result(success: false, message: "Invalid username or password")
+        }
+        
+        // Verify password
+        if self.password_manager.verify_password(password, user.password_hash) == false {
+            return Result(success: false, message: "Invalid username or password")
+        }
+        
+        // Create session
+        let session = Session(
+            session_id: generate_session_id(),
+            user_id: user.id,
+            created_at: now(),
+            expires_at: now() + 3600, // 1 hour
+            is_valid: true
+        )
+        
+        if self.db.create_session(session) {
+            return Result(success: true, message: "Login successful", data: session.session_id)
+        } else {
+            return Result(success: false, message: "Failed to create session")
+        }
+    }
+}
+
+// API Endpoints
+class AuthAPI {
+    let registration_service: RegistrationService
+    let login_service: LoginService
+    
+    function handle_register(request: Request) -> Response {
+        let username = request.body.get("username")
+        let email = request.body.get("email")
+        let password = request.body.get("password")
+        
+        let result = self.registration_service.register(username, email, password)
+        
+        if result.success {
+            return Response(status: 201, body: {"message": result.message})
+        } else {
+            return Response(status: 400, body: {"error": result.message})
+        }
+    }
+    
+    function handle_login(request: Request) -> Response {
+        let username = request.body.get("username")
+        let password = request.body.get("password")
+        
+        let result = self.login_service.login(username, password)
+        
+        if result.success {
+            return Response(status: 200, body: {
+                "message": result.message,
+                "session_id": result.data
+            })
+        } else {
+            return Response(status: 401, body: {"error": result.message})
+        }
+    }
+    
+    function handle_protected(request: Request) -> Response {
+        let session_id = request.headers.get("Authorization")
+        
+        if session_id == null {
+            return Response(status: 401, body: {"error": "No session provided"})
+        }
+        
+        let session = self.login_service.db.validate_session(session_id)
+        
+        if session == null {
+            return Response(status: 401, body: {"error": "Invalid or expired session"})
+        }
+        
+        return Response(status: 200, body: {"message": "Access granted", "user_id": session.user_id})
+    }
+}
+
+// Main Application
+class AuthApplication {
+    let api: AuthAPI
+    
+    function start() {
+        let server = Server(port: 8080)
+        
+        server.post("/register", self.api.handle_register)
+        server.post("/login", self.api.handle_login)
+        server.get("/protected", self.api.handle_protected)
+        
+        server.start()
+    }
+}
+
+// Initialize and start
+let db = UserDatabase()
+let password_manager = PasswordManager()
+let registration_service = RegistrationService(db: db, password_manager: password_manager)
+let login_service = LoginService(db: db, password_manager: password_manager)
+let api = AuthAPI(registration_service: registration_service, login_service: login_service)
+let app = AuthApplication(api: api)
+
+app.start()
