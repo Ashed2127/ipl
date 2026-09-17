@@ -397,7 +397,7 @@ class CombinedAttack {
         print("\n❌ FAILED: Combined attack was not blocked")
 
 
-def test_user_registration():
+def test_user_registration(compiler):
     """Test legitimate user registration scenario"""
     print("\n" + "="*70)
     print("TEST 7: Legitimate User Registration - Should Succeed")
@@ -426,9 +426,6 @@ class UserRegistration {
     }
 }
 """
-    
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(legitimate_code, "user_registration.ipl")
     
@@ -471,13 +468,14 @@ def main():
     compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     # Run tests
-    test_legitimate_system()
-    test_sql_injection_attack()
-    test_xss_attack()
-    test_command_injection()
-    test_path_traversal()
-    test_combined_attack()
-    test_user_registration()
+    compiler = test_legitimate_system()
+    if compiler:
+        test_sql_injection_attack(compiler)
+        test_xss_attack(compiler)
+        test_command_injection(compiler)
+        test_path_traversal(compiler)
+        test_combined_attack(compiler)
+        test_user_registration(compiler)
     
     # Print summary
     print_summary(compiler)
