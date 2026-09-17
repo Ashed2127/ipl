@@ -261,7 +261,7 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
     auth_mode = "Enabled" if enable_authorization else "Disabled"
-    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "deepseek-coder:1.3b")
+    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
     console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green] | Auth: [bold yellow]{auth_mode}[/bold yellow] | Tier 3: [bold magenta]{tier3_disp}[/bold magenta][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
@@ -422,7 +422,7 @@ def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = Tru
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
     ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
     auth_mode = "Enabled" if enable_authorization else "Disabled"
-    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "deepseek-coder:1.3b")
+    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
     console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode} | Auth: {auth_mode} | Tier 3: {tier3_disp})[/dim]")
     console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
 
