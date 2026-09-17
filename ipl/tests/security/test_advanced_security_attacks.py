@@ -556,7 +556,7 @@ class AdvancedSQLInjectionAttack1 {
         print("\n❌ FAILED: Advanced SQL injection attack was not blocked")
 
 
-def test_advanced_xss():
+def test_advanced_xss_with_compiler(compiler):
     """Test advanced XSS attack detection"""
     print("\n" + "="*70)
     print("TEST 3: Advanced XSS Attack - Should Be BLOCKED")
@@ -573,9 +573,6 @@ class AdvancedXSSAttack1 {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "advanced_xss_attack.ipl")
     
     if result.get("blocked"):
@@ -585,7 +582,7 @@ class AdvancedXSSAttack1 {
         print("\n❌ FAILED: Advanced XSS attack was not blocked")
 
 
-def test_command_injection_advanced():
+def test_command_injection_advanced_with_compiler(compiler):
     """Test advanced command injection attack detection"""
     print("\n" + "="*70)
     print("TEST 4: Advanced Command Injection - Should Be BLOCKED")
@@ -601,9 +598,6 @@ class UserAgentCommandInjection {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "advanced_command_injection.ipl")
     
     if result.get("blocked"):
@@ -613,7 +607,7 @@ class UserAgentCommandInjection {
         print("\n❌ FAILED: Advanced command injection was not blocked")
 
 
-def test_ldap_injection():
+def test_ldap_injection_with_compiler(compiler):
     """Test LDAP injection attack detection"""
     print("\n" + "="*70)
     print("TEST 5: LDAP Injection Attack - Should Be BLOCKED")
@@ -629,9 +623,6 @@ class AdvancedLDAPInjectionAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "ldap_injection_attack.ipl")
     
     if result.get("blocked"):
@@ -641,7 +632,7 @@ class AdvancedLDAPInjectionAttack {
         print("\n❌ FAILED: LDAP injection attack was not blocked")
 
 
-def test_xxe_attack():
+def test_xxe_attack_with_compiler(compiler):
     """Test XXE attack detection"""
     print("\n" + "="*70)
     print("TEST 6: XXE Attack - Should Be BLOCKED")
@@ -656,9 +647,6 @@ class XXEAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "xxe_attack.ipl")
     
     if result.get("blocked"):
@@ -668,7 +656,7 @@ class XXEAttack {
         print("\n❌ FAILED: XXE attack was not blocked")
 
 
-def test_buffer_overflow():
+def test_buffer_overflow_with_compiler(compiler):
     """Test buffer overflow attack detection"""
     print("\n" + "="*70)
     print("TEST 7: Buffer Overflow Attack - Should Be BLOCKED")
@@ -685,9 +673,6 @@ class UsernameBufferOverflowAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "buffer_overflow_attack.ipl")
     
     if result.get("blocked"):
@@ -697,7 +682,7 @@ class UsernameBufferOverflowAttack {
         print("\n❌ FAILED: Buffer overflow attack was not blocked")
 
 
-def test_csrf_attack():
+def test_csrf_attack_with_compiler(compiler):
     """Test CSRF attack detection"""
     print("\n" + "="*70)
     print("TEST 8: CSRF Attack - Should Be BLOCKED")
@@ -717,9 +702,6 @@ class CSRFTokenForgeryAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "csrf_attack.ipl")
     
     if result.get("blocked"):
@@ -729,7 +711,7 @@ class CSRFTokenForgeryAttack {
         print("\n❌ FAILED: CSRF attack was not blocked")
 
 
-def test_session_fixation():
+def test_session_fixation_with_compiler(compiler):
     """Test session fixation attack detection"""
     print("\n" + "="*70)
     print("TEST 9: Session Fixation Attack - Should Be BLOCKED")
@@ -749,9 +731,6 @@ class SessionFixationAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "session_fixation_attack.ipl")
     
     if result.get("blocked"):
@@ -761,7 +740,7 @@ class SessionFixationAttack {
         print("\n❌ FAILED: Session fixation attack was not blocked")
 
 
-def test_timing_attack():
+def test_timing_attack_with_compiler(compiler):
     """Test timing attack detection"""
     print("\n" + "="*70)
     print("TEST 10: Timing Attack - Should Be BLOCKED")
@@ -788,9 +767,6 @@ class AdvancedTimingAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "timing_attack.ipl")
     
     if result.get("blocked"):
@@ -800,7 +776,7 @@ class AdvancedTimingAttack {
         print("\n❌ FAILED: Timing attack was not blocked")
 
 
-def test_nosql_injection():
+def test_nosql_injection_with_compiler(compiler):
     """Test NoSQL injection attack detection"""
     print("\n" + "="*70)
     print("TEST 11: NoSQL Injection Attack - Should Be BLOCKED")
@@ -816,9 +792,6 @@ class NoSQLInjectionAttack {
 }
 """
     
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     result = compiler.compile(attack_code, "nosql_injection_attack.ipl")
     
     if result.get("blocked"):
@@ -828,7 +801,7 @@ class NoSQLInjectionAttack {
         print("\n❌ FAILED: NoSQL injection attack was not blocked")
 
 
-def test_combined_attack():
+def test_combined_attack_with_compiler(compiler):
     """Test combined multi-vector attack detection"""
     print("\n" + "="*70)
     print("TEST 12: Combined Multi-Vector Attack - Should Be BLOCKED")
@@ -852,9 +825,6 @@ class CombinedMultiVectorAttack {
     }
 }
 """
-    
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(attack_code, "combined_attack.ipl")
     
