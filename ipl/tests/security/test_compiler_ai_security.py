@@ -253,10 +253,10 @@ def test_legitimate_system_with_compiler(compiler):
     
     # Read the legitimate system code
     try:
-        with open("examples/registration_login_system.ipl", "r") as f:
+        with open("ipl/tests/security/registration_login_system.ipl", "r") as f:
             legitimate_code = f.read()
     except FileNotFoundError:
-        print("File not found: examples/registration_login_system.ipl")
+        print("File not found: ipl/tests/security/registration_login_system.ipl")
         return
     
     # Compile
