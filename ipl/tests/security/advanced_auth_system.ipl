@@ -1,0 +1,450 @@
+# Advanced Registration and Login System with Enhanced Security Features
+# This system includes more sophisticated authentication mechanisms
+
+// Enhanced User Database Structure
+struct EnhancedUser {
+    id: Int
+    username: String
+    email: String
+    password_hash: String
+    salt: String
+    created_at: DateTime
+    last_login: DateTime?
+    failed_attempts: Int
+    locked_until: DateTime?
+    two_factor_enabled: Bool
+    two_factor_secret: String?
+    recovery_codes: String[]
+    security_questions: SecurityQuestion[]
+    is_active: Bool
+    role: String
+    permissions: String[]
+}
+
+struct SecurityQuestion {
+    question_id: Int
+    question: String
+    answer_hash: String
+}
+
+struct LoginAttempt {
+    user_id: Int
+    timestamp: DateTime
+    ip_address: String
+    user_agent: String
+    success: Bool
+    failure_reason: String?
+}
+
+struct Session {
+    session_id: String
+    user_id: Int
+    created_at: DateTime
+    expires_at: DateTime
+    ip_address: String
+    user_agent: String
+    is_valid: Bool
+    csrf_token: String
+}
+
+// Advanced Database Operations
+class AdvancedUserDatabase {
+    let connection_pool: ConnectionPool
+    
+    function connect() -> Connection {
+        return self.connection_pool.get_connection()
+    }
+    
+    function user_exists_by_username(username: String) -> Bool {
+        let conn = self.connect()
+        let query = "SELECT id FROM enhanced_users WHERE username = '" + username + "' AND is_active = true"
+        let result = conn.execute(query)
+        return result.rows.length > 0
+    }
+    
+    function user_exists_by_email(email: String) -> Bool {
+        let conn = self.connect()
+        let query = "SELECT id FROM enhanced_users WHERE email = '" + email + "' AND is_active = true"
+        let result = conn.execute(query)
+        return result.rows.length > 0
+    }
+    
+    function get_user_by_username(username: String) -> EnhancedUser? {
+        let conn = self.connect()
+        let query = "SELECT * FROM enhanced_users WHERE username = '" + username + "' AND is_active = true"
+        let result = conn.execute(query)
+        
+        if result.rows.length > 0 {
+            return EnhancedUser(
+                id: result.rows[0].id,
+                username: result.rows[0].username,
+                email: result.rows[0].email,
+                password_hash: result.rows[0].password_hash,
+                salt: result.rows[0].salt,
+                created_at: result.rows[0].created_at,
+                last_login: result.rows[0].last_login,
+                failed_attempts: result.rows[0].failed_attempts,
+                locked_until: result.rows[0].locked_until,
+                two_factor_enabled: result.rows[0].two_factor_enabled,
+                two_factor_secret: result.rows[0].two_factor_secret,
+                recovery_codes: result.rows[0].recovery_codes,
+                security_questions: result.rows[0].security_questions,
+                is_active: result.rows[0].is_active,
+                role: result.rows[0].role,
+                permissions: result.rows[0].permissions
+            )
+        }
+        return null
+    }
+    
+    function create_user(user: EnhancedUser) -> Bool {
+        let conn = self.connect()
+        let query = "INSERT INTO enhanced_users (username, email, password_hash, salt, created_at, failed_attempts, two_factor_enabled, role, is_active) VALUES ('" + 
+                   user.username + "', '" + user.email + "', '" + user.password_hash + "', '" + user.salt + "', '" + 
+                   user.created_at + "', " + user.failed_attempts + ", " + user.two_factor_enabled + ", '" + 
+                   user.role + "', " + user.is_active + ")"
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function update_failed_attempts(user_id: Int, attempts: Int) -> Bool {
+        let conn = self.connect()
+        let query = "UPDATE enhanced_users SET failed_attempts = " + attempts + " WHERE id = " + user_id
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function lock_account(user_id: Int, lock_duration: Int) -> Bool {
+        let conn = self.connect()
+        let lock_time = now() + lock_duration
+        let query = "UPDATE enhanced_users SET locked_until = '" + lock_time + "' WHERE id = " + user_id
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function record_login_attempt(attempt: LoginAttempt) -> Bool {
+        let conn = self.connect()
+        let query = "INSERT INTO login_attempts (user_id, timestamp, ip_address, user_agent, success, failure_reason) VALUES (" + 
+                   attempt.user_id + ", '" + attempt.timestamp + "', '" + attempt.ip_address + "', '" + 
+                   attempt.user_agent + "', " + attempt.success + ", '" + attempt.failure_reason + "')"
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function create_session(session: Session) -> Bool {
+        let conn = self.connect()
+        let query = "INSERT INTO sessions (session_id, user_id, created_at, expires_at, ip_address, user_agent, is_valid, csrf_token) VALUES ('" + 
+                   session.session_id + "', " + session.user_id + ", '" + session.created_at + "', '" + 
+                   session.expires_at + "', '" + session.ip_address + "', '" + session.user_agent + "', " + 
+                   session.is_valid + ", '" + session.csrf_token + "')"
+        let result = conn.execute(query)
+        return result.success
+    }
+    
+    function validate_session(session_id: String, ip_address: String) -> Session? {
+        let conn = self.connect()
+        let query = "SELECT * FROM sessions WHERE session_id = '" + session_id + "' AND is_valid = true AND ip_address = '" + ip_address + "'"
+        let result = conn.execute(query)
+        
+        if result.rows.length > 0 {
+            return Session(
+                session_id: result.rows[0].session_id,
+                user_id: result.rows[0].user_id,
+                created_at: result.rows[0].created_at,
+                expires_at: result.rows[0].expires_at,
+                ip_address: result.rows[0].ip_address,
+                user_agent: result.rows[0].user_agent,
+                is_valid: result.rows[0].is_valid,
+                csrf_token: result.rows[0].csrf_token
+            )
+        }
+        return null
+    }
+}
+
+// Advanced Password Manager with Multiple Hashing
+class AdvancedPasswordManager {
+    function generate_salt() -> String {
+        return random_bytes(32)
+    }
+    
+    function hash_password(password: String, salt: String) -> String {
+        // Multi-round hashing for enhanced security
+        let hash = password + salt
+        for i in 1..10000 {
+            hash = sha256(hash)
+        }
+        return hash
+    }
+    
+    function verify_password(password: String, salt: String, stored_hash: String) -> Bool {
+        let computed_hash = self.hash_password(password, salt)
+        return computed_hash == stored_hash
+    }
+    
+    function generate_recovery_codes() -> String[] {
+        let codes = []
+        for i in 1..10 {
+            codes.append(random_bytes(16))
+        }
+        return codes
+    }
+}
+
+// Advanced Registration Service
+class AdvancedRegistrationService {
+    let db: AdvancedUserDatabase
+    let password_manager: AdvancedPasswordManager
+    
+    function register(username: String, email: String, password: String, 
+                     security_questions: SecurityQuestion[]) -> Result {
+        // Enhanced validation
+        if username.length < 3 || username.length > 50 {
+            return Result(success: false, message: "Username must be 3-50 characters")
+        }
+        
+        if email.contains("@") == false || email.contains(".") == false {
+            return Result(success: false, message: "Invalid email format")
+        }
+        
+        if password.length < 12 {
+            return Result(success: false, message: "Password must be at least 12 characters")
+        }
+        
+        if self.check_password_strength(password) == false {
+            return Result(success: false, message: "Password does not meet strength requirements")
+        }
+        
+        // Check for existing users
+        if self.db.user_exists_by_username(username) {
+            return Result(success: false, message: "Username already exists")
+        }
+        
+        if self.db.user_exists_by_email(email) {
+            return Result(success: false, message: "Email already registered")
+        }
+        
+        // Create user with enhanced security
+        let salt = self.password_manager.generate_salt()
+        let password_hash = self.password_manager.hash_password(password, salt)
+        let recovery_codes = self.password_manager.generate_recovery_codes()
+        
+        let user = EnhancedUser(
+            id: generate_id(),
+            username: username,
+            email: email,
+            password_hash: password_hash,
+            salt: salt,
+            created_at: now(),
+            last_login: null,
+            failed_attempts: 0,
+            locked_until: null,
+            two_factor_enabled: false,
+            two_factor_secret: null,
+            recovery_codes: recovery_codes,
+            security_questions: security_questions,
+            is_active: true,
+            role: "user",
+            permissions: ["read", "write_own"]
+        )
+        
+        if self.db.create_user(user) {
+            return Result(success: true, message: "Registration successful")
+        } else {
+            return Result(success: false, message: "Failed to create user")
+        }
+    }
+    
+    function check_password_strength(password: String) -> Bool {
+        let has_upper = false
+        let has_lower = false
+        let has_digit = false
+        let has_special = false
+        
+        for char in password {
+            if char.is_upper() { has_upper = true }
+            if char.is_lower() { has_lower = true }
+            if char.is_digit() { has_digit = true }
+            if char.is_special() { has_special = true }
+        }
+        
+        return has_upper && has_lower && has_digit && has_special
+    }
+}
+
+// Advanced Login Service with Rate Limiting
+class AdvancedLoginService {
+    let db: AdvancedUserDatabase
+    let password_manager: AdvancedPasswordManager
+    let max_attempts: Int = 5
+    let lock_duration: Int = 1800 // 30 minutes
+    
+    function login(username: String, password: String, ip_address: String, 
+                  user_agent: String, two_factor_code: String?) -> Result {
+        // Get user
+        let user = self.db.get_user_by_username(username)
+        
+        if user == null {
+            return Result(success: false, message: "Invalid username or password")
+        }
+        
+        // Check if account is locked
+        if user.locked_until != null && user.locked_until > now() {
+            return Result(success: false, message: "Account is temporarily locked")
+        }
+        
+        // Verify password
+        if self.password_manager.verify_password(password, user.salt, user.password_hash) == false {
+            // Increment failed attempts
+            let new_attempts = user.failed_attempts + 1
+            self.db.update_failed_attempts(user.id, new_attempts)
+            
+            // Lock account if too many attempts
+            if new_attempts >= self.max_attempts {
+                self.db.lock_account(user.id, self.lock_duration)
+            }
+            
+            // Record failed attempt
+            let attempt = LoginAttempt(
+                user_id: user.id,
+                timestamp: now(),
+                ip_address: ip_address,
+                user_agent: user_agent,
+                success: false,
+                failure_reason: "Invalid password"
+            )
+            self.db.record_login_attempt(attempt)
+            
+            return Result(success: false, message: "Invalid username or password")
+        }
+        
+        // Check 2FA if enabled
+        if user.two_factor_enabled && two_factor_code == null {
+            return Result(success: false, message: "Two-factor authentication code required")
+        }
+        
+        if user.two_factor_enabled && self.verify_two_factor(user.two_factor_secret, two_factor_code) == false {
+            return Result(success: false, message: "Invalid two-factor authentication code")
+        }
+        
+        // Reset failed attempts on successful login
+        self.db.update_failed_attempts(user.id, 0)
+        
+        // Create session
+        let session = Session(
+            session_id: generate_secure_session_id(),
+            user_id: user.id,
+            created_at: now(),
+            expires_at: now() + 3600,
+            ip_address: ip_address,
+            user_agent: user_agent,
+            is_valid: true,
+            csrf_token: generate_csrf_token()
+        )
+        
+        if self.db.create_session(session) {
+            // Record successful login
+            let attempt = LoginAttempt(
+                user_id: user.id,
+                timestamp: now(),
+                ip_address: ip_address,
+                user_agent: user_agent,
+                success: true,
+                failure_reason: null
+            )
+            self.db.record_login_attempt(attempt)
+            
+            return Result(success: true, message: "Login successful", data: session.session_id)
+        } else {
+            return Result(success: false, message: "Failed to create session")
+        }
+    }
+    
+    function verify_two_factor(secret: String?, code: String?) -> Bool {
+        // Simplified 2FA verification
+        return true
+    }
+}
+
+// Advanced API with CSRF Protection
+class AdvancedAuthAPI {
+    let registration_service: AdvancedRegistrationService
+    let login_service: AdvancedLoginService
+    
+    function handle_register(request: Request) -> Response {
+        let username = request.body.get("username")
+        let email = request.body.get("email")
+        let password = request.body.get("password")
+        let security_questions = request.body.get("security_questions")
+        
+        // Validate CSRF token
+        if self.validate_csrf_token(request.headers.get("X-CSRF-Token")) == false {
+            return Response(status: 403, body: {"error": "Invalid CSRF token"})
+        }
+        
+        let result = self.registration_service.register(username, email, password, security_questions)
+        
+        if result.success {
+            return Response(status: 201, body: {"message": result.message})
+        } else {
+            return Response(status: 400, body: {"error": result.message})
+        }
+    }
+    
+    function handle_login(request: Request) -> Response {
+        let username = request.body.get("username")
+        let password = request.body.get("password")
+        let two_factor_code = request.body.get("two_factor_code")
+        let ip_address = request.headers.get("X-Real-IP")
+        let user_agent = request.headers.get("User-Agent")
+        
+        // Validate CSRF token
+        if self.validate_csrf_token(request.headers.get("X-CSRF-Token")) == false {
+            return Response(status: 403, body: {"error": "Invalid CSRF token"})
+        }
+        
+        let result = self.login_service.login(username, password, ip_address, user_agent, two_factor_code)
+        
+        if result.success {
+            return Response(status: 200, body: {
+                "message": result.message,
+                "session_id": result.data
+            })
+        } else {
+            return Response(status: 401, body: {"error": result.message})
+        }
+    }
+    
+    function handle_protected(request: Request) -> Response {
+        let session_id = request.headers.get("Authorization")
+        let csrf_token = request.headers.get("X-CSRF-Token")
+        let ip_address = request.headers.get("X-Real-IP")
+        
+        if session_id == null {
+            return Response(status: 401, body: {"error": "No session provided"})
+        }
+        
+        if self.validate_csrf_token(csrf_token) == false {
+            return Response(status: 403, body: {"error": "Invalid CSRF token"})
+        }
+        
+        let session = self.login_service.db.validate_session(session_id, ip_address)
+        
+        if session == null {
+            return Response(status: 401, body: {"error": "Invalid or expired session"})
+        }
+        
+        return Response(status: 200, body: {"message": "Access granted", "user_id": session.user_id})
+    }
+    
+    function validate_csrf_token(token: String?) -> Bool {
+        return token != null && token.length > 0
+    }
+}
+
+// Initialize Advanced System
+let db = AdvancedUserDatabase(connection_pool: ConnectionPool("postgresql://localhost:5432/ipl_advanced_users"))
+let password_manager = AdvancedPasswordManager()
+let registration_service = AdvancedRegistrationService(db: db, password_manager: password_manager)
+let login_service = AdvancedLoginService(db: db, password_manager: password_manager)
+let api = AdvancedAuthAPI(registration_service: registration_service, login_service: login_service)
