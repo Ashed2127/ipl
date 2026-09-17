@@ -40,7 +40,7 @@ print("-" * 40)
 test_date = "tomorrow at 3pm"
 result = SemanticEngine.extract_date(test_date)
 print(f"Input:  '{test_date}'")
-print(f"Output: {result['formatted']}")
+print(f"Output: {result}")
 
 # Test 5: Intent Classification
 print("\n5. INTENT CLASSIFICATION")
