@@ -184,21 +184,38 @@ class HybridAIProvider:
     
     def __init__(self):
         self.providers = []
+        print("Setting up hybrid AI provider...")
         
-        # Try to add available providers
+        # Try to add available providers (with quick checks)
         try:
-            if OllamaProvider().is_available():
+            import socket
+            def check_port(port):
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(1)
+                    result = sock.connect_ex(("localhost", port))
+                    sock.close()
+                    return result == 0
+                except:
+                    return False
+            
+            if check_port(11434):
                 self.providers.append(("ollama", OllamaProvider()))
                 print("✅ Added Ollama provider")
-        except:
-            pass
+        except Exception as e:
+            print(f"⚠️  Could not add Ollama: {e}")
             
-        try:
-            if OpenAIProvider(api_key="test").is_available():
+        # Check for API keys
+        if os.getenv("OPENAI_API_KEY"):
+            try:
                 self.providers.append(("openai", OpenAIProvider()))
                 print("✅ Added OpenAI provider")
-        except:
-            pass
+            except Exception as e:
+                print(f"⚠️  Could not add OpenAI: {e}")
+        
+        if not self.providers:
+            print("⚠️  No AI providers available, adding custom fallback")
+            self.providers.append(("custom", CustomAIProvider()))
     
     def process_with_fallback(self, prompt: str, context: dict) -> dict:
         """Try each provider until one succeeds"""
