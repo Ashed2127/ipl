@@ -530,7 +530,7 @@ class CleanRegistrationService {
         print(f"\n❌ FAILED: {result.get('reason', 'Unknown error')}")
 
 
-def test_advanced_sql_injection():
+def test_advanced_sql_injection_with_compiler(compiler):
     """Test advanced SQL injection attack detection"""
     print("\n" + "="*70)
     print("TEST 2: Advanced SQL Injection Attack - Should Be BLOCKED")
@@ -546,9 +546,6 @@ class AdvancedSQLInjectionAttack1 {
     }
 }
 """
-    
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(attack_code, "advanced_sqli_attack.ipl")
     
