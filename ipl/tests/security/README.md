@@ -79,9 +79,15 @@ python3 test_compiler_ai_security.py
 python3 test_user_authentication.py
 ```
 
-### From Project Root
+### From Project Root (Recommended)
 ```bash
 python3 ipl/tests/security/run_security_tests.py
+```
+
+### From Security Test Directory
+```bash
+cd ipl/tests/security
+python3 run_security_tests.py
 ```
 
 ## Integration with Development Workflow

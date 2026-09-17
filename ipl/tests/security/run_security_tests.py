@@ -8,19 +8,17 @@ import sys
 import os
 import subprocess
 
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-def run_test(test_file, description):
+def run_test(test_file, description, project_root):
     """Run a single security test"""
     print(f"\n{'='*70}")
     print(f"Running: {description}")
     print(f"{'='*70}")
     
     try:
+        # Run from project root directory
         result = subprocess.run(
             [sys.executable, test_file],
-            cwd=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            cwd=project_root,
             capture_output=False,
             text=True
         )
@@ -42,26 +40,30 @@ def main():
     print("Testing intelligence for every architecture change")
     print("="*70)
     
-    # Test files
-    test_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get project root (go up 4 levels from ipl/tests/security to project root)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    
+    # Test files (relative to project root)
     tests = [
         (
-            os.path.join(test_dir, "test_compiler_ai_security.py"),
+            "ipl/tests/security/test_compiler_ai_security.py",
             "Basic Security Attack Tests"
         ),
         (
-            os.path.join(test_dir, "test_user_authentication.py"),
+            "ipl/tests/security/test_user_authentication.py",
             "User Authentication Security Tests"
         )
     ]
     
     results = []
     for test_file, description in tests:
-        if os.path.exists(test_file):
-            result = run_test(test_file, description)
+        # Check if file exists relative to project root
+        full_path = os.path.join(project_root, test_file)
+        if os.path.exists(full_path):
+            result = run_test(test_file, description, project_root)
             results.append((description, result))
         else:
-            print(f"⚠️  Test file not found: {test_file}")
+            print(f"⚠️  Test file not found: {full_path}")
             results.append((description, False))
     
     # Print summary
