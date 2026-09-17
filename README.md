@@ -85,9 +85,11 @@ print invoice for "developer"  # Technical details
 - **REST API**: `python3 -m cli serve` or `ipl serve` (launches security gateway)
 
 ### AI Configuration
-- **Default**: Uses embedded fast semantic engine (sub-millisecond, no external dependencies)
-- **Local LLM**: Connects to Ollama models (default: qwen2.5-coder:0.5b, also supports deepseek, gemma, etc.)
-- **OpenAI Integration**: Real AI deep reasoning when API key provided via `--openai-api-key` flag or `OPENAI_API_KEY` environment variable
+- **Default**: Uses embedded fast semantic engine (sub-millisecond, no external dependencies) - **Works Offline**
+- **Local LLM (Optional)**: Connects to Ollama models (default: qwen2.5-coder:0.5b, also supports deepseek, gemma, etc.) for advanced AI features
+- **OpenAI Integration (Optional)**: Real AI deep reasoning when API key provided via `--openai-api-key` flag or `OPENAI_API_KEY` environment variable
+
+> **Note**: IPL is fully functional without Ollama or any external AI service. The embedded semantic engine provides powerful natural language processing capabilities completely offline.
 
 ### Current Status
 IPL is a functional neuro-symbolic programming language with:
