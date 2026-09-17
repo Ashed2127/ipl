@@ -242,7 +242,7 @@ class IPLSecurityAIProvider(CustomCompilerAIProvider):
         return result
 
 
-def test_legitimate_system():
+def test_legitimate_system_with_compiler(compiler):
     """Test compilation of legitimate registration/login system"""
     print("\n" + "="*70)
     print("TEST 1: Compiling Legitimate Registration/Login System")
@@ -255,10 +255,6 @@ def test_legitimate_system():
     except FileNotFoundError:
         print("File not found: examples/registration_login_system.ipl")
         return None
-    
-    # Create compiler with AI
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     # Compile
     result = compiler.compile(legitimate_code, "registration_login_system.ipl")
