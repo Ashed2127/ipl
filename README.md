@@ -90,12 +90,14 @@ print invoice for "developer"  # Technical details
 - **Python Embedding**: Import interpreter class for programmatic execution
 - **REST API**: `python3 -m cli serve` or `ipl serve` (launches security gateway)
 
-### AI Configuration
-- **Default**: Uses embedded fast semantic engine (sub-millisecond, no external dependencies) - **Works Offline**
-- **Local LLM (Optional)**: Connects to Ollama models (default: qwen2.5-coder:0.5b, also supports deepseek, gemma, etc.) for advanced AI features
-- **OpenAI Integration (Optional)**: Real AI deep reasoning when API key provided via `--openai-api-key` flag or `OPENAI_API_KEY` environment variable
+### AI Integration
+- **Pluggable Architecture**: Integrate any AI model (local or cloud) via standardized interface
+- **Local AI**: Ollama, llama.cpp, or any local LLM (privacy-focused, cost-effective)
+- **Cloud AI**: OpenAI, Anthropic, or any cloud API (powerful capabilities)
+- **Custom AI**: Implement your own AI integration for specific needs
+- **No AI Required**: Core language works standalone with built-in text processing
 
-> **Note**: IPL is fully functional without Ollama or any external AI service. The embedded semantic engine provides powerful natural language processing capabilities completely offline.
+> **Architecture**: IPL is a programming language designed for AI integration. Choose your AI provider based on your needs (cost, privacy, performance).
 
 ### Current Status
 IPL is a functional neuro-symbolic programming language with:
