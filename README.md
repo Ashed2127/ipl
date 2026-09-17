@@ -4,34 +4,40 @@ IPL is a hybrid neuro-symbolic programming language that combines AI-powered sem
 
 ## Installation
 
-### Quick Start (Embedded Intelligence - No Dependencies)
+### Quick Start (Core Language)
 ```bash
-# Install IPL with built-in intelligence (no Ollama required)
+# Install IPL core language
 pip install ipl-lang
 
-# Run immediately with semantic capabilities
+# Run immediately with built-in features
 ipl run examples/01_intelligent_variables.ipl
 ```
 
-### With Advanced AI (Optional Ollama Integration)
+### AI Integration (Choose Your AI Provider)
 ```bash
-# Automated installation with Ollama + Qwen model
-curl -sSL https://install.ipl-lang.sh | bash
+# Option 1: Local AI (Ollama)
+pip install ipl-lang
+# Install Ollama separately: curl -fsSL https://ollama.com/install.sh | sh
+# Use with IPL: ipl run script.ipl --ai-provider ollama --ai-model qwen2.5-coder:0.5b
 
-# Or manually:
-# 1. Install Ollama: curl -fsSL https://ollama.com/install.sh | sh
-# 2. Download model: ollama pull qwen2.5-coder:0.5b
-# 3. Run IPL: ipl run script.ipl --model qwen2.5-coder:0.5b
+# Option 2: Cloud AI (OpenAI)
+pip install ipl-lang openai
+export OPENAI_API_KEY=your_key
+# Use with IPL: ipl run script.ipl --ai-provider openai --ai-model gpt-4
+
+# Option 3: Custom AI Integration
+# Implement your own AI provider (see AI_INTEGRATION_ARCHITECTURE.md)
 ```
 
-### Docker Deployment (Production-Ready)
+### Docker Deployment
 ```bash
-# Single container with IPL + Ollama + Qwen model
-docker build -t ipl-lang .
-docker run -p 8000:8000 ipl-lang
+# Core language only
+docker build -f Dockerfile.core -t ipl-lang-core .
+docker run -p 8000:8000 ipl-lang-core
 
-# Or use docker-compose
-docker-compose up
+# With local AI (Ollama)
+docker build -f Dockerfile.ai -t ipl-lang-ai .
+docker run -p 8000:8000 ipl-lang-ai
 ```
 
 ## Current Functionality
