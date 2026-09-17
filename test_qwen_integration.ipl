@@ -1,0 +1,36 @@
+// ============================================================================
+// Test Qwen2.5-Coder:0.5b Integration
+// ============================================================================
+
+print "=========================================================="
+print "       QWEN2.5-CODER:0.5B INTEGRATION TEST               "
+print "=========================================================="
+
+// Test basic semantic types (uses built-in engine)
+let price: Currency = "the service costs ninety-nine bucks and 50 cents"
+let review: Sentiment = "absolutely fantastic build quality"
+let latency: Quantity = "450 ms"
+
+print "Price:", price
+print "Review:", review  
+print "Latency:", latency
+
+// Test control flow
+if latency > 300 {
+    print "Warning: High latency detected"
+} else {
+    print "Latency is acceptable"
+}
+
+// Test function
+fn calculate_total(base, tax) {
+    return base + tax
+}
+
+let total = calculate_total(price, 10.0)
+print "Total with tax:", total
+
+print "=========================================================="
+print "       AI ENGINE STATISTICS                               "
+print "=========================================================="
+print ai_stats()
