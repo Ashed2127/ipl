@@ -52,6 +52,10 @@ def main():
         (
             "ipl/tests/security/test_user_authentication.py",
             "User Authentication Security Tests"
+        ),
+        (
+            "ipl/tests/security/test_advanced_security_attacks.py",
+            "Advanced Security Attack Tests"
         )
     ]
     
