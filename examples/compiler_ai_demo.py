@@ -247,7 +247,9 @@ error_provider = CustomCompilerAIProvider(
 )
 error_provider.analyze_compilation_error = custom_error_analysis
 
-error_analysis = error_provider.analyze_compilation_error(error_context)
+error_analysis = error_provider.analyze_compilation_error(
+    error_context
+)
 
 # Example 5: This vs Code Suggestions
 print("\n5. Compiler-Level AI vs Code Suggestions")
