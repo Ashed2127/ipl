@@ -569,7 +569,7 @@ class Tier2SpecializedModel(BaseModelInterface):
 class Tier3ReasoningModel(BaseModelInterface):
     """Tier 3: Local reasoning models for complex scenarios using Ollama."""
     
-    def __init__(self, model_name: str = "deepseek-coder:1.3b", ollama_endpoint: Optional[str] = None):
+    def __init__(self, model_name: str = "qwen2.5-coder:0.5b", ollama_endpoint: Optional[str] = None):
         super().__init__(model_name, ModelTier.TIER_3_REASONING)
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         
