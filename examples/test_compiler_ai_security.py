@@ -255,6 +255,15 @@ def test_legitimate_system_with_compiler(compiler):
     except FileNotFoundError:
         print("File not found: examples/registration_login_system.ipl")
         return
+    
+    # Compile
+    result = compiler.compile(legitimate_code, "registration_login_system.ipl")
+    
+    if result["success"]:
+        print("\n✅ SUCCESS: Legitimate system compiled successfully")
+        print("   Note: The system has some security warnings but is allowed to compile")
+    else:
+        print(f"\n❌ FAILED: {result.get('reason', 'Unknown error')}")
 
 
 def test_sql_injection_attack(compiler):
