@@ -468,14 +468,13 @@ def main():
     compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     # Run tests
-    compiler = test_legitimate_system()
-    if compiler:
-        test_sql_injection_attack(compiler)
-        test_xss_attack(compiler)
-        test_command_injection(compiler)
-        test_path_traversal(compiler)
-        test_combined_attack(compiler)
-        test_user_registration(compiler)
+    test_legitimate_system_with_compiler(compiler)
+    test_sql_injection_attack(compiler)
+    test_xss_attack(compiler)
+    test_command_injection(compiler)
+    test_path_traversal(compiler)
+    test_combined_attack(compiler)
+    test_user_registration(compiler)
     
     # Print summary
     print_summary(compiler)
