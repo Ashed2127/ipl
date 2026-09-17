@@ -6,9 +6,9 @@ This demonstrates IPL's compiler-level AI security in a real user registration/l
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from compiler_ai_providers import CustomCompilerAIProvider
+from ipl.compiler.compiler_ai_providers import CustomCompilerAIProvider
 
 
 class IPLSecurityCompiler:
