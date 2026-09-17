@@ -372,7 +372,7 @@ class PathTraversal {
         print("\n❌ FAILED: Path traversal attack was not blocked")
 
 
-def test_combined_attack():
+def test_combined_attack(compiler):
     """Test that combined attacks are blocked during compilation"""
     print("\n" + "="*70)
     print("TEST 6: Combined Attack - Should Be BLOCKED")
@@ -387,9 +387,6 @@ class CombinedAttack {
     }
 }
 """
-    
-    ai_provider = IPLSecurityAIProvider(model_name="ipl-security-ai")
-    compiler = IPLSecurityCompiler(ai_provider=ai_provider)
     
     result = compiler.compile(attack_code, "combined_attack.ipl")
     
