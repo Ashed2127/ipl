@@ -461,7 +461,7 @@ class IPLAdvancedSecurityAIProvider(CustomCompilerAIProvider):
         return result
 
 
-def test_advanced_auth_system():
+def test_advanced_auth_system_with_compiler(compiler):
     """Test compilation of advanced authentication system"""
     print("\n" + "="*70)
     print("TEST 1: Compiling Advanced Authentication System")
@@ -520,10 +520,6 @@ class CleanRegistrationService {
 }
 """
     
-    # Create compiler with AI
-    ai_provider = IPLAdvancedSecurityAIProvider(model_name="ipl-advanced-security-ai")
-    compiler = IPLAdvancedSecurityCompiler(ai_provider=ai_provider)
-    
     # Compile
     result = compiler.compile(clean_auth_code, "clean_advanced_auth_system.ipl")
     
@@ -532,8 +528,6 @@ class CleanRegistrationService {
         print("   AI verified safe coding practices (parameterized queries)")
     else:
         print(f"\n❌ FAILED: {result.get('reason', 'Unknown error')}")
-    
-    return compiler
 
 
 def test_advanced_sql_injection():
