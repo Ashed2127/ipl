@@ -7,7 +7,9 @@ during compilation without using external security tools.
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 
 from ipl.compiler.compiler_ai_providers import CustomCompilerAIProvider, get_compiler_ai_provider
 
