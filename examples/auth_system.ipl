@@ -1,0 +1,126 @@
+// ============================================================================
+// IPL Authentication System - Registration and Login
+// examples/auth_system.ipl
+// ============================================================================
+
+// Simple in-memory user storage (in production, use secure database)
+let users = {}
+
+// User registration function
+fn register(username, password, email) {
+    // Security: Check if username already exists
+    if (users[username] != null) {
+        return "ERROR: Username already exists"
+    }
+    
+    // Security: Validate input
+    if (len(username) < 3) {
+        return "ERROR: Username too short"
+    }
+    
+    if (len(password) < 8) {
+        return "ERROR: Password too short"
+    }
+    
+    // Security: Sanitize inputs to prevent injection attacks
+    let clean_username = sanitize(username)
+    let clean_email = sanitize(email)
+    
+    // Security: Hash password (using IPL's built-in crypto)
+    let password_hash = sha256(password)
+    
+    // Security: Generate salt for additional security
+    let salt = generate_salt()
+    let secure_hash = sha256(password_hash + salt)
+    
+    // Store user with security information
+    users[clean_username] = {
+        "password_hash": secure_hash,
+        "salt": salt,
+        "email": clean_email,
+        "created_at": timestamp()
+    }
+    
+    return "SUCCESS: User registered successfully"
+}
+
+// User login function
+fn login(username, password) {
+    // Security: Sanitize input
+    let clean_username = sanitize(username)
+    
+    // Check if user exists
+    if (users[clean_username] == null) {
+        return "ERROR: Invalid username or password"
+    }
+    
+    let user_data = users[clean_username]
+    
+    // Security: Verify password hash
+    let password_hash = sha256(password)
+    let secure_hash = sha256(password_hash + user_data["salt"])
+    
+    if (secure_hash != user_data["password_hash"]) {
+        return "ERROR: Invalid username or password"
+    }
+    
+    // Security: Generate session token
+    let session_token = generate_session_token(clean_username)
+    
+    return "SUCCESS: Login successful. Session: " + session_token
+}
+
+// Helper function to generate salt
+fn generate_salt() {
+    return random_string(32)
+}
+
+// Helper function to generate session token
+fn generate_session_token(username) {
+    let raw = username + ":" + timestamp() + ":" + random_string(16)
+    return sha256(raw)
+}
+
+// Demo: Register and login users
+print "=========================================================="
+print "       IPL AUTHENTICATION SYSTEM DEMO                   "
+print "=========================================================="
+
+// Test 1: Register new user
+print "\n--- Test 1: Register New User ---"
+let result1 = register("alice", "securePassword123", "alice@example.com")
+print result1
+
+// Test 2: Try to register duplicate user
+print "\n--- Test 2: Register Duplicate User ---"
+let result2 = register("alice", "anotherPassword", "alice2@example.com")
+print result2
+
+// Test 3: Login with correct credentials
+print "\n--- Test 3: Login with Correct Credentials ---"
+let result3 = login("alice", "securePassword123")
+print result3
+
+// Test 4: Login with wrong password
+print "\n--- Test 4: Login with Wrong Password ---"
+let result4 = login("alice", "wrongPassword")
+print result4
+
+// Test 5: Login with non-existent user
+print "\n--- Test 5: Login with Non-existent User ---"
+let result5 = login("bob", "somePassword")
+print result5
+
+// Test 6: Register another user
+print "\n--- Test 6: Register Another User ---"
+let result6 = register("bob", "bobSecurePass456", "bob@example.com")
+print result6
+
+// Test 7: Login new user
+print "\n--- Test 7: Login New User ---"
+let result7 = login("bob", "bobSecurePass456")
+print result7
+
+print "\n=========================================================="
+print "       AUTHENTICATION SYSTEM TEST COMPLETE               "
+print "=========================================================="
