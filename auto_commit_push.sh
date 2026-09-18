@@ -19,13 +19,13 @@ while true; do
         # Analyze changes to extract feature information
         DIFF_OUTPUT=$(git diff && git diff --cached)
         
-        # Look for function/class definitions, imports, and key additions
-        if echo "$DIFF_OUTPUT" | grep -q "^+.*def \|^\+.*class \|^\+.*function \|^\+.*const \|^\+.*let \|^\+.*import "; then
-            # Extract function/class names that were added
-            ADDED_FEATURES=$(echo "$DIFF_OUTPUT" | grep "^+.*def \|^\+.*class \|^\+.*function " | sed 's/^[+]//' | head -3)
-            if [ -n "$ADDED_FEATURES" ]; then
-                COMMIT_MSG="Add: $(echo "$ADDED_FEATURES" | tr '\n' ', ' | sed 's/, $//')"
-            fi
+        # Look for function/class definitions that were added (excluding comments)
+        ADDED_FEATURES=$(echo "$DIFF_OUTPUT" | grep "^+.*def \|^\+.*class \|^\+.*function " | grep -v "^+.*#" | sed 's/^[+] *//' | head -3)
+        
+        if [ -n "$ADDED_FEATURES" ]; then
+            # Clean up the feature names to get just the function/class names
+            FEATURE_NAMES=$(echo "$ADDED_FEATURES" | sed -E 's/.*def ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/; s/.*class ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/; s/.*function ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/' | head -3)
+            COMMIT_MSG="Add: $(echo "$FEATURE_NAMES" | tr '\n' ', ' | sed 's/, $//')"
         fi
         
         # If no clear features found, use file-based message
@@ -50,7 +50,7 @@ while true; do
         # Push to remote
         git push
         
-        echo "[$(date)] Committed and pushed successfully: $COMMIT_MSG"
+        echo "[$(date)] Committed and pushed successfully"
     fi
     
     sleep 5
