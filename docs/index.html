@@ -414,6 +414,7 @@ docker run -p 8000:8000 ipl-lang-ai</code></pre>
                                 <div class="feature-card p-4">
                                     <h5>🖥️ Local AI (Ollama)</h5>
                                     <div class="code-block mt-3">
+                                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                                         <pre><code class="language-bash">pip install ipl-lang
 # Install Ollama
 curl -fsSL https://ollama.com/install.sh | sh
@@ -426,6 +427,7 @@ ipl run script.ipl --ai-provider ollama --ai-model qwen2.5-coder:0.5b</code></pr
                                 <div class="feature-card p-4">
                                     <h5>☁️ Cloud AI (OpenAI)</h5>
                                     <div class="code-block mt-3">
+                                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                                         <pre><code class="language-bash">pip install ipl-lang openai
 export OPENAI_API_KEY=your_key
 ipl run script.ipl --ai-provider openai --ai-model gpt-4</code></pre>
