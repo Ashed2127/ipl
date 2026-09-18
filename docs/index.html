@@ -148,25 +148,42 @@
             font-family: 'Fira Code', 'Consolas', monospace;
             font-size: 0.9rem;
             line-height: 1.6;
-            color: #f8fafc !important;
         }
         
         .code-block .hljs {
             background: transparent !important;
-            color: #f8fafc !important;
         }
         
-        .code-block .hljs-keyword,
-        .code-block .hljs-string,
-        .code-block .hljs-number,
-        .code-block .hljs-comment,
-        .code-block .hljs-function,
-        .code-block .hljs-title,
-        .code-block .hljs-params,
-        .code-block .hljs-built_in,
-        .code-block .hljs-literal,
+        /* Ensure all syntax highlighting uses light colors on dark background */
+        .code-block .hljs-comment {
+            color: #6b7280 !important;
+        }
+        .code-block .hljs-keyword {
+            color: #c084fc !important;
+        }
+        .code-block .hljs-string {
+            color: #34d399 !important;
+        }
+        .code-block .hljs-number {
+            color: #f472b6 !important;
+        }
+        .code-block .hljs-function {
+            color: #60a5fa !important;
+        }
+        .code-block .hljs-title {
+            color: #fbbf24 !important;
+        }
+        .code-block .hljs-params {
+            color: #e5e7eb !important;
+        }
+        .code-block .hljs-built_in {
+            color: #f87171 !important;
+        }
+        .code-block .hljs-literal {
+            color: #a78bfa !important;
+        }
         .code-block .hljs-type {
-            color: inherit !important;
+            color: #2dd4bf !important;
         }
         
         .copy-btn {
