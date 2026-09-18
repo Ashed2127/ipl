@@ -23,7 +23,7 @@ fn register(username, password, email) {
     
     // Security: Generate salt for additional security
     let salt = generate_salt()
-    let secure_hash = sha256(concat(password_hash, salt))
+    let secure_hash = sha256(password_hash + salt)
     
     return "SUCCESS: User " + clean_username + " registered with hash: " + secure_hash
 }
@@ -49,7 +49,7 @@ fn generate_salt() {
 
 // Helper function to generate session token
 fn generate_session_token(username) {
-    let raw = concat(username, "_", str(now()))
+    let raw = username + "_" + str(now())
     return sha256(raw)
 }
 
