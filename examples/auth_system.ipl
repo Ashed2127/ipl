@@ -44,12 +44,12 @@ fn login(username, password) {
 
 // Helper function to generate salt
 fn generate_salt() {
-    return "salt_" + timestamp()
+    return "salt_" + str(now())
 }
 
 // Helper function to generate session token
 fn generate_session_token(username) {
-    let raw = concat(username, "_", timestamp())
+    let raw = concat(username, "_", str(now()))
     return sha256(raw)
 }
 
