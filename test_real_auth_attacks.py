@@ -37,7 +37,7 @@ class RealAuthAttackTester:
             role = UserRole.USER
             permissions = set()  # Default permissions
             
-            self.auth_system.create_user(username, password, role, permissions)
+            self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Try to authenticate
             context = self.auth_system.authenticate_user(username, password)
@@ -72,7 +72,7 @@ class RealAuthAttackTester:
             print(f"Attempting to register with malicious username: {username}")
             
             # This should either fail or be sanitized
-            self.auth_system.create_user(username, password, role, permissions)
+            self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Try to authenticate with the injected username
             context = self.auth_system.authenticate(username, password)
@@ -104,7 +104,7 @@ class RealAuthAttackTester:
             
             print(f"Attempting to register with XSS username: {username}")
             
-            self.auth_system.create_user(username, password, role, permissions)
+            self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Try to authenticate
             context = self.auth_system.authenticate_user(username, password)
@@ -136,7 +136,7 @@ class RealAuthAttackTester:
             
             print(f"Attempting to register with malicious password: {password}")
             
-            self.auth_system.create_user(username, password, role, permissions)
+            self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Try to authenticate
             context = self.auth_system.authenticate_user(username, password)
@@ -227,7 +227,7 @@ class RealAuthAttackTester:
             stolen_session = self.session_ids[0]
             print(f"Attempting to hijack session: {stolen_session}")
             
-            context = self.auth_system.get_context_by_session(stolen_session)
+            context = self.auth_system.user_db.get_context_by_session(stolen_session)
             
             if context:
                 print(f"❌ VULNERABLE: Session hijacking succeeded")
@@ -255,7 +255,7 @@ class RealAuthAttackTester:
             role = UserRole.USER
             permissions = set()
             
-            self.auth_system.create_user(username, password, role, permissions)
+            self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Authenticate as normal user
             context = self.auth_system.authenticate(username, password)
