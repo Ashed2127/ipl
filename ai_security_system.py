@@ -191,8 +191,9 @@ if __name__ == "__main__":
     # Test 1: Safe code
     safe_code = """
     fn register_user(username, password) {
+        let clean_username = sanitize(username)
         let hashed_password = sha256(password)
-        db_insert("users", username, hashed_password)
+        db_insert("users", clean_username, hashed_password)
         return "User registered successfully"
     }
     """
