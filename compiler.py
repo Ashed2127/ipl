@@ -31,6 +31,7 @@ try:
     from .semantic_engine import SemanticEngine
     from .hierarchical_ai_engine import get_ai_engine, TaskComplexity
     from .authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole
+    from .ai_first_config import get_ai_first_config, get_ai_decision_tracker, AIFirstConfig
 except (ImportError, ValueError):
     from taint import TaintLevel, TaintTag, TaintViolationError
     from ast_nodes import (
@@ -42,6 +43,7 @@ except (ImportError, ValueError):
     from semantic_engine import SemanticEngine
     from hierarchical_ai_engine import get_ai_engine, TaskComplexity
     from authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole
+    from ai_first_config import get_ai_first_config, get_ai_decision_tracker, AIFirstConfig
 
 
 @dataclass
@@ -286,14 +288,24 @@ class LocalInferenceRuntime:
     2. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
     3. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
     4. Authorization System (User authentication, role-based access, context-aware security)
+    5. AI-First Mode: Prioritizes AI model decisions with pattern fallback
     Treats AI outputs strictly as unexecutable candidate AST data structures.
     """
-    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
+    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, ai_first_config: Optional[AIFirstConfig] = None):
         self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
         self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
         self.tier3_model = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
+        
+        # AI-First Configuration
+        self.ai_first_config = ai_first_config or get_ai_first_config()
+        self.decision_tracker = get_ai_decision_tracker()
+        
+        # Override model if AI-first mode is enabled
+        if self.ai_first_config.is_ai_first_enabled():
+            self.model_name = self.ai_first_config.primary_model
+            print(f"🧠 AI-First Mode: Using {self.model_name} as primary decision engine")
         
         # Initialize hierarchical AI engine if enabled
         self.ai_engine = None
@@ -393,14 +405,23 @@ class LocalInferenceRuntime:
         """Set security context directly (for testing or advanced use)."""
         if self.enable_authorization:
             self.security_context = context
+    
+    def get_ai_decision_stats(self) -> Dict[str, Any]:
+        """Get AI decision statistics for monitoring and analysis."""
+        return self.decision_tracker.get_statistics()
+    
+    def reset_ai_decision_stats(self):
+        """Reset AI decision statistics."""
+        self.decision_tracker.reset()
 
     def parse_intent(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
         """
         Interprets natural language intent into a candidate AST node.
         Zero raw execution: emits only AST data structures.
-        Now uses hierarchical AI engine for intelligent processing with authorization checks.
+        AI-First Mode: Prioritizes AI model decisions with pattern fallback.
         """
         prompt_lower = intent_prompt.lower()
+        task_type = self._determine_task_type(intent_prompt, target_type)
 
         # Check for adversarial prompt injection
         if "override_system_rules" in prompt_lower or "bypass_security_guardrails" in prompt_lower or "unauthorized_instruction" in prompt_lower:
@@ -422,10 +443,85 @@ class LocalInferenceRuntime:
                     type_name="string"
                 )
 
-        # Use hierarchical AI engine if enabled
+        # AI-First Mode: Try AI first, fall back to patterns
+        if self.ai_first_config.is_ai_first_enabled() and self.ai_first_config.should_use_ai_for_task(task_type):
+            return self._parse_with_ai_first(intent_prompt, target_type, task_type)
+
+        # Use hierarchical AI engine if enabled (traditional mode)
         if self.use_hierarchical_ai and self.ai_engine:
             return self._parse_with_hierarchical_ai(intent_prompt, target_type)
 
+        # Traditional pattern-based fallback
+        return self._parse_with_patterns(intent_prompt, target_type, prompt_lower)
+    
+    def _parse_with_ai_first(self, intent_prompt: str, target_type: Optional[TypeAnnotation], task_type: str) -> ASTNode:
+        """
+        AI-First parsing: Try AI model first, fall back to patterns only if AI fails.
+        This is the new AI-first approach.
+        """
+        import time
+        start_time = time.time()
+        
+        try:
+            # Try AI model first
+            if self.use_hierarchical_ai and self.ai_engine:
+                context = {
+                    "task_type": task_type,
+                    "target_type": target_type.name if target_type else None,
+                    "prompt_length": len(intent_prompt),
+                    "ai_first_mode": True
+                }
+                
+                ai_response = self.ai_engine.process_speculative(intent_prompt, context)
+                
+                execution_time_ms = (time.time() - start_time) * 1000
+                
+                if ai_response.success and ai_response.confidence >= self.ai_first_config.ai_confidence_threshold:
+                    # AI succeeded with sufficient confidence
+                    ast_node = self._convert_ai_response_to_ast(ai_response.content, target_type)
+                    
+                    # Track successful AI decision
+                    self.decision_tracker.record_ai_decision(
+                        task_type, 
+                        True, 
+                        ai_response.confidence, 
+                        execution_time_ms
+                    )
+                    
+                    if self.ai_first_config.track_ai_decisions:
+                        print(f"✅ AI Decision: {task_type} (confidence: {ai_response.confidence:.2f}, time: {execution_time_ms:.1f}ms)")
+                    
+                    return ast_node
+                else:
+                    # AI failed or low confidence, fall back to patterns
+                    fallback_reason = "low_confidence" if ai_response.success else "ai_failure"
+                    
+                    if self.ai_first_config.log_ai_failures:
+                        print(f"⚠️ AI Fallback: {task_type} - {fallback_reason} (confidence: {ai_response.confidence:.2f})")
+                    
+                    self.decision_tracker.record_pattern_fallback(task_type, fallback_reason)
+            else:
+                # AI engine not available, fall back to patterns
+                if self.ai_first_config.log_ai_failures:
+                    print(f"⚠️ AI Fallback: {task_type} - ai_engine_unavailable")
+                
+                self.decision_tracker.record_pattern_fallback(task_type, "ai_engine_unavailable")
+            
+        except Exception as e:
+            # AI threw exception, fall back to patterns
+            if self.ai_first_config.log_ai_failures:
+                print(f"⚠️ AI Fallback: {task_type} - exception: {str(e)}")
+            
+            self.decision_tracker.record_pattern_fallback(task_type, "exception")
+        
+        # Fall back to pattern-based processing
+        return self._parse_with_patterns(intent_prompt, target_type, intent_prompt.lower())
+    
+    def _parse_with_patterns(self, intent_prompt: str, target_type: Optional[TypeAnnotation], prompt_lower: str) -> ASTNode:
+        """
+        Traditional pattern-based parsing (fallback when AI fails).
+        This is the existing hardcoded pattern logic.
+        """
         # 1. Try local neural model if configured
         if self.model_name != "embedded-fast-semantic-v1":
             neural_node = self._query_neural_model(intent_prompt, target_type)

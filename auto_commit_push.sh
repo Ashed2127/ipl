@@ -2,7 +2,7 @@
 
 cd /home/ashed/Downloads/ipl_lang
 
-echo "Starting auto-commit and push script (every 5 seconds)..."
+echo "Starting auto-commit and push script (every 6 seconds)..."
 echo "Press Ctrl+C to stop"
 
 while true; do
@@ -25,7 +25,7 @@ while true; do
         if [ -n "$ADDED_FEATURES" ]; then
             # Clean up the feature names to get just the function/class names
             FEATURE_NAMES=$(echo "$ADDED_FEATURES" | sed -E 's/.*def ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/; s/.*class ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/; s/.*function ([a-zA-Z_][a-zA-Z0-9_]*).*/\1/' | head -3)
-            COMMIT_MSG="Add: $(echo "$FEATURE_NAMES" | tr '\n' ', ' | sed 's/, $//')"
+            COMMIT_MSG="Add features: $(echo "$FEATURE_NAMES" | tr '\n' ', ' | sed 's/, $//')"
         fi
         
         # If no clear features found, analyze the content for meaningful changes
@@ -33,9 +33,24 @@ while true; do
             # Look for significant additions (long added lines, imports, security changes, etc.)
             SIGNIFICANT_ADDITIONS=$(echo "$DIFF_OUTPUT" | grep -E "^\+" | grep -v "^\+\+\+" | head -5)
             
+            # Check for compiler-related changes
+            if echo "$CHANGED_FILES" | grep -qi "compiler\|lexer\|parser\|ast"; then
+                COMPILER_FILES=$(echo "$CHANGED_FILES" | grep -iE "compiler|lexer|parser|ast" | head -3)
+                COMMIT_MSG="Update compiler components: $(echo "$COMPILER_FILES" | xargs -n1 basename | tr '\n' ', ' | sed 's/, $//')"
+            # Check for runtime changes
+            elif echo "$CHANGED_FILES" | grep -qi "runtime"; then
+                COMMIT_MSG="Update runtime environment and execution engine"
+            # Check for AI-related changes
+            elif echo "$CHANGED_FILES" | grep -qi "ai\|hierarchical\|neural\|machine learning"; then
+                AI_FILES=$(echo "$CHANGED_FILES" | grep -iE "ai|hierarchical|neural" | head -3)
+                COMMIT_MSG="Update AI components: $(echo "$AI_FILES" | xargs -n1 basename | tr '\n' ', ' | sed 's/, $//')"
             # Check for security-related changes
-            if echo "$SIGNIFICANT_ADDITIONS" | grep -qi "security\|auth\|prompt\|injection\|vulnerability"; then
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "security\|auth\|prompt\|injection\|vulnerability"; then
                 COMMIT_MSG="Enhance security: AI prompt engineering and validation"
+            # Check for test-related changes
+            elif echo "$CHANGED_FILES" | grep -qi "test"; then
+                TEST_FILES=$(echo "$CHANGED_FILES" | grep -i "test" | head -3)
+                COMMIT_MSG="Update tests: $(echo "$TEST_FILES" | xargs -n1 basename | tr '\n' ', ' | sed 's/, $//')"
             # Check for documentation additions
             elif echo "$CHANGED_FILES" | grep -q "\.md$"; then
                 NEW_DOCS=$(echo "$CHANGED_FILES" | grep "\.md$" | head -3)
@@ -49,6 +64,15 @@ while true; do
             # Check for type/structure changes
             elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "type\|class\|struct\|interface"; then
                 COMMIT_MSG="Update type definitions and structures"
+            # Check for bug fixes
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "fix\|bug\|error\|exception"; then
+                COMMIT_MSG="Fix bugs and errors"
+            # Check for performance improvements
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "performance\|optimize\|speed\|fast"; then
+                COMMIT_MSG="Improve performance"
+            # Check for refactoring
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "refactor\|clean\|simplify"; then
+                COMMIT_MSG="Refactor code structure"
             # Default to file-based message
             else
                 FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
@@ -77,5 +101,5 @@ while true; do
         echo "[$(date)] Committed and pushed successfully: $COMMIT_MSG"
     fi
     
-    sleep 5
+    sleep 6
 done

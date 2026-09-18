@@ -842,11 +842,15 @@ class HierarchicalAIEngine:
             return TaskComplexity.SIMPLE
         
         # Moderate tasks
-        if task_type in ["type_inference", "semantic_analysis", "security_analysis"] and prompt_length < 500:
+        if task_type in ["type_inference", "semantic_analysis"] and prompt_length < 500:
             return TaskComplexity.MODERATE
         
+        # Security analysis is always COMPLEX to use the full AI model
+        if task_type == "security_analysis" or task_type == "deep_reasoning":
+            return TaskComplexity.COMPLEX
+        
         # Complex tasks
-        if task_type in ["complex_optimization", "code_generation", "deep_reasoning"] or prompt_length >= 500:
+        if task_type in ["complex_optimization", "code_generation"] or prompt_length >= 500:
             return TaskComplexity.COMPLEX
         
         return TaskComplexity.MODERATE  # Default

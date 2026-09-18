@@ -75,7 +75,7 @@ class RealAuthAttackTester:
             self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Try to authenticate with the injected username
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if context:
                 print(f"❌ VULNERABLE: SQL injection succeeded - user authenticated")
@@ -166,7 +166,7 @@ class RealAuthAttackTester:
             
             print(f"Attempting auth bypass with username: {username}")
             
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if context:
                 print(f"❌ VULNERABLE: Auth bypass succeeded - got session")
@@ -195,7 +195,7 @@ class RealAuthAttackTester:
             
             successful_attempts = 0
             for password in passwords:
-                context = self.auth_system.authenticate(username, password)
+                context = self.auth_system.authenticate_user(username, password)
                 if context:
                     successful_attempts += 1
                     print(f"   ❌ Password '{password}' succeeded")
@@ -258,7 +258,7 @@ class RealAuthAttackTester:
             self.auth_system.user_db.create_user(username, password, role, permissions)
             
             # Authenticate as normal user
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if not context:
                 print("❌ Could not create normal user for testing")
