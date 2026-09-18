@@ -19,8 +19,8 @@ while true; do
         # Analyze changes to extract feature information
         DIFF_OUTPUT=$(git diff && git diff --cached)
         
-        # Look for function/class definitions that were added (excluding comments)
-        ADDED_FEATURES=$(echo "$DIFF_OUTPUT" | grep "^+.*def \|^\+.*class \|^\+.*function " | grep -v "^+.*#" | sed 's/^[+] *//' | head -3)
+        # Look for actual function/class definitions (not variable assignments)
+        ADDED_FEATURES=$(echo "$DIFF_OUTPUT" | grep -E "^\+ *def [a-zA-Z_]|^\+ *class [a-zA-Z_]|^\+ *function [a-zA-Z_]" | grep -v "=" | sed 's/^[+] *//' | head -3)
         
         if [ -n "$ADDED_FEATURES" ]; then
             # Clean up the feature names to get just the function/class names
