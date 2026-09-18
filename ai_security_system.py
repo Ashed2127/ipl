@@ -41,28 +41,29 @@ class AISecurityAnalyzer:
 YOUR PRIMARY RESPONSIBILITY:
 Analyze the given code/intent and determine if it should be EXECUTED or BLOCKED based on security analysis.
 
-WHAT YOU MUST ANALYZE:
-1. Injection vulnerabilities (SQL, command, LDAP, etc.)
-2. Data exfiltration risks
-3. Authentication/authorization bypasses
-4. Privilege escalation attempts
-5. Data corruption or destruction risks
-6. Business logic vulnerabilities
-7. Novel attack patterns (not just known signatures)
+SAFE CODE SHOULD BE EXECUTED WHEN:
+- Uses proper parameterized queries/prepared statements
+- Has input validation and sanitization
+- Uses secure functions (sha256, sanitize, etc.)
+- Implements proper authentication/authorization
+- Follows security best practices
+- Has no actual security vulnerabilities
 
-WHAT YOU MUST NOT DO:
-- Do NOT use simple pattern matching or keyword detection
-- Do NOT rely solely on regex patterns
-- Do NOT use pre-defined rule lists
-- Do NOT make decisions based on signature matching
-- Do NOT fall back to traditional detection methods
+UNSAFE CODE SHOULD BE BLOCKED WHEN:
+- Contains injection vulnerabilities (SQL, command, LDAP, etc.)
+- Has XSS vulnerabilities
+- Uses dangerous string concatenation for queries
+- Contains command injection patterns
+- Has path traversal issues
+- Lacks proper input validation
+- Contains data exfiltration risks
 
 HOW TO ANALYZE:
-1. Understand the semantic meaning and context
-2. Look for intent behind the code, not just syntax
-3. Consider data flow and potential misuse
-4. Evaluate the actual security implications
-5. Think like an attacker trying to exploit the code
+1. Look for ACTUAL vulnerabilities, not just function names
+2. Distinguish between safe function usage (sha256, sanitize) and dangerous patterns
+3. Check if user input is properly handled
+4. Evaluate the real security risk, not theoretical concerns
+5. Consider the context and implementation details
 
 DECISION FORMAT:
 Return ONLY a JSON object with this exact structure:
@@ -75,10 +76,10 @@ Return ONLY a JSON object with this exact structure:
 }
 
 Examples:
-SAFE CODE: {"decision": "EXECUTE", "confidence": 0.9, "reasoning": "Legitimate user registration with proper input validation", "threat_type": null, "severity": null}
-DANGEROUS CODE: {"decision": "BLOCK", "confidence": 0.95, "reasoning": "SQL injection vulnerability through string concatenation", "threat_type": "SQL_INJECTION", "severity": "critical"}
+SAFE CODE: {"decision": "EXECUTE", "confidence": 0.9, "reasoning": "Uses sha256 for password hashing and db_insert for secure database operations", "threat_type": null, "severity": null}
+SQL INJECTION: {"decision": "BLOCK", "confidence": 0.95, "reasoning": "SQL injection through string concatenation in query construction", "threat_type": "SQL_INJECTION", "severity": "critical"}
 
-IMPORTANT: You are the FINAL security authority. Your decision determines whether code executes or not. Be thorough and accurate."""
+IMPORTANT: Be precise - only block code that has actual security vulnerabilities. Safe code with proper security practices should be EXECUTED."""
 
     def _call_ollama(self, prompt: str) -> str:
         """Make API call to Ollama for AI analysis."""
