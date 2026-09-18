@@ -13,18 +13,31 @@ while true; do
         # Get changed files
         CHANGED_FILES=$(git diff --name-only && git diff --cached --name-only && git ls-files --others --exclude-standard)
         
-        # Generate commit message based on what changed
-        COMMIT_MSG="Auto-commit: Update "
+        # Generate commit message based on actual changes
+        COMMIT_MSG=""
         
-        # Count changed files
-        FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+        # Analyze changes to extract feature information
+        DIFF_OUTPUT=$(git diff && git diff --cached)
         
-        if [ "$FILE_COUNT" -eq 1 ]; then
-            COMMIT_MSG+="file: $(echo "$CHANGED_FILES" | head -1)"
-        else
-            COMMIT_MSG+="$FILE_COUNT files: $(echo "$CHANGED_FILES" | head -5 | tr '\n' ', ')"
-            if [ "$FILE_COUNT" -gt 5 ]; then
-                COMMIT_MSG+=" and $((FILE_COUNT - 5)) more"
+        # Look for function/class definitions, imports, and key additions
+        if echo "$DIFF_OUTPUT" | grep -q "^+.*def \|^\+.*class \|^\+.*function \|^\+.*const \|^\+.*let \|^\+.*import "; then
+            # Extract function/class names that were added
+            ADDED_FEATURES=$(echo "$DIFF_OUTPUT" | grep "^+.*def \|^\+.*class \|^\+.*function " | sed 's/^[+]//' | head -3)
+            if [ -n "$ADDED_FEATURES" ]; then
+                COMMIT_MSG="Add: $(echo "$ADDED_FEATURES" | tr '\n' ', ' | sed 's/, $//')"
+            fi
+        fi
+        
+        # If no clear features found, use file-based message
+        if [ -z "$COMMIT_MSG" ]; then
+            FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+            if [ "$FILE_COUNT" -eq 1 ]; then
+                COMMIT_MSG="Update $(echo "$CHANGED_FILES" | head -1)"
+            else
+                COMMIT_MSG="Update $FILE_COUNT files: $(echo "$CHANGED_FILES" | head -3 | tr '\n' ', ' | sed 's/, $//')"
+                if [ "$FILE_COUNT" -gt 3 ]; then
+                    COMMIT_MSG+=" and more"
+                fi
             fi
         fi
         
