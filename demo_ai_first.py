@@ -62,6 +62,7 @@ def demo_ai_first_basic():
     runtime = LocalInferenceRuntime(
         model_name="qwen2.5-coder:0.5b",
         use_hierarchical_ai=True,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=config
     )
     
@@ -129,6 +130,7 @@ def demo_ai_vs_pattern_comparison():
     ai_runtime = LocalInferenceRuntime(
         model_name="qwen2.5-coder:0.5b",
         use_hierarchical_ai=True,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=ai_config
     )
     
@@ -157,6 +159,7 @@ def demo_ai_vs_pattern_comparison():
     pattern_runtime = LocalInferenceRuntime(
         model_name="embedded-fast-semantic-v1",
         use_hierarchical_ai=False,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=pattern_config
     )
     
@@ -198,6 +201,7 @@ def demo_fallback_mechanism():
     runtime = LocalInferenceRuntime(
         model_name="qwen2.5-coder:0.5b",
         use_hierarchical_ai=True,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=config
     )
     
@@ -249,6 +253,7 @@ def demo_decision_quality_analysis():
     runtime = LocalInferenceRuntime(
         model_name="qwen2.5-coder:0.5b",
         use_hierarchical_ai=True,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=config
     )
     
@@ -296,40 +301,16 @@ def demo_full_ipl_program():
     print_info("Creating Neuro-Symbolic Compiler with AI-First...")
     compiler = NeuroSymbolicCompiler(
         use_hierarchical_ai=True,
+        enable_authorization=False,  # Disable authorization for demo
         ai_first_config=config
     )
     
     print_success("Compiler initialized with AI-First mode")
     print()
     
-    # Create a simple IPL program using intent expressions
-    print_info("Compiling IPL program with intent expressions...")
-    
-    # This would normally come from parsing IPL code
-    # For demo, we'll create AST nodes directly
-    program = Program(statements=[
-        LetStatement(
-            name="user_age",
-            value_expr=Literal(value=25, type_name="int"),
-            type_annotation=TypeAnnotation(name="Int")
-        ),
-        LetStatement(
-            name="user_sentiment",
-            value_expr=Literal(value="The service is great", type_name="string"),
-            type_annotation=TypeAnnotation(name="Sentiment")
-        ),
-        PrintStatement(exprs=[
-            Identifier(name="user_age"),
-            Identifier(name="user_sentiment")
-        ])
-    ])
-    
-    print_info("Program structure created")
-    print()
-    
     # Show compilation statistics
-    stats = compiler.runtime.get_ai_decision_stats()
-    print_info("Compilation Statistics:")
+    stats = compiler.system1.get_ai_decision_stats()
+    print_info("Compiler Statistics:")
     print(f"  AI Decisions Made: {stats['ai_decisions']}")
     print(f"  Pattern Fallbacks: {stats['pattern_fallbacks']}")
     print(f"  AI Success Rate: {stats['ai_success_rate']:.1%}")

@@ -739,10 +739,11 @@ class NeuroSymbolicCompiler:
     - Resilience: The Self-Correction Loop
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
+    - AI-First: AI-first decision making with pattern fallback
     """
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, ai_first_config: Optional[AIFirstConfig] = None):
         self.console = console or Console()
-        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
+        self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, ai_first_config=ai_first_config)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
         self.use_hierarchical_ai = use_hierarchical_ai
