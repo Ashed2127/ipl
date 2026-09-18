@@ -16,297 +16,99 @@ IPL has evolved into an **AI-first programming language** that prioritizes AI mo
 
 ## 🚀 Installation
 
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package manager)
-- (Optional) Ollama for local AI model support
-
-### Step 1: Clone the Repository
+### Quick Install (AI-First Mode)
 ```bash
+# Clone and setup
 git clone https://github.com/Ashed2127/ipl.git
 cd ipl
-```
-
-### Step 2: Install Python Dependencies
-```bash
-# Create a virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install required packages
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-```
 
-### Step 3: Choose Your Installation Mode
-
-#### Option A: AI-First Mode (Recommended)
-This mode provides true AI intelligence using Qwen2.5-Coder via Ollama.
-
-```bash
-# Install Ollama (if not already installed)
+# Install Ollama + Qwen2.5-Coder
 curl -fsSL https://ollama.com/install.sh | sh
-
-# Start Ollama service
 ollama serve
-
-# In a new terminal, pull the Qwen2.5-Coder model
 ollama pull qwen2.5-coder:0.5b
 
-# Set environment variables for AI-first mode
-export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
+# Configure AI-first mode
 export IPL_AI_PRIORITY="true"
-export IPL_OLLAMA_ENDPOINT="http://localhost:11434"
-export IPL_AI_CONFIDENCE="0.7"
-export IPL_PATTERN_FALLBACK="true"
-```
+export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
 
-#### Option B: Pattern-Based Mode (Basic)
-This mode uses pattern matching without AI models.
-
-```bash
-# No additional setup needed
-# IPL will use embedded pattern matching
-```
-
-### Step 4: Verify Installation
-```bash
-# Test basic functionality
-python3 cli.py --help
-
-# Run AI-first demo (if using AI mode)
-python3 demo_ai_first.py
-
-# Run performance tests
-python3 test_ai_first_performance.py
-```
-
-### Step 5: Run Your First IPL Program
-```bash
-# AI-First mode
+# Run IPL
 python3 cli.py run examples/01_intelligent_variables.ipl
+```
 
-# Pattern-based mode
+### Basic Install (Pattern-Based)
+```bash
+# Clone and setup (no AI required)
+git clone https://github.com/Ashed2127/ipl.git
+cd ipl
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+# Run with pattern matching
 python3 cli.py run examples/01_intelligent_variables.ipl --traditional
 ```
 
-## 📖 Usage Guide
+## 📖 Usage
 
-### Basic Usage
-
-#### Running IPL Programs
+### Run IPL Programs
 ```bash
-# Run an IPL file
+# Basic execution
 python3 cli.py run your_program.ipl
 
-# Run with audit trace
+# With audit trace
 python3 cli.py run your_program.ipl --show-audit
 
-# Run with traditional mode (pattern-based)
+# Pattern-based mode
 python3 cli.py run your_program.ipl --traditional
 ```
 
-#### Interactive REPL
+### Interactive REPL
 ```bash
-# Start interactive shell
 python3 cli.py repl
-
-# In REPL, you can:
-# - Enter IPL code directly
-# - Use intent expressions: let age: Int = intent "user is 25" as Int
-# - Execute commands: :help, :quit, :clear
 ```
 
-#### Python Embedding
+### Python API
 ```python
 from compiler import LocalInferenceRuntime
 from ai_first_config import AIFirstConfig
 from ast_nodes import TypeAnnotation
 
-# Create runtime with AI-first configuration
+# AI-first mode
 config = AIFirstConfig(ai_priority_mode=True)
 runtime = LocalInferenceRuntime(
     model_name="qwen2.5-coder:0.5b",
     use_hierarchical_ai=True,
-    enable_authorization=False,
     ai_first_config=config
 )
 
 # Process intent
 result = runtime.parse_intent("The user is 25", TypeAnnotation(name="Int"))
-print(f"Result: {result}")
-
-# Get decision statistics
-stats = runtime.get_ai_decision_stats()
-print(f"AI Success Rate: {stats['ai_success_rate']:.1%}")
-```
-
-### Advanced Usage
-
-#### AI-First Configuration
-```python
-from ai_first_config import AIFirstConfig
-
-# Custom AI-first configuration
-config = AIFirstConfig(
-    primary_model="qwen2.5-coder:0.5b",
-    ai_priority_mode=True,
-    ai_confidence_threshold=0.8,  # Higher threshold = more fallbacks
-    enable_pattern_fallback=True,
-    track_ai_decisions=True,
-    log_ai_failures=True
-)
-```
-
-#### Decision Quality Analysis
-```python
-from ai_decision_analyzer import AIDecisionAnalyzer
-
-# Analyze AI decision quality
-analyzer = AIDecisionAnalyzer()
-analyzer.print_analysis_report()
-
-# Export analysis data
-analyzer.export_analysis_data("decision_analysis.json")
-```
-
-#### Performance Testing
-```python
-from test_ai_first_performance import AIFirstPerformanceTest
-
-# Run comprehensive performance tests
-tester = AIFirstPerformanceTest()
-results = tester.run_comprehensive_test()
-report = tester.generate_performance_report(results)
-tester.print_report(report)
 ```
 
 ### IPL Syntax Examples
-
-#### Semantic Variables
 ```ipl
-# Currency extraction
-let price: Currency = "ninety-nine bucks and 50 cents"
+# Semantic types
+let price: Currency = "ninety-nine bucks"
+let review: Sentiment = "Amazing product!"
+let age: Int = intent "user is twenty-five" as Int
 
-# Sentiment analysis
-let review: Sentiment = "Super fast and rock solid!"
-
-# Intent processing
-let age: Int = intent "Extract user_age twenty-five" as Int
-
-# Quantity parsing
-let latency: Quantity = "150 milliseconds"
-```
-
-#### Security Operations
-```ipl
-# Untrusted input
-let user_input = get_user_data()
-
-# Sanitization
-let clean_input = sanitize(user_input)
-
-# Safe database operation
+# Security
+let clean_input = sanitize(get_user_data())
 db_write("users", clean_input)
-```
 
-#### Functions and Control Flow
-```ipl
+# Functions
 fn calculate_tax(amount, rate) {
     return amount * rate
 }
-
-if price > 100 {
-    let tax = calculate_tax(price, 0.08)
-    print tax
-}
 ```
 
-#### Adaptive Output
-```ipl
-let invoice = generate_invoice()
-
-# Different presentations for different audiences
-print invoice for "executive"  # Business summary
-print invoice for "developer"  # Technical details
-print invoice for "child"      # Simple explanation
-```
-
-### Environment Variables
-
-Configure IPL behavior using environment variables:
-
+### Key Environment Variables
 ```bash
-# AI Model Configuration
-export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
-export IPL_OLLAMA_ENDPOINT="http://localhost:11434"
-export IPL_TIER3_MODEL="qwen2.5-coder:0.5b"
-
-# AI-First Mode
-export IPL_AI_PRIORITY="true"
-export IPL_AI_CONFIDENCE="0.7"
-export IPL_AI_TIMEOUT="30"
-
-# Fallback Behavior
-export IPL_PATTERN_FALLBACK="true"
-export IPL_FALLBACK_DELAY="100"
-
-# Caching
-export IPL_AI_CACHE="true"
-export IPL_CACHE_TTL="3600"
-export IPL_CACHE_SIZE="1000"
-
-# Monitoring
-export IPL_TRACK_DECISIONS="true"
-export IPL_LOG_AI_FAILURES="true"
-```
-
-### Common Workflows
-
-#### Development Workflow
-```bash
-# 1. Activate virtual environment
-source venv/bin/activate
-
-# 2. Run IPL in development mode
-python3 cli.py run your_program.ipl --show-audit
-
-# 3. Test AI-first performance
-python3 test_ai_first_performance.py
-
-# 4. Analyze decision quality
-python3 ai_decision_analyzer.py
-
-# 5. Run security tests
-python3 ipl/tests/security/run_security_tests.py
-```
-
-#### Production Deployment
-```bash
-# 1. Set production environment variables
-export IPL_AI_PRIORITY="true"
-export IPL_AI_CONFIDENCE="0.8"
-export IPL_PATTERN_FALLBACK="true"
-
-# 2. Run with full audit trail
-python3 cli.py run production_script.ipl --show-audit
-
-# 3. Monitor decision quality
-# Check logs for AI decision statistics and fallback rates
-```
-
-#### Troubleshooting
-```bash
-# Check if Ollama is running
-curl http://localhost:11434/api/tags
-
-# Verify model is available
-ollama list
-
-# Test AI connection
-python3 -c "from hierarchical_ai_engine import get_ai_engine; engine = get_ai_engine(); print(engine.tier3.is_available)"
-
-# Run diagnostics
-python3 demo_ai_first.py  # Shows AI-first status
+export IPL_AI_PRIORITY="true"              # Enable AI-first mode
+export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"  # AI model
+export IPL_AI_CONFIDENCE="0.7"           # Confidence threshold
+export IPL_PATTERN_FALLBACK="true"        # Enable pattern fallback
 ```
 
 ## ✨ Features
