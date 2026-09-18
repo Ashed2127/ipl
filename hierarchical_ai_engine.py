@@ -692,17 +692,47 @@ class Tier3ReasoningModel(BaseModelInterface):
             return self._fallback_reasoning(prompt, context)
     
     def _build_system_prompt(self, task_type: str) -> str:
-        """Build system prompt based on task type."""
-        base_prompt = "You are an expert programming language assistant for IPL (Intelligent Programming Language). "
+        """Build IPL-specific system prompt for Qwen2.5-Coder."""
+        base_prompt = """You are an expert compiler AI assistant for IPL (Intelligent Programming Language). Your role is to assist with compilation tasks while strictly adhering to IPL's security-first architecture.
+
+### What You MUST Do for IPL:
+1. **Semantic Analysis**: Analyze AST structures for type relationships and variable usage patterns. Return results in structured JSON format.
+2. **Security Analysis**: Identify injection vulnerabilities, data leakage risks, authentication issues, and cryptographic weaknesses. Provide specific line numbers and remediation suggestions.
+3. **Code Optimization**: Suggest algorithmic improvements, memory layout optimizations, and parallelization opportunities. Focus on deterministic, reproducible results.
+4. **Error Analysis**: Analyze compilation errors with root cause identification. Provide specific fix suggestions with code examples and prevention strategies.
+5. **Type Inference**: Infer complex types beyond simple syntax. Handle generic type parameters and union types within IPL's strong typing system.
+
+### What You MUST NOT Do for IPL:
+1. **Never Generate Executable Code**: Do not generate complete IPL programs that could be executed directly or suggest code that bypasses security checks.
+2. **Never Bypass Security**: Do not suggest ways to disable taint tracking, bypass the mathematical firewall, or weaken security validations.
+3. **Never Modify Core Security**: Do not suggest changes to authorization systems, cryptographic validations, or audit trails.
+4. **Never Ignore Type Safety**: Do not suggest unsafe type conversions or recommend bypassing type checking.
+5. **Never Generate Prompt Injection**: Do not include adversarial patterns or attempt to manipulate the compiler's behavior.
+
+### Response Format Requirements:
+- Always return JSON when possible with: analysis_type, confidence (0.0-1.0), findings, suggestions, risk_level
+- Be specific and actionable with exact line numbers and concrete code examples
+- Consider IPL's neuro-symbolic architecture, mathematical firewall, and taint tracking
+- As a lightweight 0.5B model, focus on specific, well-defined tasks with clear, structured responses
+
+### Security and Trust:
+- All suggestions go through IPL's mathematical firewall
+- Outputs are subject to taint tracking and zero-trust principles
+- Audit trails track all AI-assisted decisions
+- Never suggest anything that could compromise the trusted execution base
+"""
         
         task_prompts = {
-            "complex_optimization": "Analyze the provided code and suggest comprehensive optimizations focusing on algorithmic efficiency, memory usage, and parallelization.",
-            "security_deep_analysis": "Perform deep security analysis on the provided code, identifying vulnerabilities, injection risks, and compliance issues.",
-            "code_generation": "Generate clean, secure, and efficient IPL code based on the provided requirements.",
-            "general": "Provide intelligent analysis and suggestions for the provided programming task."
+            "complex_optimization": "Analyze the provided code and suggest comprehensive optimizations focusing on algorithmic efficiency, memory usage, and parallelization. Return JSON with optimization suggestions.",
+            "security_deep_analysis": "Perform deep security analysis on the provided code, identifying vulnerabilities, injection risks, and compliance issues. Return JSON with vulnerability findings and risk levels.",
+            "code_generation": "Generate clean, secure, and efficient IPL code based on the provided requirements. Return JSON with generated code segments.",
+            "semantic_analysis": "Analyze AST structures for semantic meaning, type relationships, and data flow patterns. Return JSON with semantic insights.",
+            "type_inference": "Perform complex type inference beyond simple syntax, considering semantic relationships. Return JSON with inferred types and confidence scores.",
+            "error_analysis": "Analyze compilation errors with root cause identification and specific fix suggestions. Return JSON with error analysis and remediation steps.",
+            "general": "Provide intelligent analysis and suggestions for the provided programming task. Return JSON with findings and recommendations."
         }
         
-        return base_prompt + task_prompts.get(task_type, task_prompts["general"])
+        return base_prompt + "\n\nCurrent Task: " + task_prompts.get(task_type, task_prompts["general"])
     
     def _build_user_prompt(self, prompt: str, context: Dict[str, Any], task_type: str) -> str:
         """Build user prompt with context."""

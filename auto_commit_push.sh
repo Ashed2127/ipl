@@ -28,15 +28,39 @@ while true; do
             COMMIT_MSG="Add: $(echo "$FEATURE_NAMES" | tr '\n' ', ' | sed 's/, $//')"
         fi
         
-        # If no clear features found, use file-based message
+        # If no clear features found, analyze the content for meaningful changes
         if [ -z "$COMMIT_MSG" ]; then
-            FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-            if [ "$FILE_COUNT" -eq 1 ]; then
-                COMMIT_MSG="Update $(echo "$CHANGED_FILES" | head -1)"
+            # Look for significant additions (long added lines, imports, security changes, etc.)
+            SIGNIFICANT_ADDITIONS=$(echo "$DIFF_OUTPUT" | grep -E "^\+" | grep -v "^\+\+\+" | head -5)
+            
+            # Check for security-related changes
+            if echo "$SIGNIFICANT_ADDITIONS" | grep -qi "security\|auth\|prompt\|injection\|vulnerability"; then
+                COMMIT_MSG="Enhance security: AI prompt engineering and validation"
+            # Check for documentation additions
+            elif echo "$CHANGED_FILES" | grep -q "\.md$"; then
+                NEW_DOCS=$(echo "$CHANGED_FILES" | grep "\.md$" | head -3)
+                COMMIT_MSG="Add documentation: $(echo "$NEW_DOCS" | xargs -n1 basename | tr '\n' ', ' | sed 's/, $//')"
+            # Check for configuration changes
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "config\|setting\|option"; then
+                COMMIT_MSG="Update configuration and settings"
+            # Check for import/library additions
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -q "import\|from"; then
+                COMMIT_MSG="Add imports and dependencies"
+            # Check for type/structure changes
+            elif echo "$SIGNIFICANT_ADDITIONS" | grep -qi "type\|class\|struct\|interface"; then
+                COMMIT_MSG="Update type definitions and structures"
+            # Default to file-based message
             else
-                COMMIT_MSG="Update $FILE_COUNT files: $(echo "$CHANGED_FILES" | head -3 | tr '\n' ', ' | sed 's/, $//')"
-                if [ "$FILE_COUNT" -gt 3 ]; then
-                    COMMIT_MSG+=" and more"
+                FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+                if [ "$FILE_COUNT" -eq 1 ]; then
+                    FILE_NAME=$(echo "$CHANGED_FILES" | head -1 | xargs basename)
+                    COMMIT_MSG="Update $FILE_NAME"
+                else
+                    FILE_NAMES=$(echo "$CHANGED_FILES" | head -3 | xargs -n1 basename | tr '\n' ', ' | sed 's/, $//')
+                    COMMIT_MSG="Update files: $FILE_NAMES"
+                    if [ "$FILE_COUNT" -gt 3 ]; then
+                        COMMIT_MSG+=" and more"
+                    fi
                 fi
             fi
         fi
@@ -50,7 +74,7 @@ while true; do
         # Push to remote
         git push
         
-        echo "[$(date)] Committed and pushed successfully"
+        echo "[$(date)] Committed and pushed successfully: $COMMIT_MSG"
     fi
     
     sleep 5
