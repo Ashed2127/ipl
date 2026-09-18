@@ -40,7 +40,7 @@ class RealAuthAttackTester:
             self.auth_system.create_user(username, password, role, permissions)
             
             # Try to authenticate
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if context:
                 print(f"✅ SUCCESS: User {username} registered and authenticated")
@@ -107,7 +107,7 @@ class RealAuthAttackTester:
             self.auth_system.create_user(username, password, role, permissions)
             
             # Try to authenticate
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if context:
                 print(f"❌ VULNERABLE: XSS attack succeeded - user authenticated")
@@ -139,7 +139,7 @@ class RealAuthAttackTester:
             self.auth_system.create_user(username, password, role, permissions)
             
             # Try to authenticate
-            context = self.auth_system.authenticate(username, password)
+            context = self.auth_system.authenticate_user(username, password)
             
             if context:
                 print(f"❌ VULNERABLE: Command injection succeeded - user authenticated")
