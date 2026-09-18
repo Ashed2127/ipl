@@ -746,6 +746,7 @@ print invoice for "developer"  // Technical details</code></pre>
                         
                         <h4 class="mt-4">Hello World</h4>
                         <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             <pre><code class="language-ipl">print "Hello, World!"
 
 let x = 42 + 2
@@ -754,6 +755,7 @@ print x</code></pre>
 
                         <h4 class="mt-4">Intelligent Variables</h4>
                         <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             <pre><code class="language-ipl">// Natural Language Currency Extraction
 let base_price: Currency = "the service costs ninety-nine bucks and 50 cents"
 let tax: Currency = "approx 8 dollars and 45 cents"
@@ -777,6 +779,7 @@ let detected_intent: Intent<Fraud, Refund, Support> = claim_text</code></pre>
 
                         <h4 class="mt-4">Security Demo</h4>
                         <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             <pre><code class="language-ipl">// Credit card number detection
 let user_input = "My credit card is 4532-1234-5678-9010 please don't steal it"
 let safe_input: String = user_input  // Automatically sanitized
@@ -791,6 +794,7 @@ trusted safe_system_data = "This is known safe system configuration data"</code>
 
                         <h4 class="mt-4">Functions and Logic</h4>
                         <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             <pre><code class="language-ipl">fn calculate_tax(amount, rate) {
     return amount * rate
 }
@@ -932,6 +936,31 @@ ipl verify script.ipl</code></pre>
     <script>
         // Initialize syntax highlighting
         hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                // Change button text and style
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy code:', err);
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
         
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
