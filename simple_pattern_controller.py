@@ -4,6 +4,7 @@ Uses pattern matching instead of AI to test the brute force framework
 """
 import time
 import json
+import hashlib
 from typing import Dict, Any, List
 from dataclasses import dataclass
 from collections import defaultdict
