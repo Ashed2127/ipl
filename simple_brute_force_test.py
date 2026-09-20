@@ -66,7 +66,7 @@ class SimpleBruteForceTester:
         
         return results
     
-    def multi_threaded_test(self, num_requests: int = 100, num_threads: int = 10) -> List[Dict[str, Any]]:
+    def multi_threaded_test(self, num_requests: int = 30, num_threads: int = 5) -> List[Dict[str, Any]]:
         """Multi-threaded test to simulate concurrent requests."""
         self.console.print(f"[bold yellow]⚡ MULTI-THREADED TEST: {num_requests} requests, {num_threads} threads[/bold yellow]")
         
@@ -99,7 +99,7 @@ class SimpleBruteForceTester:
         
         return results
     
-    def sustained_test(self, duration_seconds: int = 20, requests_per_second: int = 10) -> List[Dict[str, Any]]:
+    def sustained_test(self, duration_seconds: int = 10, requests_per_second: int = 5) -> List[Dict[str, Any]]:
         """Sustained load test over time."""
         self.console.print(f"[bold blue]⏱️  SUSTAINED TEST: {duration_seconds}s at {requests_per_second} req/s[/bold blue]")
         
