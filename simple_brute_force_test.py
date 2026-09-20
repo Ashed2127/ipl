@@ -24,7 +24,7 @@ class SimpleBruteForceTester:
         start_time = time.time()
         
         try:
-            response = requests.get(f"{self.base_url}{endpoint}", timeout=10)
+            response = requests.get(f"{self.base_url}{endpoint}", timeout=5)
             response_time = (time.time() - start_time) * 1000
             
             data = response.json()
