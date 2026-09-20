@@ -139,7 +139,7 @@ class SimpleBruteForceTester:
         """Reset server statistics."""
         try:
             response = requests.post(f"{self.base_url}/reset-stats", timeout=5)
-            return response.status == 200
+            return response.status_code == 200
         except Exception as e:
             self.console.print(f"[red]Failed to reset stats: {e}[/red]")
             return False
