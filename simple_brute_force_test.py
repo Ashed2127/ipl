@@ -201,8 +201,13 @@ class SimpleBruteForceTester:
         self.console.print("[dim]Testing AI's ability to detect and block malicious request patterns[/dim]\n")
         
         # Reset server stats
-        if self.reset_server_stats():
-            self.console.print("[green]✓ Server statistics reset[/green]\n")
+        try:
+            if self.reset_server_stats():
+                self.console.print("[green]✓ Server statistics reset[/green]\n")
+            else:
+                self.console.print("[yellow]Server stats reset returned False - continuing anyway[/yellow]\n")
+        except Exception as e:
+            self.console.print(f"[yellow]Server stats reset failed: {e} - continuing anyway[/yellow]\n")
         
         all_analyses = []
         
