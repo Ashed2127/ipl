@@ -192,7 +192,6 @@ class PatternRequestController:
 
 
 # Global controller instance
-import hashlib
 request_controller = PatternRequestController()
 
 
