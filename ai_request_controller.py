@@ -164,13 +164,11 @@ Make your decision based on behavioral analysis, not just request counts.
             
             # Track AI decision
             if self.ai_config.track_ai_decisions:
-                self.decision_tracker.record_decision(
+                self.decision_tracker.record_ai_decision(
                     task_type="request_control",
-                    used_ai=True,
-                    ai_success=ai_result.get("success", False),
+                    success=ai_result.get("success", False),
                     confidence=ai_result.get("confidence", 0.0),
-                    execution_time_ms=decision_time,
-                    fallback_used=False
+                    execution_time_ms=decision_time
                 )
             
             # Convert AI result to decision
