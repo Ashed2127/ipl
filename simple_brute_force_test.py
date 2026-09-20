@@ -253,7 +253,7 @@ class SimpleBruteForceTester:
         
         for key, value in server_stats.items():
             if key != "error":
-                stats_table.add_row(key.replace("_", "title).title(), str(value))
+                stats_table.add_row(key.replace("_", " ").title(), str(value))
         
         self.console.print(stats_table)
         
