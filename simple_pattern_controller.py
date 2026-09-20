@@ -62,11 +62,11 @@ class PatternRequestController:
         now = time.time()
         recent_requests = [r for r in requests if now - r["timestamp"] <= 60.0]
         
-        # Simple pattern detection
+        # Simple pattern detection (more aggressive for testing)
         pattern_type = "normal"
-        if len(recent_requests) > 30:
+        if len(recent_requests) > 10:
             pattern_type = "high_volume"
-        if len(recent_requests) > 50:
+        if len(recent_requests) > 20:
             pattern_type = "attack_pattern"
             
         return {
