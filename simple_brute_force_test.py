@@ -105,6 +105,7 @@ class SimpleBruteForceTester:
         
         results = []
         end_time = time.time() + duration_seconds
+        last_print_time = 0
         
         while time.time() < end_time:
             batch_start = time.time()
