@@ -49,7 +49,7 @@ class SimpleBruteForceTester:
                 "confidence": 0.0
             }
     
-    def rapid_fire_test(self, num_requests: int = 50) -> List[Dict[str, Any]]:
+    def rapid_fire_test(self, num_requests: int = 20) -> List[Dict[str, Any]]:
         """Send rapid requests to test AI pattern detection."""
         self.console.print(f"[bold red]🔥 RAPID FIRE TEST: {num_requests} rapid requests[/bold red]")
         
@@ -60,7 +60,7 @@ class SimpleBruteForceTester:
             self.results.append(result)
             
             # Print progress
-            if (i + 1) % 10 == 0:
+            if (i + 1) % 5 == 0:
                 blocked = sum(1 for r in results if r["blocked"])
                 self.console.print(f"  Progress: {i+1}/{num_requests}, Blocked: {blocked}")
         
