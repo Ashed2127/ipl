@@ -45,7 +45,7 @@ class PatternRequestController:
     def _get_client_fingerprint(self, ip_address: str, user_agent: str) -> str:
         """Generate a fingerprint for client identification."""
         fingerprint_data = f"{ip_address}:{user_agent}"
-        return hashlib.sha256(fingerprint_data.encode()).hexdigest()[:16] if 'hashlib' in globals() else f"{ip_address}:{user_agent}"[:16]
+        return hashlib.sha256(fingerprint_data.encode()).hexdigest()[:16]
     
     def _analyze_request_pattern(self, fingerprint: str) -> Dict[str, Any]:
         """Analyze request patterns for decision making."""
