@@ -121,11 +121,12 @@ class SimpleBruteForceTester:
             sleep_time = max(0, 1.0 - batch_time)
             time.sleep(sleep_time)
             
-            # Print progress every 3 seconds
+            # Print progress
             elapsed = time.time() - (end_time - duration_seconds)
-            if int(elapsed) % 3 == 0:
+            if elapsed - last_print_time >= 3:
                 blocked = sum(1 for r in results if r["blocked"])
                 self.console.print(f"  Progress: {elapsed:.1f}s/{duration_seconds}s, Total: {len(results)}, Blocked: {blocked}")
+                last_print_time = elapsed
         
         return results
     
