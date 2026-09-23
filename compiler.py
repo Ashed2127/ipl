@@ -50,6 +50,11 @@ except (ImportError, ValueError):
     from expert_reasoning_engine import ExpertReasoningEngine, ProactiveThreatPredictor
 
 
+class SecurityError(Exception):
+    """Raised when expert security analysis detects threats."""
+    pass
+
+
 @dataclass
 class AuditStep:
     step_number: int
