@@ -813,6 +813,36 @@ class NeuroSymbolicCompiler:
                 details={"user": self.system1.security_context.user_id, "role": self.system1.security_context.role.name}
             )
 
+        # Step 1.7: Expert-Level Security Analysis (if enabled)
+        if self.enable_expert_system and self.expert_collaboration:
+            expert_decision = self.expert_collaboration.collaborative_analysis(prompt, {"type": effective_type.name if effective_type else "Any"})
+            
+            self.audit_trace.record(
+                phase="EXPERT_SECURITY_ANALYSIS",
+                status="EXPERT_ANALYSIS_COMPLETE",
+                details={
+                    "threat_level": expert_decision.threat_level.value,
+                    "is_safe": expert_decision.is_safe,
+                    "final_recommendation": expert_decision.final_recommendation
+                }
+            )
+            
+            if not expert_decision.is_safe:
+                self.audit_trace.record(
+                    phase="EXPERT_SECURITY_BLOCK",
+                    status="BLOCKED_BY_EXPERTS",
+                    details={
+                        "reason": expert_decision.final_recommendation,
+                        "blocked_operations": expert_decision.blocked_operations,
+                        "safe_alternatives": expert_decision.safe_alternatives
+                    }
+                )
+                raise SecurityError(
+                    f"Expert Security Analysis Blocked: {expert_decision.final_recommendation}\n"
+                    f"Blocked Operations: {', '.join(expert_decision.blocked_operations)}\n"
+                    f"Safe Alternatives: {', '.join(expert_decision.safe_alternatives)}"
+                )
+
         # Step 2: System 1 Neural Candidate Generation
         candidate_ast = self.system1.parse_intent(prompt, effective_type)
         self.audit_trace.record(
