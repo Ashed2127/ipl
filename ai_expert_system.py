@@ -238,7 +238,7 @@ Provide specific language analysis and recommendations. Keep response concise.""
             "stream": False,
             "options": {
                 "temperature": 0.4,
-                "max_tokens": 150
+                "max_tokens": 50
             }
         }
         
@@ -341,7 +341,7 @@ Provide specific compiler analysis and recommendations. Keep response concise.""
             "stream": False,
             "options": {
                 "temperature": 0.3,
-                "max_tokens": 150
+                "max_tokens": 50
             }
         }
         
