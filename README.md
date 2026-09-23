@@ -238,10 +238,6 @@ IPL is an open-source project exploring the future of intelligent compilers. Con
 ## 🙏 Acknowledgments
 
 This compiler-first neural architecture represents a significant evolution in programming language design, combining traditional compiler engineering with modern AI techniques to create the first truly intelligent compiler.
-python3 cli.py run your_program.ipl
-
-# With audit trace
-python3 cli.py run your_program.ipl --show-audit
 
 # Pattern-based mode
 python3 cli.py run your_program.ipl --traditional
