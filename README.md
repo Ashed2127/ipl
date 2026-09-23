@@ -67,29 +67,16 @@ cd ipl
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# Install Ollama + Qwen2.5-Coder
-curl -fsSL https://ollama.com/install.sh | sh
-ollama serve
-ollama pull qwen2.5-coder:0.5b
+# Test the neural compiler
+python3 test_simple_neural.py
 
-# Configure AI-first mode
-export IPL_AI_PRIORITY="true"
-export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
-
-# Run IPL
-python3 cli.py run examples/01_intelligent_variables.ipl
-```
-
-### Basic Install (Pattern-Based)
-```bash
-# Clone and setup (no AI required)
-git clone https://github.com/Ashed2127/ipl.git
-cd ipl
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-
-# Run with pattern matching
-python3 cli.py run examples/01_intelligent_variables.ipl --traditional
+# Use the neural compiler
+python3 -c "
+from neural_compiler import CompilerFirstNeuralCompiler
+compiler = CompilerFirstNeuralCompiler()
+result = compiler.compile_source('let x = 10')
+print(result['success'])
+"
 ```
 
 ## 📖 Usage
