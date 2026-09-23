@@ -2,6 +2,9 @@
 Test Expert System Integration with Main IPL Compiler
 Demonstrates expert-level security analysis in the compilation pipeline.
 """
+import sys
+sys.path.insert(0, '/home/ashed/Downloads/ipl_lang')
+
 from compiler import NeuroSymbolicCompiler, SecurityError
 from ast_nodes import IntentExpr, TypeAnnotation
 from rich.console import Console
