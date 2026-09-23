@@ -165,36 +165,34 @@ def test_intelligence_level_assessment():
     print("="*80)
     
     print("\n📊 INTELLIGENCE LEVEL COMPARISON:")
-    print("""
-Level 1: Pattern Matching (Original IPL)
-  - Regex patterns and hardcoded rules
-  - No intelligence, just clever programming
-
-Level 2: Expert-Like System (Previous IPL) ⬅️ WE WERE HERE
-  - Structured expert knowledge bases
-  - Multi-domain analysis (Security, Language, Compiler)
-  - Chain-of-thought reasoning steps
-  - Still fundamentally pattern-based
-  - No true understanding or generalization
-
-Level 3: AI-Augmented Expert System (Current IPL) ⬅️ WE ARE NOW
-  - Expert personas + Qwen2.5-Coder integration
-  - AI provides semantic understanding
-  - Experts provide structured guidance
-  - Combined pattern + AI intelligence
-  - Enhanced threat detection and reasoning
-
-Level 4: True Expert Intelligence (Your Vision)
-  - AI models that can reason like experts
-  - Context-aware consequence analysis
-  - Adaptive learning from new threats
-  - What you originally envisioned
-
-Level 5: Super-Human Expert Intelligence (Future)
-  - Beyond human expert capabilities
-  - Real-time threat prediction
-  - Autonomous security guidance
-    """)
+    print("Level 1: Pattern Matching (Original IPL)")
+    print("  - Regex patterns and hardcoded rules")
+    print("  - No intelligence, just clever programming")
+    print("")
+    print("Level 2: Expert-Like System (Previous IPL) ⬅️ WE WERE HERE")
+    print("  - Structured expert knowledge bases")
+    print("  - Multi-domain analysis (Security, Language, Compiler)")
+    print("  - Chain-of-thought reasoning steps")
+    print("  - Still fundamentally pattern-based")
+    print("  - No true understanding or generalization")
+    print("")
+    print("Level 3: AI-Augmented Expert System (Current IPL) ⬅️ WE ARE NOW")
+    print("  - Expert personas + Qwen2.5-Coder integration")
+    print("  - AI provides semantic understanding")
+    print("  - Experts provide structured guidance")
+    print("  - Combined pattern + AI intelligence")
+    print("  - Enhanced threat detection and reasoning")
+    print("")
+    print("Level 4: True Expert Intelligence (Your Vision)")
+    print("  - AI models that can reason like experts")
+    print("  - Context-aware consequence analysis")
+    print("  - Adaptive learning from new threats")
+    print("  - What you originally envisioned")
+    print("")
+    print("Level 5: Super-Human Expert Intelligence (Future)")
+    print("  - Beyond human expert capabilities")
+    print("  - Real-time threat prediction")
+    print("  - Autonomous security guidance")
     
     print("🎯 CURRENT STATUS: Level 3 (AI-Augmented Expert System)")
     print("🚀 IMPROVEMENT: From pattern-based to AI-enhanced expert analysis")
