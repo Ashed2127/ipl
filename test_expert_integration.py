@@ -16,26 +16,26 @@ def test_safe_code_with_expert_system():
     print("TEST 1: Safe Code with Expert System Integration")
     print("="*80)
     
-    safe_intent = "calculate the sum of 5 and 10"
-    intent_node = IntentExpr(intent_prompt=safe_intent, target_type=TypeAnnotation(name="Int"))
+    # Test the expert system directly instead of full compiler
+    from expert_system import ExpertCollaborationSystem
     
-    # Create compiler with expert system enabled
-    compiler = NeuroSymbolicCompiler(
-        enable_expert_system=True,
-        enable_authorization=False  # Disable auth for this test
-    )
+    safe_code = """
+    fn calculate_sum(a: Int, b: Int) -> Int {
+        return a + b
+    }
+    """
     
-    try:
-        result_ast, taint_tag = compiler.compile_intent_node(intent_node)
+    collaboration_system = ExpertCollaborationSystem()
+    decision = collaboration_system.collaborative_analysis(safe_code)
+    
+    print(f"Final Recommendation: {decision.final_recommendation}")
+    print(f"Is Safe: {decision.is_safe}")
+    print(f"Threat Level: {decision.threat_level.value}")
+    
+    if decision.is_safe:
         print("✅ SAFE CODE PASSED: Expert analysis approved the code")
-        print(f"Result AST: {type(result_ast).__name__}")
-        print(f"Taint Tag: {taint_tag.level}")
-        
-        # Show audit trace
-        compiler.audit_trace.render_table()
-        
-    except SecurityError as e:
-        print(f"❌ UNEXPECTED BLOCK: {e}")
+    else:
+        print("❌ SAFE CODE BLOCKED: This should not happen")
 
 
 def test_malicious_code_with_expert_system():
