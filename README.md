@@ -239,41 +239,38 @@ IPL is an open-source project exploring the future of intelligent compilers. Con
 
 This compiler-first neural architecture represents a significant evolution in programming language design, combining traditional compiler engineering with modern AI techniques to create the first truly intelligent compiler.
 
-## ✨ Features
+## ✨ Compiler-First Neural Features
 
-### AI-First Decision Making
-- **Primary AI Engine**: Qwen2.5-Coder:0.5B for intelligent decisions
-- **Confidence-Based Processing**: AI decisions above threshold accepted automatically
-- **Automatic Fallback**: Pattern-based processing when AI confidence is low
-- **Decision Tracking**: Comprehensive monitoring of AI decision quality
-- **Performance Optimization**: Token optimization and intelligent caching
+### Intelligence at Every Compilation Level
+- **Intelligent Lexer**: Neural token understanding with semantic classification and security detection
+- **Intelligent Parser**: AI-enhanced parsing with error recovery and semantic validation
+- **Intelligent Semantic Analyzer**: Deep semantic understanding of code meaning and intent
+- **Intelligent Type System**: Advanced type inference with AI-powered semantic type recognition
+- **Intelligent Security Analyzer**: Neural threat detection with attack vector analysis
+- **Intelligent Optimizer**: Learning-based optimization with continuous improvement
+- **Intelligent Code Generator**: AI-powered code generation with performance optimization
 
-### Semantic Type System
-Automatic extraction and typing of semantic entities:
-- **Currency**: Extracts monetary values ("ninety-nine bucks" → 99.50)
-- **Sentiment**: Analyzes emotional tone ("fantastic" → positive score)
-- **Quantity**: Parses measurements with units ("120 ms" → 120.0)
-- **Date**: Normalizes temporal expressions
-- **Intent**: Classifies natural language into categories
+### Key Capabilities
+- **Neural Token Understanding**: Tokens classified semantically with context awareness
+- **AI-Enhanced Error Recovery**: Intelligent suggestions for syntax and semantic errors
+- **Deep Semantic Analysis**: Understanding code intent, relationships, and patterns
+- **Advanced Type Inference**: AI-powered type inference including semantic types (Currency, Temporal, Email, URL)
+- **Neural Threat Detection**: AI-powered vulnerability detection beyond pattern matching
+- **Learning-Based Optimization**: Compiler learns from compilation history for better decisions
+- **Adaptive Code Generation**: AI-powered code transformation and optimization
 
-### Multi-Tier AI Architecture
-- **Tier 1 (Lightning)**: Fast pattern matching (<1ms) - embedded rules
-- **Tier 2 (Specialized)**: Semantic analysis (10-50ms) - advanced rules
-- **Tier 3 (Reasoning)**: Deep reasoning (100-500ms) - Qwen2.5-Coder via Ollama
+### Security-First Design
+- **Neural Security Analysis**: AI-powered threat detection integrated into compilation
+- **Proactive Threat Prevention**: Blocks compilation based on AI security assessment
+- **Attack Vector Analysis**: Predicts potential attack chains and vectors
+- **Zero-Trust Architecture**: All data starts untrusted, requires explicit sanitization
+- **Cryptographic Audit Trail**: SHA-256 signed per-step execution traces
 
-### Enhanced Security System
-- **Mathematical Firewall**: Validates AI outputs against safe schemas
-- **Zero-Trust Taint Tracking**: Tags data as Untrusted/Sanitized/Trusted
-- **Self-Correction Loop**: Repairs type mismatches automatically
-- **Cryptographic Audit Trail**: SHA-256 signed execution traces
-- **AI Security Analysis**: Real-time vulnerability detection during compilation
-
-### Qwen2.5-Coder:0.5B Integration
-- **Lightweight Model**: 0.5B parameters, ~500MB VRAM
-- **Local Processing**: No external API calls, complete privacy
-- **Compiler-Level Security**: Analyzes code for vulnerabilities during compilation
-- **Optimized Prompts**: IPL-specific system prompts for security tasks
-- **Hybrid Fallback**: Automatic pattern matching when AI confidence is low
+### Learning and Adaptation
+- **Continuous Learning**: Compiler improves from compilation history
+- **Adaptive Strategies**: Selects optimal strategies based on learned patterns
+- **Performance Prediction**: Predicts performance improvements from optimizations
+- **Resource Awareness**: Considers memory and CPU usage during compilation
 
 ## 📝 Syntax
 
