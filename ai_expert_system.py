@@ -119,11 +119,10 @@ Keep response concise and technical."""
             req = urllib.request.Request(
                 url,
                 data=json.dumps(data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'},
-                timeout=10
+                headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
@@ -247,11 +246,10 @@ Provide specific language analysis and recommendations. Keep response concise.""
             req = urllib.request.Request(
                 url,
                 data=json.dumps(data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'},
-                timeout=10
+                headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
@@ -351,11 +349,10 @@ Provide specific compiler analysis and recommendations. Keep response concise.""
             req = urllib.request.Request(
                 url,
                 data=json.dumps(data).encode('utf-8'),
-                headers={'Content-Type': 'application/json'},
-                timeout=10
+                headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
