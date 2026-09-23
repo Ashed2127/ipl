@@ -79,7 +79,13 @@ class TestIntelligentParser(unittest.TestCase):
         let y = 20
         let z = x + y
         """
-        self.parser = CompilerFirstParser(self.test_code)
+        config = {
+            "enable_neural_parsing": True,
+            "enable_semantic_validation": True,
+            "enable_syntax_correction": True,
+            "confidence_threshold": 0.7
+        }
+        self.parser = CompilerFirstParser(self.test_code, config)
     
     def test_parser_parsing(self):
         """Test that intelligent parser parses code correctly"""
