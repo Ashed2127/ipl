@@ -555,7 +555,7 @@ class CompilerFirstParser:
         
         # First tokenize using intelligent lexer
         from intelligent_lexer import CompilerFirstLexer
-        lexer = CompilerFirstLexer(source_code, self.config)
+        lexer = CompilerFirstLexer(source_code, self.config.get("lexer", self.config))
         lexer_analysis = lexer.analyze_source()
         
         if "error" in lexer_analysis:
