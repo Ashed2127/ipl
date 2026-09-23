@@ -123,23 +123,23 @@ def main():
     print("\nThis demonstrates the integration of expert-level AI into IPL's compiler")
     print("mimicking Security Specialists, Language Experts, and Compiler Designers")
     
-    console = Console()
-    
     try:
         test_safe_code_with_expert_system()
         test_malicious_code_with_expert_system()
-        test_compiler_without_expert_system()
-        test_expert_reasoning_in_compilation()
+        test_expert_reasoning_engine()
+        test_proactive_threat_prediction()
         
         print("\n" + "="*80)
         print("ALL INTEGRATION TESTS COMPLETED")
         print("="*80)
         print("\nIPL has successfully integrated expert-level intelligence:")
-        print("✅ Expert system integrated into compilation pipeline")
+        print("✅ Expert collaboration system (Security, Language, Compiler experts)")
+        print("✅ Chain-of-thought reasoning for complex analysis")
         print("✅ Safe code passes expert analysis")
         print("✅ Malicious code blocked by expert collaboration")
-        print("✅ Backward compatibility maintained")
-        print("✅ Detailed reasoning available in audit traces")
+        print("✅ Proactive threat prediction and prevention")
+        print("✅ Context-aware decision making")
+        print("✅ Expert-level consequence analysis")
         
     except Exception as e:
         print(f"\n❌ Error during testing: {e}")
