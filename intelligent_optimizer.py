@@ -2,7 +2,7 @@
 Intelligent Optimizer for IPL - Compiler-First Neural Architecture
 Enhances traditional optimization with AI-powered learning and adaptive improvement
 """
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
 from dataclasses import dataclass
 from collections import defaultdict
 import re
