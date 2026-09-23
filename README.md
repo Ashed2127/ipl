@@ -20,9 +20,46 @@ IPL has evolved into a **Compiler-First Neural Programming Language** where inte
 - ✅ **Intelligent Code Generator**: AI-powered code generation and optimization
 - ✅ **Unified Neural Compiler**: Coordinated intelligence across all compilation levels
 
+## 🚀 Compiler-First Neural Architecture
+
+The new compiler-first neural architecture makes IPL the first truly intelligent compiler where AI is integrated at every compilation level:
+
+### Intelligent Components
+1. **Intelligent Lexer** (`intelligent_lexer.py`): Neural token understanding with security detection
+2. **Intelligent Parser** (`intelligent_parser.py`): AI-enhanced parsing with error recovery  
+3. **Intelligent Semantic Analyzer** (`intelligent_semantic_analyzer.py`): Deep semantic understanding
+4. **Intelligent Type System** (`intelligent_type_system.py`): Advanced type inference
+5. **Intelligent Security Analyzer** (`intelligent_security_analyzer.py`): Neural threat detection
+6. **Intelligent Optimizer** (`intelligent_optimizer.py`): Learning-based optimization
+7. **Intelligent Code Generator** (`intelligent_code_generator.py`): AI-powered code generation
+8. **Unified Neural Compiler** (`neural_compiler.py`): Coordinates all intelligent components
+
+### Usage Example
+```python
+from neural_compiler import CompilerFirstNeuralCompiler
+
+# Initialize the neural compiler
+compiler = CompilerFirstNeuralCompiler()
+
+# Compile source code with full intelligence
+result = compiler.compile_source(source_code)
+
+# Access comprehensive analysis
+print(f"Success: {result['success']}")
+print(f"Overall confidence: {result['overall_confidence']:.2%}")
+print(f"Compilation time: {result['compilation_time']:.3f}s")
+
+# Access intelligent insights
+for insight in result['intelligent_insights']:
+    print(f"Insight: {insight}")
+```
+
+### Detailed Architecture
+See [COMPILER_FIRST_ARCHITECTURE.md](COMPILER_FIRST_ARCHITECTURE.md) for complete architectural documentation.
+
 ## 🚀 Installation
 
-### Quick Install (AI-First Mode)
+### Quick Install (Compiler-First Neural Mode)
 ```bash
 # Clone and setup
 git clone https://github.com/Ashed2127/ipl.git
