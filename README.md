@@ -238,55 +238,6 @@ IPL is an open-source project exploring the future of intelligent compilers. Con
 ## 🙏 Acknowledgments
 
 This compiler-first neural architecture represents a significant evolution in programming language design, combining traditional compiler engineering with modern AI techniques to create the first truly intelligent compiler.
-
-# Pattern-based mode
-python3 cli.py run your_program.ipl --traditional
-```
-
-### Interactive REPL
-```bash
-python3 cli.py repl
-```
-
-### Python API
-```python
-from compiler import LocalInferenceRuntime
-from ai_first_config import AIFirstConfig
-from ast_nodes import TypeAnnotation
-
-# AI-first mode
-config = AIFirstConfig(ai_priority_mode=True)
-runtime = LocalInferenceRuntime(
-    model_name="qwen2.5-coder:0.5b",
-    use_hierarchical_ai=True,
-    ai_first_config=config
-)
-
-# Process intent
-result = runtime.parse_intent("The user is 25", TypeAnnotation(name="Int"))
-```
-
-### IPL Syntax Examples
-```ipl
-# Semantic types
-let price: Currency = "ninety-nine bucks"
-let review: Sentiment = "Amazing product!"
-let age: Int = intent "user is twenty-five" as Int
-
-# Security
-let clean_input = sanitize(get_user_data())
-db_write("users", clean_input)
-
-# Functions
-fn calculate_tax(amount, rate) {
-    return amount * rate
-}
-```
-
-### Key Environment Variables
-```bash
-export IPL_AI_PRIORITY="true"              # Enable AI-first mode
-export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"  # AI model
 export IPL_AI_CONFIDENCE="0.7"           # Confidence threshold
 export IPL_PATTERN_FALLBACK="true"        # Enable pattern fallback
 ```
