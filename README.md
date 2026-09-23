@@ -81,6 +81,57 @@ print(result['success'])
 
 ## 📖 Usage
 
+### Traditional Compiler Usage
+The traditional compiler is still available and uses the existing AI-first architecture:
+
+```bash
+# Run IPL programs with traditional compiler
+python3 cli.py run examples/01_intelligent_variables.ipl
+```
+
+### Neural Compiler Usage
+Use the new compiler-first neural architecture for enhanced intelligence:
+
+```python
+from neural_compiler import CompilerFirstNeuralCompiler
+
+# Initialize with custom configuration
+config = {
+    "lexer": {"enable_neural_analysis": True, "enable_security_analysis": True},
+    "parser": {"enable_neural_parsing": True, "enable_semantic_validation": True},
+    "security_analyzer": {"enable_neural_detection": True, "enable_attack_vector_analysis": True}
+}
+
+compiler = CompilerFirstNeuralCompiler(config)
+result = compiler.compile_source(source_code)
+
+# Access comprehensive analysis
+print(f"Lexical Analysis: {len(result['lexical_analysis']['tokens'])} tokens")
+print(f"Parsing Confidence: {result['parsing_analysis']['parse_confidence']:.2%}")
+print(f"Security Score: {result['security_analysis']['overall_security'].security_score:.2%}")
+print(f"Optimization Score: {result['optimization_analysis']['optimization_score']:.2%}")
+```
+
+### Component-Level Usage
+Each intelligent component can be used independently:
+
+```python
+# Use intelligent lexer alone
+from intelligent_lexer import CompilerFirstLexer
+lexer = CompilerFirstLexer(source_code, config)
+lexical_analysis = lexer.analyze_source()
+
+# Use intelligent parser alone
+from intelligent_parser import CompilerFirstParser
+parser = CompilerFirstParser(source_code, config)
+parsing_analysis = parser.parse_source()
+
+# Use intelligent security analyzer alone
+from intelligent_security_analyzer import CompilerFirstSecurityAnalyzer
+security_analyzer = CompilerFirstSecurityAnalyzer(config)
+security_analysis = security_analyzer.analyze_program_security(ast)
+```
+
 ### Run IPL Programs
 ```bash
 # Basic execution
