@@ -125,7 +125,13 @@ class TestIntelligentSemanticAnalyzer(unittest.TestCase):
             target_type=TypeAnnotation("Int")
         )
         self.program = Program(statements=[let_stmt])
-        self.analyzer = CompilerFirstSemanticAnalyzer()
+        config = {
+            "enable_deep_analysis": True,
+            "enable_security_analysis": True,
+            "enable_optimization_suggestions": True,
+            "confidence_threshold": 0.7
+        }
+        self.analyzer = CompilerFirstSemanticAnalyzer(config)
     
     def test_semantic_analysis(self):
         """Test that semantic analysis is performed"""
