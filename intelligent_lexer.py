@@ -459,7 +459,7 @@ class CompilerFirstLexer:
         
         self.intelligent_lexer = IntelligentLexer(
             source, 
-            enable_neural_analysis=self.config["enable_neural_analysis"]
+            enable_neural_analysis=self.config.get("enable_neural_analysis", True)
         )
         
     def analyze_source(self) -> Dict[str, Any]:
