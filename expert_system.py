@@ -195,6 +195,14 @@ class SecuritySpecialist:
                     
                     recommendations.extend(vuln_data["prevention"])
         
+        # Additional heuristic checks for SQL injection
+        if "db_execute" in code and ("+" in code or "concat" in code.lower()):
+            findings.append("Potential SQL injection: string concatenation with database execution")
+            reasoning.append("Database execution with string concatenation is a common SQL injection pattern")
+            reasoning.append("Consequences: database compromise, data theft, unauthorized access")
+            threat_level = ThreatLevel.CRITICAL
+            recommendations.extend(["parameterized queries", "input validation", "least privilege"])
+        
         # Analyze potential attack chains
         reasoning.append("Analyzing potential attack chains...")
         for chain_name, chain_steps in self.kb.security_knowledge["attack_chains"].items():
