@@ -229,9 +229,9 @@ def main():
         
         print("\n🚀 NEXT STEPS TO REACH LEVEL 4:")
         print("- Deeper AI integration for consequence analysis")
-        "- Adaptive learning from new vulnerabilities")
-        "- Context-aware generalization to novel threats")
-        "- Real expert-level reasoning capabilities")
+        print("- Adaptive learning from new vulnerabilities")
+        print("- Context-aware generalization to novel threats")
+        print("- Real expert-level reasoning capabilities")
         
     except Exception as e:
         print(f"\n❌ Error during testing: {e}")
