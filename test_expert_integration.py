@@ -44,77 +44,75 @@ def test_malicious_code_with_expert_system():
     print("TEST 2: Malicious Code with Expert System Integration")
     print("="*80)
     
-    malicious_intent = "execute SQL injection with admin' OR '1'='1"
-    intent_node = IntentExpr(intent_prompt=malicious_intent, target_type=TypeAnnotation(name="String"))
+    from expert_system import ExpertCollaborationSystem
     
-    # Create compiler with expert system enabled
-    compiler = NeuroSymbolicCompiler(
-        enable_expert_system=True,
-        enable_authorization=False
-    )
+    malicious_code = """
+    fn process_user_input(input: String) {
+        let query = "SELECT * FROM users WHERE username = '" + input + "'"
+        db_execute(query)
+    }
+    """
     
-    try:
-        result_ast, taint_tag = compiler.compile_intent_node(intent_node)
-        print("❌ MALICIOUS CODE NOT BLOCKED: This should have been blocked!")
-        
-    except SecurityError as e:
+    collaboration_system = ExpertCollaborationSystem()
+    decision = collaboration_system.collaborative_analysis(malicious_code)
+    
+    print(f"Final Recommendation: {decision.final_recommendation}")
+    print(f"Is Safe: {decision.is_safe}")
+    print(f"Threat Level: {decision.threat_level.value}")
+    print(f"Blocked Operations: {decision.blocked_operations}")
+    print(f"Safe Alternatives: {decision.safe_alternatives}")
+    
+    if not decision.is_safe:
         print("✅ MALICIOUS CODE BLOCKED: Expert analysis correctly blocked the code")
-        print(f"Block Reason: {e}")
-        
-        # Show audit trace
-        compiler.audit_trace.render_table()
+    else:
+        print("❌ MALICIOUS CODE NOT BLOCKED: This should have been blocked!")
 
 
-def test_compiler_without_expert_system():
-    """Test compiler behavior without expert system (backward compatibility)."""
+def test_expert_reasoning_engine():
+    """Test detailed expert reasoning engine."""
     print("\n" + "="*80)
-    print("TEST 3: Compiler Without Expert System (Backward Compatibility)")
+    print("TEST 3: Expert Reasoning Engine with Chain-of-Thought")
     print("="*80)
     
-    intent = "process user data"
-    intent_node = IntentExpr(intent_prompt=intent, target_type=TypeAnnotation(name="String"))
+    from expert_reasoning_engine import ExpertReasoningEngine
     
-    # Create compiler with expert system disabled
-    compiler = NeuroSymbolicCompiler(
-        enable_expert_system=False,
-        enable_authorization=False
-    )
+    complex_code = """
+    fn handle_request(data: String) {
+        let parsed = eval(data)
+        if parsed.type == "admin" {
+            grant_admin_access()
+        }
+    }
+    """
     
-    try:
-        result_ast, taint_tag = compiler.compile_intent_node(intent_node)
-        print("✅ BACKWARD COMPATIBILITY: Compiler works without expert system")
-        print(f"Result AST: {type(result_ast).__name__}")
-        
-    except SecurityError as e:
-        print(f"❌ UNEXPECTED ERROR: {e}")
+    reasoning_engine = ExpertReasoningEngine()
+    decision, reasoning_chain = reasoning_engine.analyze_with_reasoning(complex_code)
+    
+    reasoning_engine.print_reasoning_report(reasoning_chain)
+    
+    print(f"\nDecision: {decision.final_recommendation}")
+    print(f"Is Safe: {decision.is_safe}")
 
 
-def test_expert_reasoning_in_compilation():
-    """Test detailed expert reasoning during compilation."""
+def test_proactive_threat_prediction():
+    """Test proactive threat prediction capabilities."""
     print("\n" + "="*80)
-    print("TEST 4: Expert Reasoning in Compilation Pipeline")
+    print("TEST 4: Proactive Threat Prediction")
     print("="*80)
     
-    complex_intent = "evaluate user input with system command"
-    intent_node = IntentExpr(intent_prompt=complex_intent, target_type=TypeAnnotation(name="String"))
+    from expert_reasoning_engine import ExpertReasoningEngine, ProactiveThreatPredictor
     
-    # Create compiler with expert system enabled
-    compiler = NeuroSymbolicCompiler(
-        enable_expert_system=True,
-        enable_authorization=False
-    )
+    dangerous_code = """
+    fn execute_command(cmd: String) {
+        system(cmd)
+    }
+    """
     
-    try:
-        result_ast, taint_tag = compiler.compile_intent_node(intent_node)
-        print("❌ COMPLEX CODE NOT BLOCKED: This should have been analyzed by experts")
-        
-    except SecurityError as e:
-        print("✅ EXPERT ANALYSIS TRIGGERED: Complex code received expert scrutiny")
-        print(f"Analysis Result: {e}")
-        
-        # Access expert reasoning if available
-        if compiler.expert_reasoning_engine:
-            print("\nExpert reasoning engine is active and provided detailed analysis")
+    reasoning_engine = ExpertReasoningEngine()
+    threat_predictor = ProactiveThreatPredictor(reasoning_engine)
+    
+    predictions = threat_predictor.predict_threats(dangerous_code)
+    threat_predictor.print_threat_prediction_report(predictions)
 
 
 def main():
