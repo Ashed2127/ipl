@@ -238,9 +238,6 @@ IPL is an open-source project exploring the future of intelligent compilers. Con
 ## 🙏 Acknowledgments
 
 This compiler-first neural architecture represents a significant evolution in programming language design, combining traditional compiler engineering with modern AI techniques to create the first truly intelligent compiler.
-export IPL_AI_CONFIDENCE="0.7"           # Confidence threshold
-export IPL_PATTERN_FALLBACK="true"        # Enable pattern fallback
-```
 
 ## ✨ Features
 
