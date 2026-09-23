@@ -40,7 +40,13 @@ class TestIntelligentLexer(unittest.TestCase):
         let user_name = "John"
         let price = 19.99
         """
-        self.lexer = CompilerFirstLexer(self.test_code)
+        config = {
+            "enable_neural_analysis": True,
+            "enable_security_analysis": True,
+            "enable_learning": True,
+            "confidence_threshold": 0.7
+        }
+        self.lexer = CompilerFirstLexer(self.test_code, config)
     
     def test_lexer_tokenization(self):
         """Test that intelligent lexer tokenizes code correctly"""
@@ -294,7 +300,13 @@ class TestIntelligentOptimizer(unittest.TestCase):
             target_type=None
         )
         self.program = Program(statements=[let_stmt])
-        self.optimizer = CompilerFirstOptimizer()
+        config = {
+            "enable_learning": True,
+            "optimization_level": "balanced",
+            "max_passes": 3,
+            "improvement_threshold": 0.05
+        }
+        self.optimizer = CompilerFirstOptimizer(config)
     
     def test_optimization(self):
         """Test that optimization is performed"""
