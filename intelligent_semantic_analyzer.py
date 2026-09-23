@@ -2,7 +2,7 @@
 Intelligent Semantic Analyzer for IPL - Compiler-First Neural Architecture
 Enhances traditional semantic analysis with deep understanding and AI-powered insights
 """
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
 from dataclasses import dataclass
 from collections import defaultdict
 import re
