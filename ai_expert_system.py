@@ -111,7 +111,7 @@ Keep response concise and technical."""
             "stream": False,
             "options": {
                 "temperature": 0.3,  # Lower temperature for more focused security analysis
-                "max_tokens": 200
+                "max_tokens": 50
             }
         }
         
@@ -122,7 +122,7 @@ Keep response concise and technical."""
                 headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
@@ -249,7 +249,7 @@ Provide specific language analysis and recommendations. Keep response concise.""
                 headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
@@ -352,7 +352,7 @@ Provide specific compiler analysis and recommendations. Keep response concise.""
                 headers={'Content-Type': 'application/json'}
             )
             
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 return result.get('response', '')
                 
