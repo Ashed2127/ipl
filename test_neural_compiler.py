@@ -162,7 +162,13 @@ class TestIntelligentCodeGenerator(unittest.TestCase):
             target_type=None
         )
         self.program = Program(statements=[let_stmt])
-        self.generator = CompilerFirstCodeGenerator()
+        config = {
+            "enable_ai_optimization": True,
+            "target_language": "ipl",
+            "optimization_level": "balanced",
+            "quality_threshold": 0.7
+        }
+        self.generator = CompilerFirstCodeGenerator(config)
     
     def test_code_generation(self):
         """Test that code is generated correctly"""
@@ -194,7 +200,13 @@ class TestIntelligentSecurityAnalyzer(unittest.TestCase):
             target_type=None
         )
         self.program = Program(statements=[let_stmt])
-        self.analyzer = CompilerFirstSecurityAnalyzer()
+        config = {
+            "enable_neural_detection": True,
+            "enable_attack_vector_analysis": True,
+            "enable_prevention_recommendations": True,
+            "security_threshold": 0.7
+        }
+        self.analyzer = CompilerFirstSecurityAnalyzer(config)
     
     def test_security_analysis(self):
         """Test that security analysis is performed"""
