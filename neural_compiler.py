@@ -85,32 +85,32 @@ class NeuralCompiler:
         # Initialize all intelligent components
         self.intelligent_lexer = CompilerFirstLexer(
             "",  # Source will be provided during compilation
-            self.config["lexer"]
+            self.config.get("lexer", {})
         )
         
         self.intelligent_parser = CompilerFirstParser(
             "",  # Source will be provided during compilation
-            self.config["parser"]
+            self.config.get("parser", {})
         )
         
         self.intelligent_semantic_analyzer = CompilerFirstSemanticAnalyzer(
-            self.config["semantic_analyzer"]
+            self.config.get("semantic_analyzer", {})
         )
         
         self.intelligent_code_generator = CompilerFirstCodeGenerator(
-            self.config["code_generator"]
+            self.config.get("code_generator", {})
         )
         
         self.intelligent_security_analyzer = CompilerFirstSecurityAnalyzer(
-            self.config["security_analyzer"]
+            self.config.get("security_analyzer", {})
         )
         
         self.intelligent_type_system = CompilerFirstTypeSystem(
-            self.config["type_system"]
+            self.config.get("type_system", {})
         )
         
         self.intelligent_optimizer = CompilerFirstOptimizer(
-            self.config["optimizer"]
+            self.config.get("optimizer", {})
         )
         
         # Traditional compiler for integration
