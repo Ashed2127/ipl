@@ -297,13 +297,6 @@ fn calculate_tax(amount, rate) {
 - **REPL**: `python3 cli.py repl`
 - **Python Embedding**: Import compiler and runtime classes
 - **REST API**: `python3 gateway.py` (launches security gateway)
-```bash
-export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
-export IPL_AI_PRIORITY="true"
-export IPL_AI_CONFIDENCE="0.7"
-export IPL_PATTERN_FALLBACK="true"
-export IPL_TRACK_DECISIONS="true"
-```
 
 ## 📊 Performance Metrics
 
