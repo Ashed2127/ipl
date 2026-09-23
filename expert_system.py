@@ -362,9 +362,13 @@ class ExpertCollaborationSystem:
             ExpertDomain.COMPILER_DESIGNER: compiler_analysis
         }
         
-        # Determine overall threat level (take maximum)
-        threat_levels = [analysis.threat_level for analysis in expert_analyses.values()]
-        max_threat = max(threat_levels, key=lambda x: x.value)
+        # Determine overall threat level (prioritize security expert assessment)
+        security_analysis = expert_analyses[ExpertDomain.SECURITY_SPECIALIST]
+        if security_analysis.threat_level in [ThreatLevel.HIGH_RISK, ThreatLevel.CRITICAL]:
+            max_threat = security_analysis.threat_level
+        else:
+            threat_levels = [analysis.threat_level for analysis in expert_analyses.values()]
+            max_threat = max(threat_levels, key=lambda x: x.value)
         
         # Build consensus reasoning
         consensus_reasoning = []
@@ -398,7 +402,12 @@ class ExpertCollaborationSystem:
                     blocked_operations.extend(analysis.findings)
                     # Generate safe alternatives based on findings
                     for finding in analysis.findings:
-                        if "injection" in finding.lower():
+                        if "sql_injection" in finding.lower():
+                            safe_alternatives.append("Use parameterized queries")
+                        elif "command_injection" in finding.lower():
+                            safe_alternatives.append("Use subprocess with safe arguments")
+                            safe_alternatives.append("Implement strict input validation")
+                        elif "injection" in finding.lower():
                             safe_alternatives.append("Use parameterized queries")
                         if "xss" in finding.lower():
                             safe_alternatives.append("Implement output encoding")
