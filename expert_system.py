@@ -379,6 +379,11 @@ class ExpertCollaborationSystem:
         # Collaborative decision making
         is_safe = max_threat in [ThreatLevel.SAFE, ThreatLevel.LOW_RISK]
         
+        # Override safety if security expert found critical/high threats
+        security_analysis = expert_analyses[ExpertDomain.SECURITY_SPECIALIST]
+        if security_analysis.threat_level in [ThreatLevel.HIGH_RISK, ThreatLevel.CRITICAL]:
+            is_safe = False
+        
         # Combine recommendations
         all_recommendations = []
         blocked_operations = []
