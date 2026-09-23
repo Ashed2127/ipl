@@ -288,45 +288,15 @@ db_write("users", clean_age)
 fn calculate_tax(amount, rate) {
     return amount * rate
 }
-
-# Adaptive output formatting
-print invoice for "executive"  # Business summary
-print invoice for "developer"  # Technical details
 ```
 
 ## 🛠️ Execution Methods
 
-- **CLI**: `python3 cli.py run <file.ipl>`
+- **Neural Compiler**: `from neural_compiler import CompilerFirstNeuralCompiler`
+- **Traditional CLI**: `python3 cli.py run <file.ipl>` (uses existing AI-first architecture)
 - **REPL**: `python3 cli.py repl`
 - **Python Embedding**: Import compiler and runtime classes
 - **REST API**: `python3 gateway.py` (launches security gateway)
-
-## 🧠 AI-First Architecture
-
-### Decision Flow
-```
-Input Intent → Security Check → AI Model (Primary)
-                                    ↓
-                          AI Success + High Confidence?
-                              ↓ Yes                      ↓ No
-                          Use AI Result              Pattern Fallback
-```
-
-### Configuration Options
-```python
-from ai_first_config import AIFirstConfig
-
-# AI-first configuration
-config = AIFirstConfig(
-    primary_model="qwen2.5-coder:0.5b",
-    ai_priority_mode=True,
-    ai_confidence_threshold=0.7,
-    enable_pattern_fallback=True,
-    track_ai_decisions=True
-)
-```
-
-### Environment Variables
 ```bash
 export IPL_PRIMARY_MODEL="qwen2.5-coder:0.5b"
 export IPL_AI_PRIORITY="true"
