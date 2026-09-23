@@ -63,7 +63,7 @@ class ExpertKnowledgeBase:
         return {
             "vulnerability_patterns": {
                 "sql_injection": {
-                    "patterns": [r"'\s*OR\s*'", r";\s*DROP", r"UNION\s+SELECT", r"'\s*=\s*'", r"\+\s*'", r'SELECT.*WHERE', r"username.*\+.*input"],
+                    "patterns": [r"'\s*OR\s*'", r";\s*DROP", r"UNION\s+SELECT", r"'\s*=\s*'", r"\+", r'SELECT.*WHERE', r"db_execute"],
                     "consequences": ["database compromise", "data theft", "unauthorized access"],
                     "severity": "critical",
                     "prevention": ["parameterized queries", "input validation", "least privilege"]
