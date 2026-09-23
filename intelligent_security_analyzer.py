@@ -2,7 +2,7 @@
 Intelligent Security Analyzer for IPL - Compiler-First Neural Architecture
 Enhances traditional security analysis with neural threat detection and AI-powered security
 """
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
 from dataclasses import dataclass
 from collections import defaultdict
 import re
