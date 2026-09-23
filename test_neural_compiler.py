@@ -250,7 +250,13 @@ class TestIntelligentTypeSystem(unittest.TestCase):
             target_type=None
         )
         self.program = Program(statements=[int_stmt, string_stmt])
-        self.type_system = CompilerFirstTypeSystem()
+        config = {
+            "enable_neural_inference": True,
+            "enable_semantic_types": True,
+            "enable_type_suggestions": True,
+            "consistency_threshold": 0.8
+        }
+        self.type_system = CompilerFirstTypeSystem(config)
     
     def test_type_inference(self):
         """Test that types are inferred correctly"""
