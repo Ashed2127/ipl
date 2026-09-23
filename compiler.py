@@ -745,13 +745,24 @@ class NeuroSymbolicCompiler:
     - Auditing: VerifiedAuditTrace
     - AI-First: AI-first decision making with pattern fallback
     """
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, ai_first_config: Optional[AIFirstConfig] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, ai_first_config: Optional[AIFirstConfig] = None, enable_expert_system: bool = True):
         self.console = console or Console()
         self.system1 = LocalInferenceRuntime(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, ai_first_config=ai_first_config)
         self.firewall = MathematicalFirewall()
         self.audit_trace = VerifiedAuditTrace()
         self.use_hierarchical_ai = use_hierarchical_ai
         self.enable_authorization = enable_authorization
+        self.enable_expert_system = enable_expert_system
+        
+        # Initialize expert-level AI system
+        if enable_expert_system:
+            self.expert_reasoning_engine = ExpertReasoningEngine()
+            self.expert_collaboration = ExpertCollaborationSystem()
+            self.threat_predictor = ProactiveThreatPredictor(self.expert_reasoning_engine)
+        else:
+            self.expert_reasoning_engine = None
+            self.expert_collaboration = None
+            self.threat_predictor = None
 
     def compile_intent_node(
         self,
