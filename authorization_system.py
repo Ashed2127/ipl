@@ -547,25 +547,43 @@ class ContextAwareSecurityAnalyzer:
                 context_verified=True
             )
         elif context.role == UserRole.USER:
-            # Users can do basic operations
-            if any(word in intent_lower for word in ["read", "view", "get", "show"]):
+            # Users can do basic operations and semantic extractions
+            safe_user_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "analyze", "query", "user"]
+            if any(word in intent_lower for word in safe_user_words):
                 return AuthorizationDecision(
                     allowed=True,
-                    reason="User role allows read operations",
-                    confidence=0.80,
+                    reason="User role allows read and extraction operations",
+                    confidence=0.85,
                     context_verified=True
                 )
             return AuthorizationDecision(
                 allowed=False,
                 reason="User role does not allow this operation",
-                confidence=0.70,
+                confidence=0.75,
                 context_verified=True
             )
         else:  # Guest
+            # Guests can perform read-only and safe semantic extractions
+            safe_guest_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "query", "user"]
+            privileged_words = ["delete", "drop", "admin", "system", "format", "override", "modify", "update", "exec", "write", "kill"]
+            if any(p in intent_lower for p in privileged_words):
+                return AuthorizationDecision(
+                    allowed=False,
+                    reason="Guest role cannot perform privileged or mutating operations",
+                    confidence=0.90,
+                    context_verified=True
+                )
+            if any(word in intent_lower for word in safe_guest_words):
+                return AuthorizationDecision(
+                    allowed=True,
+                    reason="Guest role allows safe read and extraction operations",
+                    confidence=0.85,
+                    context_verified=True
+                )
             return AuthorizationDecision(
                 allowed=False,
-                reason="Guest role has limited permissions",
-                confidence=0.90,
+                reason="Guest role has limited permissions; restricted to read-only queries",
+                confidence=0.85,
                 context_verified=True
             )
     
