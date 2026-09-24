@@ -594,6 +594,8 @@ def main():
             "  --traditional                           Same as --no-hierarchical-ai\n"
             "\n[bold]Authorization Options:[/bold]\n"
             "  --no-authorization                      Disable authorization system\n"
+            "  --user <username>                       Run as specific user (default: developer)\n"
+            "  --role <guest|user|admin|super_admin>   Run under specific role (default: admin)\n"
         )
     else:
         # Default assume it's a file if exists
