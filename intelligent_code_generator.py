@@ -712,6 +712,34 @@ class IntelligentCodeGenerator:
             "naming_convention_score": self._assess_naming_conventions(ast)
         }
     
+    def _find_nodes_by_type(self, ast: ASTNode, node_types: Tuple) -> List[ASTNode]:
+        """Find all nodes of specific types in AST"""
+        found_nodes = []
+        if isinstance(ast, node_types):
+            found_nodes.append(ast)
+        if hasattr(ast, 'statements'):
+            for stmt in ast.statements:
+                found_nodes.extend(self._find_nodes_by_type(stmt, node_types))
+        elif hasattr(ast, 'body'):
+            if isinstance(ast.body, list):
+                for stmt in ast.body:
+                    found_nodes.extend(self._find_nodes_by_type(stmt, node_types))
+            else:
+                found_nodes.extend(self._find_nodes_by_type(ast.body, node_types))
+        elif hasattr(ast, 'args'):
+            for arg in ast.args:
+                found_nodes.extend(self._find_nodes_by_type(arg, node_types))
+        elif hasattr(ast, 'params'):
+            for param in ast.params:
+                found_nodes.extend(self._find_nodes_by_type(param, node_types))
+        elif hasattr(ast, 'condition'):
+            found_nodes.extend(self._find_nodes_by_type(ast.condition, node_types))
+        elif hasattr(ast, 'then_branch'):
+            found_nodes.extend(self._find_nodes_by_type(ast.then_branch, node_types))
+        elif hasattr(ast, 'else_branch') and ast.else_branch:
+            found_nodes.extend(self._find_nodes_by_type(ast.else_branch, node_types))
+        return found_nodes
+
     def _calculate_cyclomatic_complexity(self, ast: ASTNode) -> int:
         """Calculate cyclomatic complexity"""
         complexity = 1  # Base complexity
