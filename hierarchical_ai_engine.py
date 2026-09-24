@@ -140,6 +140,84 @@ class IntelligentCache:
         self.ttl_seconds = ttl_seconds
         self.hit_count = 0
         self.miss_count = 0
+        self.disk_cache_dir = os.environ.get("IPL_CACHE_DIR", ".ipl_cache")
+        self.disk_cache_file = os.path.join(self.disk_cache_dir, "ai_cache.json")
+        self._load_from_disk()
+
+    def _load_from_disk(self):
+        """Load persistent cache entries from disk."""
+        try:
+            if os.path.exists(self.disk_cache_file):
+                with open(self.disk_cache_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                now = time.time()
+                for key, item in data.items():
+                    if now - item.get("created_at", 0) < self.ttl_seconds:
+                        resp_data = item.get("response", {})
+                        tok_data = resp_data.get("token_usage", {})
+                        tok = TokenUsage(
+                            input_tokens=tok_data.get("input_tokens", 0),
+                            output_tokens=tok_data.get("output_tokens", 0),
+                            total_tokens=tok_data.get("total_tokens", 0),
+                            cost_estimate_usd=tok_data.get("cost_estimate_usd", 0.0),
+                            model_name=tok_data.get("model_name", "cached"),
+                            tier=ModelTier.TIER_1_LIGHTNING
+                        )
+                        resp = AIResponse(
+                            content=resp_data.get("content"),
+                            success=resp_data.get("success", True),
+                            tier_used=ModelTier.TIER_1_LIGHTNING,
+                            execution_time_ms=resp_data.get("execution_time_ms", 0.1),
+                            token_usage=tok,
+                            confidence=resp_data.get("confidence", 0.95),
+                            needs_verification=resp_data.get("needs_verification", False),
+                            metadata=resp_data.get("metadata", {})
+                        )
+                        c_val = item.get("complexity", "trivial")
+                        c_enum = TaskComplexity(c_val) if c_val in [c.value for c in TaskComplexity] else TaskComplexity.TRIVIAL
+                        self.cache[key] = CacheEntry(
+                            key=key,
+                            response=resp,
+                            complexity=c_enum,
+                            created_at=item.get("created_at", now),
+                            last_accessed=item.get("last_accessed", now),
+                            hit_count=item.get("hit_count", 0)
+                        )
+        except Exception:
+            pass
+
+    def _save_to_disk(self):
+        """Persist cache entries to disk."""
+        try:
+            os.makedirs(self.disk_cache_dir, exist_ok=True)
+            data = {}
+            for key, entry in list(self.cache.items())[:self.max_size]:
+                data[key] = {
+                    "complexity": entry.complexity.value,
+                    "created_at": entry.created_at,
+                    "last_accessed": entry.last_accessed,
+                    "hit_count": entry.hit_count,
+                    "response": {
+                        "content": entry.response.content,
+                        "success": entry.response.success,
+                        "tier_used": entry.response.tier_used.value,
+                        "execution_time_ms": entry.response.execution_time_ms,
+                        "token_usage": {
+                            "input_tokens": entry.response.token_usage.input_tokens,
+                            "output_tokens": entry.response.token_usage.output_tokens,
+                            "total_tokens": entry.response.token_usage.total_tokens,
+                            "cost_estimate_usd": entry.response.token_usage.cost_estimate_usd,
+                            "model_name": entry.response.token_usage.model_name
+                        },
+                        "confidence": entry.response.confidence,
+                        "needs_verification": entry.response.needs_verification,
+                        "metadata": entry.response.metadata
+                    }
+                }
+            with open(self.disk_cache_file, "w", encoding="utf-8") as f:
+                json.dump(data, f)
+        except Exception:
+            pass
         
     def _generate_key(self, prompt: str, context: Dict[str, Any]) -> str:
         """Generate cache key from prompt and context."""
@@ -178,6 +256,7 @@ class IntelligentCache:
             response=response,
             complexity=complexity
         )
+        self._save_to_disk()
     
     def _evict_lru(self):
         """Evict least recently used entries."""
