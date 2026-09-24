@@ -181,6 +181,14 @@ class UserDatabase:
             "metadata": {"created_at": time.time()}
         }
         
+        # Local developer with admin permissions
+        self.users["developer"] = {
+            "password_hash": self._hash_password("dev123"),
+            "role": UserRole.ADMIN,
+            "permissions": set(Permission),
+            "metadata": {"created_at": time.time()}
+        }
+        
         # Regular admin
         self.users["moderator"] = {
             "password_hash": self._hash_password("mod123"),
