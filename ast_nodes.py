@@ -54,11 +54,27 @@ class BinaryOp(Expr):
     op: str                                         # "+", "-", "*", "/", "%", "==", "!=", "<", "<=", ">", ">=", "~", "and", "or"
     right: Expr
 
+    @property
+    def operator(self) -> str:
+        return self.op
+
+    @operator.setter
+    def operator(self, value: str):
+        self.op = value
+
 
 @dataclass
 class UnaryOp(Expr):
     op: str                                         # "-", "not"
     operand: Expr
+
+    @property
+    def operator(self) -> str:
+        return self.op
+
+    @operator.setter
+    def operator(self, value: str):
+        self.op = value
 
 
 @dataclass
