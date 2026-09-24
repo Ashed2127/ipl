@@ -487,7 +487,7 @@ class LocalInferenceRuntime:
                 
                 if ai_response.success and ai_response.confidence >= self.ai_first_config.ai_confidence_threshold:
                     # AI succeeded with sufficient confidence
-                    ast_node = self._convert_ai_response_to_ast(ai_response.content, target_type)
+                    ast_node = self._convert_ai_response_to_ast(ai_response.content, target_type, intent_prompt=intent_prompt)
                     
                     # Track successful AI decision
                     self.decision_tracker.record_ai_decision(
