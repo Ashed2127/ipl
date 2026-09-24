@@ -455,10 +455,15 @@ class ContextAwareSecurityAnalyzer:
             ],
             "malicious_patterns": [
                 "delete.*system.*files",
-                "rm.*-rf.*/",
+                "rm.*-rf",
                 "drop.*database",
                 "format.*disk",
-                "override.*security"
+                "format.*c:",
+                "override.*security",
+                "select.*from.*where.*'1'='1'",
+                "'.*or.*'1'='1",
+                "union.*select",
+                "where.*'1'='1"
             ],
             "context_indicators": {
                 "admin_panel": ["admin", "dashboard", "management"],
