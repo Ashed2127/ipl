@@ -208,6 +208,17 @@ async def execute_endpoint(request) -> JSONResponse:
             "execution_time_ms": round(elapsed_ms, 2)
         }, status_code=422)
 
+    except PermissionError as pe:
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+        output_text = capture_console.export_text()
+        return JSONResponse({
+            "status": "blocked",
+            "error_type": "PermissionError",
+            "error": str(pe),
+            "output": output_text,
+            "execution_time_ms": round(elapsed_ms, 2)
+        }, status_code=403)
+
     except Exception as e:
         elapsed_ms = (time.perf_counter() - start_time) * 1000.0
         output_text = capture_console.export_text()
