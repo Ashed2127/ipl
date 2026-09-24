@@ -47,6 +47,14 @@ class Literal(Expr):
 class Identifier(Expr):
     name: str
 
+    @property
+    def value(self) -> str:
+        return self.name
+
+    @value.setter
+    def value(self, val: str):
+        self.name = val
+
 
 @dataclass
 class BinaryOp(Expr):
