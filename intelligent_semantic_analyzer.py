@@ -679,7 +679,8 @@ class IntelligentSemanticAnalyzer:
             suggestions.append("Consider lazy evaluation for data processing pipelines")
         
         # Check for loop optimizations
-        if "iteration" in deep_meaning.get("semantic_role", ""):
+        semantic_role = deep_meaning.get("semantic_role") or ""
+        if "iteration" in semantic_role:
             suggestions.append("Consider loop unrolling or vectorization for performance")
         
         # Check for data flow optimizations
