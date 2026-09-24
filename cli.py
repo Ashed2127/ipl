@@ -521,15 +521,29 @@ def main():
             tier3_model = args[model_idx + 1]
             del args[model_idx:model_idx + 2]
 
+    username = None
+    role_name = None
+    if "--user" in args:
+        u_idx = args.index("--user")
+        if u_idx + 1 < len(args):
+            username = args[u_idx + 1]
+            del args[u_idx:u_idx + 2]
+
+    if "--role" in args:
+        r_idx = args.index("--role")
+        if r_idx + 1 < len(args):
+            role_name = args[r_idx + 1]
+            del args[r_idx:r_idx + 2]
+
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
         list_models()
     elif cmd in ("users", "user-management", "manage-users"):
         manage_users()
     elif cmd in ("run", "exec") and len(args) >= 2:
-        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
+        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, username=username, role_name=role_name)
     elif cmd in ("audit", "trace") and len(args) >= 2:
-        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
+        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, username=username, role_name=role_name)
     elif cmd in ("verify", "check") and len(args) >= 2:
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
