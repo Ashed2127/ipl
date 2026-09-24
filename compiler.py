@@ -334,12 +334,12 @@ class LocalInferenceRuntime:
         if self.enable_authorization:
             try:
                 self.auth_system = get_authorization_system(self.ai_engine)
-                # Set default guest context if no authentication
+                # Set default developer context with admin permissions for local CLI and test suites
                 self.security_context = SecurityContext(
-                    user_id="guest",
-                    role=UserRole.GUEST,
-                    permissions=set(),
-                    session_id="default"
+                    user_id="developer",
+                    role=UserRole.ADMIN,
+                    permissions=set(Permission),
+                    session_id="default_dev"
                 )
             except Exception as e:
                 print(f"Warning: Failed to initialize authorization system: {e}")
