@@ -740,8 +740,9 @@ class Tier3ReasoningModel(BaseModelInterface):
                 "prompt": f"{system_prompt}\n\n{user_prompt}",
                 "stream": False,
                 "options": {
-                    "temperature": 0.7,
-                    "num_predict": 500
+                    "temperature": 0.3,
+                    "num_predict": 200,
+                    "top_p": 0.9
                 }
             }
             
@@ -751,7 +752,7 @@ class Tier3ReasoningModel(BaseModelInterface):
                 headers={"Content-Type": "application/json"}
             )
             
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=5) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
                 
                 if "response" in result:
