@@ -545,29 +545,32 @@ class CompilerFirstParser:
     This represents the intelligent parser level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_neural_parsing": True,
+        "enable_semantic_validation": True,
+        "enable_syntax_correction": True,
+        "confidence_threshold": 0.7
+    }
+    
     def __init__(self, source_code: str, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_neural_parsing": True,
-            "enable_semantic_validation": True,
-            "enable_syntax_correction": True,
-            "confidence_threshold": 0.7
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         # First tokenize using intelligent lexer
         from intelligent_lexer import CompilerFirstLexer
-        lexer = CompilerFirstLexer(source_code, self.config.get("lexer", self.config))
+        lexer_config = self.config.get("lexer") if isinstance(self.config.get("lexer"), dict) else None
+        lexer = CompilerFirstLexer(source_code, lexer_config)
         lexer_analysis = lexer.analyze_source()
         
         if "error" in lexer_analysis:
             raise Exception(f"Lexical analysis failed: {lexer_analysis['error']}")
         
         # Extract traditional tokens from intelligent tokens
-        traditional_tokens = [it.token for it in lexer_analysis["tokens"]]
+        traditional_tokens = [it.token for it in lexer_analysis.get("tokens", [])]
         
         # Initialize intelligent parser
         self.intelligent_parser = IntelligentParser(
             traditional_tokens,
-            enable_neural_parsing=self.config["enable_neural_parsing"]
+            enable_neural_parsing=self.config.get("enable_neural_parsing", True)
         )
         
     def parse_source(self) -> Dict[str, Any]:
@@ -588,7 +591,7 @@ class CompilerFirstParser:
                 "syntax_corrections": parse_result.syntax_corrections,
                 "semantic_hints": parse_result.semantic_hints,
                 "diagnostics": self.intelligent_parser.get_parse_diagnostics(),
-                "neural_parsing_enabled": self.config["enable_neural_parsing"],
+                "neural_parsing_enabled": self.config.get("enable_neural_parsing", True),
                 "analysis_timestamp": self._get_timestamp()
             }
             
@@ -619,9 +622,9 @@ class CompilerFirstParser:
         summary = f"""
 Intelligent Parsing Analysis Summary
 ====================================
-Parse Confidence: {analysis['parse_confidence']:.2%}
-Parsing Strategy: {analysis['parsing_strategy']}
-Neural Parsing: {'Enabled' if analysis['neural_parsing_enabled'] else 'Disabled'}
+Parse Confidence: {analysis.get('parse_confidence', 0.0):.2%}
+Parsing Strategy: {analysis.get('parsing_strategy', 'default')}
+Neural Parsing: {'Enabled' if analysis.get('neural_parsing_enabled', True) else 'Disabled'}
 
 AI Suggestions:
 {self._format_suggestions(analysis['ai_suggestions'])}

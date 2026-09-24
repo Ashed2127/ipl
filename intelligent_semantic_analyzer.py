@@ -39,6 +39,7 @@ class SemanticAnalysisResult:
     ai_insights: List[str]
     security_implications: List[str]
     optimization_suggestions: List[str]
+    semantic_role: str = "unknown"
     
     def __post_init__(self):
         if self.context_understanding is None:
@@ -533,7 +534,8 @@ class IntelligentSemanticAnalyzer:
                 patterns=self._detect_semantic_patterns(ast, deep_meaning),
                 ai_insights=self._generate_ai_insights(deep_meaning),
                 security_implications=self._analyze_security_implications(ast, deep_meaning),
-                optimization_suggestions=self._suggest_optimizations(ast, deep_meaning)
+                optimization_suggestions=self._suggest_optimizations(ast, deep_meaning),
+                semantic_role=deep_meaning.get("semantic_role", "unknown")
             )
         else:
             # Fallback to basic semantic analysis
@@ -734,7 +736,8 @@ class IntelligentSemanticAnalyzer:
     
     def _learn_from_analysis(self, result: SemanticAnalysisResult):
         """Learn from semantic analysis for future improvements"""
-        pattern_key = f"{result.semantic_type}_{result.semantic_role}"
+        role = getattr(result, 'semantic_role', 'unknown')
+        pattern_key = f"{result.semantic_type}_{role}"
         self.semantic_patterns[pattern_key] += 1
     
     def get_analysis_statistics(self) -> Dict[str, Any]:
@@ -753,16 +756,18 @@ class CompilerFirstSemanticAnalyzer:
     This represents the intelligent semantic analyzer level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_deep_analysis": True,
+        "enable_security_analysis": True,
+        "enable_optimization_suggestions": True,
+        "confidence_threshold": 0.7
+    }
+    
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_deep_analysis": True,
-            "enable_security_analysis": True,
-            "enable_optimization_suggestions": True,
-            "confidence_threshold": 0.7
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_analyzer = IntelligentSemanticAnalyzer(
-            enable_deep_analysis=self.config["enable_deep_analysis"]
+            enable_deep_analysis=self.config.get("enable_deep_analysis", True)
         )
         
     def analyze_program(self, ast: Program) -> Dict[str, Any]:
@@ -780,7 +785,7 @@ class CompilerFirstSemanticAnalyzer:
         }
         
         # Analyze each statement
-        for stmt in ast.statements:
+        for stmt in getattr(ast, 'statements', []):
             stmt_analysis = self.intelligent_analyzer.analyze_ast(stmt)
             program_analysis["statements_analysis"].append(stmt_analysis)
             
@@ -788,11 +793,11 @@ class CompilerFirstSemanticAnalyzer:
             program_analysis["global_patterns"].extend(stmt_analysis.patterns)
             
             # Collect security implications
-            if self.config["enable_security_analysis"]:
+            if self.config.get("enable_security_analysis", True):
                 program_analysis["security_summary"][type(stmt).__name__] = stmt_analysis.security_implications
             
             # Collect optimization suggestions
-            if self.config["enable_optimization_suggestions"]:
+            if self.config.get("enable_optimization_suggestions", True):
                 program_analysis["optimization_opportunities"].extend(stmt_analysis.optimization_suggestions)
         
         # Remove duplicates from patterns
@@ -815,9 +820,9 @@ class CompilerFirstSemanticAnalyzer:
         summary = f"""
 Intelligent Semantic Analysis Summary
 ====================================
-Overall Semantic Type: {analysis['overall_semantic_type']}
-Total Statements Analyzed: {len(analysis['statements_analysis'])}
-Deep Analysis: {'Enabled' if self.config['enable_deep_analysis'] else 'Disabled'}
+Overall Semantic Type: {analysis.get('overall_semantic_type', 'unknown')}
+Total Statements Analyzed: {len(analysis.get('statements_analysis', []))}
+Deep Analysis: {'Enabled' if self.config.get('enable_deep_analysis', True) else 'Disabled'}
 
 Global Semantic Patterns:
 {self._format_patterns(analysis['global_patterns'])}

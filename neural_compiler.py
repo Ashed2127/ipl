@@ -78,8 +78,18 @@ class NeuralCompiler:
     intelligence is integrated at every level of the compilation process.
     """
     
+    @staticmethod
+    def _deep_merge_config(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+        result = dict(base)
+        for k, v in (override or {}).items():
+            if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+                result[k] = NeuralCompiler._deep_merge_config(result[k], v)
+            else:
+                result[k] = v
+        return result
+
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or self._default_config()
+        self.config = self._deep_merge_config(self._default_config(), config or {})
         self.console = Console()
         
         # Initialize all intelligent components
@@ -276,13 +286,13 @@ class NeuralCompiler:
     def _perform_lexical_analysis(self, source_code: str) -> Dict[str, Any]:
         """Perform intelligent lexical analysis"""
         # Reinitialize lexer with actual source code
-        self.intelligent_lexer = CompilerFirstLexer(source_code, self.config["lexer"])
+        self.intelligent_lexer = CompilerFirstLexer(source_code, self.config.get("lexer", {}))
         return self.intelligent_lexer.analyze_source()
     
     def _perform_parsing_analysis(self, source_code: str) -> Dict[str, Any]:
         """Perform intelligent parsing analysis"""
         # Reinitialize parser with actual source code
-        self.intelligent_parser = CompilerFirstParser(source_code, self.config["parser"])
+        self.intelligent_parser = CompilerFirstParser(source_code, self.config.get("parser", {}))
         return self.intelligent_parser.parse_source()
     
     def _perform_semantic_analysis(self, ast: Program) -> Dict[str, Any]:
@@ -366,7 +376,7 @@ class NeuralCompiler:
     def _create_error_result(self, source_code: str, error_analysis: Dict[str, Any], 
                            start_time: float) -> NeuralCompilationResult:
         """Create error result"""
-        return NeuralCompilationResult(
+        result = NeuralCompilationResult(
             success=False,
             source_code=source_code,
             ast=None,
@@ -384,12 +394,17 @@ class NeuralCompiler:
             warnings=[],
             errors=[error_analysis.get("error", "Unknown error")]
         )
+        self.compilation_history.append(result)
+        return result
     
     def _create_security_blocked_result(self, source_code: str, ast: Program, 
                                        security_analysis: Dict[str, Any], 
                                        start_time: float) -> NeuralCompilationResult:
         """Create security blocked result"""
-        return NeuralCompilationResult(
+        overall_sec = security_analysis.get("overall_security")
+        insights = overall_sec.ai_insights if overall_sec and hasattr(overall_sec, "ai_insights") else []
+        threat_level = overall_sec.threat_level if overall_sec and hasattr(overall_sec, "threat_level") else "high"
+        result = NeuralCompilationResult(
             success=False,
             source_code=source_code,
             ast=ast,
@@ -403,10 +418,12 @@ class NeuralCompiler:
             generated_code=None,
             compilation_time=time.time() - start_time,
             overall_confidence=0.0,
-            intelligent_insights=security_analysis["overall_security"].ai_insights,
+            intelligent_insights=insights,
             warnings=[],
-            errors=[f"Security blocked: {security_analysis['overall_security'].threat_level} threat level detected"]
+            errors=[f"Security blocked: {threat_level} threat level detected"]
         )
+        self.compilation_history.append(result)
+        return result
     
     def _update_performance_metrics(self, result: NeuralCompilationResult):
         """Update performance metrics"""

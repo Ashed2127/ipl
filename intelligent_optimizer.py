@@ -702,16 +702,18 @@ class CompilerFirstOptimizer:
     This represents the intelligent optimizer level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_learning": True,
+        "optimization_level": "balanced",
+        "max_passes": 3,
+        "improvement_threshold": 0.05
+    }
+    
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_learning": True,
-            "optimization_level": "balanced",
-            "max_passes": 3,
-            "improvement_threshold": 0.05
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_optimizer = IntelligentOptimizer(
-            enable_learning=self.config["enable_learning"]
+            enable_learning=self.config.get("enable_learning", True)
         )
         
     def optimize_program(self, ast: Program) -> Dict[str, Any]:
@@ -724,7 +726,7 @@ class CompilerFirstOptimizer:
         
         # Optimize individual statements for detailed optimization
         statement_optimizations = []
-        for stmt in ast.statements:
+        for stmt in getattr(ast, 'statements', []):
             stmt_optimization = self.intelligent_optimizer.optimize_ast(stmt)
             statement_optimizations.append(stmt_optimization)
         

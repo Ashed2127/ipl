@@ -788,16 +788,18 @@ class CompilerFirstSecurityAnalyzer:
     This represents the intelligent security analyzer level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_neural_detection": True,
+        "enable_attack_vector_analysis": True,
+        "enable_prevention_recommendations": True,
+        "security_threshold": 0.7
+    }
+    
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_neural_detection": True,
-            "enable_attack_vector_analysis": True,
-            "enable_prevention_recommendations": True,
-            "security_threshold": 0.7
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_analyzer = IntelligentSecurityAnalyzer(
-            enable_neural_detection=self.config["enable_neural_detection"]
+            enable_neural_detection=self.config.get("enable_neural_detection", True)
         )
         
     def analyze_program_security(self, ast: Program) -> Dict[str, Any]:
@@ -810,7 +812,7 @@ class CompilerFirstSecurityAnalyzer:
         
         # Analyze individual statements for detailed security
         statement_security = []
-        for stmt in ast.statements:
+        for stmt in getattr(ast, 'statements', []):
             stmt_analysis = self.intelligent_analyzer.analyze_security(stmt)
             statement_security.append(stmt_analysis)
         
@@ -874,7 +876,7 @@ Intelligent Security Analysis Summary
 Overall Threat Level: {analysis['overall_security'].threat_level}
 Security Score: {analysis['overall_security'].security_score:.2%}
 Analysis Confidence: {analysis['overall_security'].confidence:.2%}
-Neural Detection: {'Enabled' if self.config['enable_neural_detection'] else 'Disabled'}
+Neural Detection: {'Enabled' if self.config.get('enable_neural_detection', True) else 'Disabled'}
 
 Security Summary:
 {self._format_security_summary(analysis['security_summary'])}

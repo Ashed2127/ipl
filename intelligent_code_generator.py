@@ -823,16 +823,18 @@ class CompilerFirstCodeGenerator:
     This represents the intelligent code generator level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_ai_optimization": True,
+        "target_language": "ipl",
+        "optimization_level": "balanced",
+        "quality_threshold": 0.7
+    }
+    
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_ai_optimization": True,
-            "target_language": "ipl",
-            "optimization_level": "balanced",
-            "quality_threshold": 0.7
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_generator = IntelligentCodeGenerator(
-            enable_ai_optimization=self.config["enable_ai_optimization"]
+            enable_ai_optimization=self.config.get("enable_ai_optimization", True)
         )
         
     def generate_program(self, ast: Program) -> Dict[str, Any]:
@@ -843,7 +845,7 @@ class CompilerFirstCodeGenerator:
         # Generate code with AI optimization
         generation_result = self.intelligent_generator.generate_code(
             ast, 
-            target_language=self.config["target_language"]
+            target_language=self.config.get("target_language", "ipl")
         )
         
         # Compile comprehensive analysis
@@ -876,7 +878,7 @@ Intelligent Code Generation Summary
 Optimization Level: {analysis['optimization_level']}
 Generation Strategy: {analysis['generation_strategy']}
 Generation Confidence: {analysis['generation_confidence']:.2%}
-AI Optimization: {'Enabled' if self.config['enable_ai_optimization'] else 'Disabled'}
+AI Optimization: {'Enabled' if self.config.get('enable_ai_optimization', True) else 'Disabled'}
 
 Generated Code:
 {analysis['generated_code']}

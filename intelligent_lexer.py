@@ -449,13 +449,15 @@ class CompilerFirstLexer:
     This represents the intelligent lexer level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_neural_analysis": True,
+        "enable_security_analysis": True,
+        "enable_learning": True,
+        "confidence_threshold": 0.7
+    }
+    
     def __init__(self, source: str, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_neural_analysis": True,
-            "enable_security_analysis": True,
-            "enable_learning": True,
-            "confidence_threshold": 0.7
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_lexer = IntelligentLexer(
             source, 
@@ -476,8 +478,8 @@ class CompilerFirstLexer:
                 "tokens": intelligent_tokens,
                 "token_count": len(intelligent_tokens),
                 "diagnostics": self.intelligent_lexer.get_intelligent_diagnostics(),
-                "security_summary": self.intelligent_lexer.get_security_summary() if self.config["enable_security_analysis"] else {},
-                "neural_analysis_enabled": self.config["enable_neural_analysis"],
+                "security_summary": self.intelligent_lexer.get_security_summary() if self.config.get("enable_security_analysis", True) else {},
+                "neural_analysis_enabled": self.config.get("enable_neural_analysis", True),
                 "analysis_timestamp": self._get_timestamp()
             }
             
@@ -507,9 +509,9 @@ class CompilerFirstLexer:
         summary = f"""
 Intelligent Lexical Analysis Summary
 ====================================
-Total Tokens: {analysis['token_count']}
-Neural Analysis: {'Enabled' if analysis['neural_analysis_enabled'] else 'Disabled'}
-Security Analysis: {analysis['security_summary'].get('security_analysis', 'N/A')}
+Total Tokens: {analysis.get('token_count', 0)}
+Neural Analysis: {'Enabled' if analysis.get('neural_analysis_enabled', True) else 'Disabled'}
+Security Analysis: {analysis.get('security_summary', {}).get('security_analysis', 'N/A')}
 
 Token Patterns Found:
 {self._format_patterns(analysis['diagnostics']['pattern_frequencies'])}

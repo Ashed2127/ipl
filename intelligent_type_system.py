@@ -805,16 +805,18 @@ class CompilerFirstTypeSystem:
     This represents the intelligent type system level in the compiler-first architecture
     """
     
+    DEFAULT_CONFIG = {
+        "enable_neural_inference": True,
+        "enable_semantic_types": True,
+        "enable_type_suggestions": True,
+        "consistency_threshold": 0.8
+    }
+    
     def __init__(self, config: Dict[str, Any] = None):
-        self.config = config or {
-            "enable_neural_inference": True,
-            "enable_semantic_types": True,
-            "enable_type_suggestions": True,
-            "consistency_threshold": 0.8
-        }
+        self.config = {**self.DEFAULT_CONFIG, **(config or {})}
         
         self.intelligent_type_system = IntelligentTypeSystem(
-            enable_neural_inference=self.config["enable_neural_inference"]
+            enable_neural_inference=self.config.get("enable_neural_inference", True)
         )
         
     def analyze_program_types(self, ast: Program) -> Dict[str, Any]:
@@ -827,7 +829,7 @@ class CompilerFirstTypeSystem:
         
         # Analyze individual statements for detailed type information
         statement_types = []
-        for stmt in ast.statements:
+        for stmt in getattr(ast, 'statements', []):
             stmt_analysis = self.intelligent_type_system.analyze_types(stmt)
             statement_types.append(stmt_analysis)
         
@@ -900,7 +902,7 @@ Intelligent Type System Analysis Summary
 ====================================
 Consistency Score: {analysis['overall_types'].consistency_score:.2%}
 Analysis Confidence: {analysis['overall_types'].confidence:.2%}
-Neural Inference: {'Enabled' if self.config['enable_neural_inference'] else 'Disabled'}
+Neural Inference: {'Enabled' if self.config.get('enable_neural_inference', True) else 'Disabled'}
 
 Type Summary:
 {self._format_type_summary(analysis['type_summary'])}

@@ -25,7 +25,22 @@ class Expr(ASTNode):
 @dataclass
 class Literal(Expr):
     value: Any
-    type_name: str                                  # "int", "float", "string", "bool", "null"
+    type_name: str = "any"                                  # "int", "float", "string", "bool", "null"
+
+    def __post_init__(self):
+        if self.type_name == "any" or not self.type_name:
+            if isinstance(self.value, bool):
+                self.type_name = "bool"
+            elif isinstance(self.value, int):
+                self.type_name = "int"
+            elif isinstance(self.value, float):
+                self.type_name = "float"
+            elif isinstance(self.value, str):
+                self.type_name = "string"
+            elif self.value is None:
+                self.type_name = "null"
+            else:
+                self.type_name = "any"
 
 
 @dataclass
