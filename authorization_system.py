@@ -553,7 +553,7 @@ class ContextAwareSecurityAnalyzer:
             )
         elif context.role == UserRole.USER:
             # Users can do basic operations and semantic extractions
-            safe_user_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "analyze", "query", "user"]
+            safe_user_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "analyze", "query"]
             if any(word in intent_lower for word in safe_user_words):
                 return AuthorizationDecision(
                     allowed=True,
@@ -569,7 +569,7 @@ class ContextAwareSecurityAnalyzer:
             )
         else:  # Guest
             # Guests can perform read-only and safe semantic extractions
-            safe_guest_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "query", "user"]
+            safe_guest_words = ["read", "view", "get", "show", "extract", "fetch", "convert", "calculate", "find", "parse", "sentiment", "summarize", "query"]
             privileged_words = ["delete", "drop", "admin", "system", "format", "override", "modify", "update", "exec", "write", "kill"]
             if any(p in intent_lower for p in privileged_words):
                 return AuthorizationDecision(
