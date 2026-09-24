@@ -30,7 +30,7 @@ try:
     )
     from .semantic_engine import SemanticEngine
     from .hierarchical_ai_engine import get_ai_engine, TaskComplexity
-    from .authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole
+    from .authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole, Permission
     from .ai_first_config import get_ai_first_config, get_ai_decision_tracker, AIFirstConfig
     from .expert_system import ExpertCollaborationSystem, ThreatLevel
     from .expert_reasoning_engine import ExpertReasoningEngine, ProactiveThreatPredictor
@@ -44,7 +44,7 @@ except (ImportError, ValueError):
     )
     from semantic_engine import SemanticEngine
     from hierarchical_ai_engine import get_ai_engine, TaskComplexity
-    from authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole
+    from authorization_system import get_authorization_system, SecurityContext, AuthorizationDecision, UserRole, Permission
     from ai_first_config import get_ai_first_config, get_ai_decision_tracker, AIFirstConfig
     from expert_system import ExpertCollaborationSystem, ThreatLevel
     from expert_reasoning_engine import ExpertReasoningEngine, ProactiveThreatPredictor
