@@ -161,13 +161,20 @@ class ReturnStatement(ASTNode):
 
 @dataclass
 class LetStatement(ASTNode):
-    name: str
-    type_annotation: Optional[TypeAnnotation]
-    refinement_expr: Optional[Expr]                 # Invariant condition where 'v' represents value
-    value_expr: Expr
+    name: Any
+    type_annotation: Optional[TypeAnnotation] = None
+    refinement_expr: Optional[Expr] = None                 # Invariant condition where 'v' represents value
+    value_expr: Optional[Expr] = None
     is_mutable: bool = False                        # True if declared with 'var', False if 'let'
     is_trusted: bool = False                        # True if declared with 'trusted'
     line: int = 1
+    target_type: Optional[Any] = None
+
+    def __post_init__(self):
+        if self.target_type is not None and self.type_annotation is None:
+            self.type_annotation = self.target_type
+        if isinstance(self.name, Identifier):
+            self.name = self.name.name
 
 
 @dataclass
