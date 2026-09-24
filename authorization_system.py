@@ -313,6 +313,16 @@ class PolicyEngine:
             required_permissions={Permission.NETWORK},
             priority=150
         ))
+        
+        # General read and query operations for all roles with READ permission
+        self.policies.append(SecurityPolicy(
+            policy_id="read_and_query",
+            name="Read and Query Operations",
+            description="Allow read and query operations for all users",
+            allowed_roles={UserRole.GUEST, UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN},
+            required_permissions={Permission.READ},
+            priority=50
+        ))
     
     def evaluate_authorization(
         self,
