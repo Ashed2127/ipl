@@ -18,7 +18,7 @@ class UnifiedNeuralCompiler:
         self.parser = RealNeuralParserTrulyNeural()
         self.semantic_analyzer = RealNeuralSemanticAnalyzer()
         self.type_system = RealNeuralTypeSystem()
-        self.security_analyzer = RealNeuralSecurityAnalyzer()
+        self.security_analyzer = EnhancedNeuralSecurityAnalyzer()
         self.optimizer = RealNeuralOptimizer()
         self.code_generator = RealNeuralCodeGenerator()
         print("✅ Unified Neural Compiler ready")
