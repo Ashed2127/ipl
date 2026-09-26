@@ -2,7 +2,7 @@
 
 cd /home/ashed/Downloads/ipl_lang
 
-echo "Starting auto-commit and push script (every 6 seconds)..."
+echo "Starting auto-commit and push script (every 7 seconds)..."
 echo "Press Ctrl+C to stop"
 
 while true; do
@@ -101,5 +101,5 @@ while true; do
         echo "[$(date)] Committed and pushed successfully: $COMMIT_MSG"
     fi
     
-    sleep 6
+    sleep 7
 done

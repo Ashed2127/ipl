@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Run auto-commit script on a loop
-# WARNING: Running every 6 seconds is very aggressive and not recommended
+# WARNING: Running every 7 seconds is very aggressive and not recommended
 
-INTERVAL=${1:-6}  # Default 6 seconds, or pass as argument
+INTERVAL=${1:-7}  # Default 7 seconds, or pass as argument
 
 echo "Starting auto-commit every $INTERVAL seconds..."
 echo "Press Ctrl+C to stop"
