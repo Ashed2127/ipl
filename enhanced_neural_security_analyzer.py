@@ -53,8 +53,8 @@ class EnhancedNeuralSecurityAnalyzer:
                 r'(?i)(\/etc\/passwd|\/etc\/shadow|\/proc\/self|c:\\\\windows\\\\system32)'
             ],
             'sensitive_data': [
-                r'(?i)(password\s*=\s*[\'"][\w]+[\'"]|api_key\s*=\s*[\'"][\w\-]+[\'"]|secret\s*=\s*[\'"][\w]+[\'"])',
-                r'(?i)(token\s*=\s*[\'"][\w\.\-]+[\'"]|private_key|access_token|auth_token)'
+                r'(?i)(password\s*=\s*[\'"][\w]+[\'"]|api_key\s*=\s*[\'"][\w]+[\'"]|secret\s*=\s*[\'"][\w]+[\'"])',
+                r'(?i)(token\s*=\s*[\'"][\w]+[\'"]|private_key|access_token|auth_token)'
             ]
         }
     
