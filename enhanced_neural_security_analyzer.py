@@ -68,8 +68,10 @@ class EnhancedNeuralSecurityAnalyzer:
             self.models[model_key] = model
             self.tokenizers[model_key] = tokenizer
             print(f"   ✅ {display_name} loaded successfully")
+            return True
         except Exception as e:
-            print(f"   ⚠️ {display_name} failed to load: {e}")
+            print(f"   ⚠️ {display_name} failed to load: {str(e)[:100]}")
+            return False
     
     def get_security_embedding(self, code: str, model_key: str = None) -> torch.Tensor:
         """Get security embedding using available models"""
