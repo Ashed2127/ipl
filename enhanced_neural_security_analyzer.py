@@ -18,14 +18,15 @@ class EnhancedNeuralSecurityAnalyzer:
         self.tokenizers = {}
         
         # Try to load security models in order of preference
-        self._load_model('secbert', 'jackfruc/SecBERT', 'SecBERT')
-        self._load_model('securitybert', 'bert-base-uncased', 'SecurityBERT')  # Fallback
-        self._load_model('graphcodebert', 'microsoft/graphcodebert-base', 'GraphCodeBERT')
+        models_to_try = [
+            ('secbert', 'jackfruc/SecBERT', 'SecBERT'),
+            ('graphcodebert', 'microsoft/graphcodebert-base', 'GraphCodeBERT'),
+            ('securitybert', 'bert-base-uncased', 'SecurityBERT (BERT base)'),
+            ('codebert', 'microsoft/codebert-base', 'CodeBERT (fallback)')
+        ]
         
-        # Fallback to CodeBERT if security models fail
-        if not self.models:
-            print("   ⚠️ Security models not available, using CodeBERT")
-            self._load_model('codebert', 'microsoft/codebert-base', 'CodeBERT')
+        for model_key, model_name, display_name in models_to_try:
+            self._load_model(model_key, model_name, display_name)
         
         if self.models:
             print(f"✅ Enhanced neural security analyzer loaded with {len(self.models)} security models")
