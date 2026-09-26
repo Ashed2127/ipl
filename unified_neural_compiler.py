@@ -3,7 +3,7 @@ Unified Neural Compiler Foundation
 Combines Real Neural Lexer + Real Neural Parser + Real Neural Semantic Analyzer + Real Neural Type System + Real Neural Security Analyzer + Real Neural Optimizer + Real Neural Code Generator
 """
 from real_neural_lexer_v2 import RealNeuralLexerV2
-from real_neural_parser_fast import RealNeuralParserFast
+from real_neural_parser_truly_neural import RealNeuralParserTrulyNeural
 from real_neural_semantic_analyzer import RealNeuralSemanticAnalyzer
 from real_neural_type_system import RealNeuralTypeSystem
 from real_neural_security_analyzer import RealNeuralSecurityAnalyzer
@@ -15,7 +15,7 @@ class UnifiedNeuralCompiler:
     def __init__(self):
         print("🚀 Initializing Unified Neural Compiler...")
         self.lexer = RealNeuralLexerV2()
-        self.parser = RealNeuralParserFast()
+        self.parser = RealNeuralParserTrulyNeural()
         self.semantic_analyzer = RealNeuralSemanticAnalyzer()
         self.type_system = RealNeuralTypeSystem()
         self.security_analyzer = RealNeuralSecurityAnalyzer()
