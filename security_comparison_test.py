@@ -3,6 +3,7 @@ Security Model Comparison Test
 Compares Enhanced Security Analyzer (GraphCodeBERT + BERT + CodeBERT) vs Previous DistilBERT
 """
 import time
+from typing import List, Dict, Any
 from enhanced_neural_security_analyzer import EnhancedNeuralSecurityAnalyzer
 from real_neural_security_analyzer import RealNeuralSecurityAnalyzer
 from real_neural_parser_truly_neural import RealNeuralParserTrulyNeural
