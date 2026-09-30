@@ -52,6 +52,12 @@ class StaticTaintAnalysis:
             "sanitize_for_file": SinkKind.FILE,
             "sanitize_string": SinkKind.GENERAL,
         }
+        
+        # Known source functions that return UNTRUSTED data
+        self.source_functions: Set[str] = {
+            "set_untrusted",
+            "user_input",
+        }
     
     def analyze(self, program: Program) -> Dict[str, Any]:
         """
