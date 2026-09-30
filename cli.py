@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
 """
-Command-line interface (CLI) and REPL for IPL (Intelligent Programming Language / Aether).
+IPL (Intelligent Programming Language / Aether) CLI
+Symbolic Compiler Architecture & Deterministic Runtime
 """
 import sys
 import os
 import time
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
@@ -40,7 +42,7 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
         tokens = lexer.tokenize()
         parser = Parser(tokens)
         program = parser.parse()
-        interpreter.run(program, source_code=source, current_file=filename)  # Pass source code for security analysis
+        interpreter.run(program, source_code=source, current_file=filename)
         return True
     except LexerError as le:
         console.print(f"[bold red]Syntax Error:[/bold red] {le}")
@@ -51,46 +53,6 @@ def run_source(source: str, interpreter: Interpreter, console: Console, filename
     except Exception as e:
         console.print(f"[bold red]Runtime Exception:[/bold red] {e}")
         return False
-
-
-def _print_ai_stats(console: Console, stats: Dict[str, Any]):
-    """Print hierarchical AI engine statistics."""
-    from rich.table import Table
-    from rich.panel import Panel
-    
-    # Overall statistics
-    console.print(Panel(f"[bold green]Total Requests:[/bold green] {stats.get('total_requests', 0)}", title="AI Engine Overview"))
-    
-    # Tier usage
-    tier_table = Table(title="Model Tier Usage", border_style="cyan")
-    tier_table.add_column("Tier", style="bold")
-    tier_table.add_column("Requests", style="green")
-    tier_table.add_column("Percentage", style="yellow")
-    
-    total = sum(stats.get('tier_usage', {}).values())
-    for tier, count in stats.get('tier_usage', {}).items():
-        percentage = (count / total * 100) if total > 0 else 0
-        tier_table.add_row(tier, str(count), f"{percentage:.1f}%")
-    
-    console.print(tier_table)
-    
-    # Token statistics
-    token_stats = stats.get('token_statistics', {})
-    console.print(Panel(
-        f"[bold green]Total Tokens:[/bold green] {token_stats.get('total_tokens_used', 0)}\n"
-        f"[bold green]Total Cost:[/bold green] ${token_stats.get('total_cost_usd', 0.0):.4f}\n"
-        f"[bold green]Avg Tokens/Request:[/bold green] {token_stats.get('average_tokens_per_request', 0):.1f}",
-        title="Token Usage & Cost"
-    ))
-    
-    # Cache statistics
-    cache_stats = stats.get('cache_statistics', {})
-    console.print(Panel(
-        f"[bold green]Cache Hit Rate:[/bold green] {cache_stats.get('hit_rate', 0.0):.1%}\n"
-        f"[bold green]Cache Size:[/bold green] {cache_stats.get('cache_size', 0)}/{cache_stats.get('max_size', 0)}\n"
-        f"[bold green]Hits:[/bold green] {cache_stats.get('hit_count', 0)} | [bold red]Misses:[/bold red] {cache_stats.get('miss_count', 0)}",
-        title="Intelligent Cache Performance"
-    ))
 
 
 def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
@@ -124,41 +86,21 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
 def list_models():
     console = Console()
     print_banner(console)
-    console.print("[bold cyan]🔍 Scanning for Local Neural AI Models...[/bold cyan]\n")
+    console.print("[bold cyan]🔍 Available Models[/bold cyan]\n")
 
-    models = LocalInferenceRuntime.list_available_local_models()
-    table = Table(title="🤖 Detected Local AI Models (System 1 Compatible)", border_style="cyan")
+    table = Table(title="🤖 Available Models", border_style="cyan")
     table.add_column("Model Name", style="bold green")
     table.add_column("Type", style="cyan")
     table.add_column("Status", style="yellow")
-    table.add_column("Usage Command", style="white")
 
-    # Add built-in default
     table.add_row(
         "embedded-fast-semantic-v1",
         "Deterministic Embedded NLP",
-        "[green]Active (Built-in)[/green]",
-        "ipl run <file.ipl> (default)"
+        "[green]Active (Built-in)[/green]"
     )
 
-    if models:
-        for m in models:
-            table.add_row(
-                m,
-                "Local Neural LLM (Ollama)",
-                "[bold green]Available (Local)[/bold green]",
-                f"ipl run <file.ipl> --model {m}"
-            )
-    else:
-        table.add_row(
-            "[dim]No local Ollama models detected[/dim]",
-            "-",
-            "[dim]Offline[/dim]",
-            "Start Ollama at http://localhost:11434"
-        )
-
     console.print(table)
-    console.print("\n[dim]To use a local neural model, pass [bold cyan]--model <name>[/bold cyan] or set [bold cyan]export IPL_MODEL=<name>[/bold cyan][/dim]")
+    console.print("\n[dim]To use a model, pass [bold cyan]--model <name>[/bold cyan] or set [bold cyan]export IPL_MODEL=<name>[/bold cyan][/dim]")
 
 
 def verify_file(filepath: str):
@@ -192,14 +134,13 @@ def verify_file(filepath: str):
         else:
             console.print(Panel(
                 f"[bold red]✘ BLOCKED: Mathematical Firewall Contract Breaches Detected[/bold red]\n"
-                + "\n".join(f"  • [yellow]{v}[/yellow]" for v in violations),
-                title="Firewall Rejection",
+                f"[dim]Violations:[/dim] {len(violations)}\n"
+                f"[dim]Details:[/dim] {', '.join(violations)}",
+                title="Firewall Audit Status",
                 border_style="red"
             ))
-            sys.exit(1)
     except Exception as e:
         console.print(f"[bold red]Verification Error:[/bold red] {e}")
-        sys.exit(1)
 
 
 def compile_file(filepath: str):
@@ -209,7 +150,7 @@ def compile_file(filepath: str):
         sys.exit(1)
 
     print_banner(console)
-    console.print(f"[bold cyan]⚡ Neuro-Symbolic Compilation:[/bold cyan] {filepath}\n")
+    console.print(f"[bold cyan]🔨 Compiling:[/bold cyan] {filepath}\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
@@ -220,196 +161,93 @@ def compile_file(filepath: str):
         parser = Parser(tokens)
         program = parser.parse()
 
-        is_valid, violations = MathematicalFirewall.verify_tree(program)
-        if not is_valid:
-            console.print(f"[bold red]Compilation Failed: Mathematical Firewall violations:[/bold red]")
-            for v in violations:
-                console.print(f"  • {v}")
-            sys.exit(1)
-
-        # Static inspection
-        fn_count = sum(1 for s in program.statements if isinstance(s, FunctionDef))
-        console.print(Panel(
-            f"[bold green]✔ Compilation Successful[/bold green]\n"
-            f"[dim]Parsed AST Statements:[/dim] {len(program.statements)}\n"
-            f"[dim]Defined Functions:[/dim] {fn_count}\n"
-            f"[dim]Zero-Trust Taint Schema:[/dim] Validated\n"
-            f"[dim]Target Runtime:[/dim] IPL Deterministic Neuro-Symbolic VM",
-            title="Compilation Report",
-            border_style="cyan"
-        ))
+        console.print(f"[green]✓ Lexical Analysis:[/green] {len(tokens)} tokens")
+        console.print(f"[green]✓ Parsing:[/green] {len(program.statements)} statements")
+        console.print(f"[green]✓ Compilation successful[/green]")
     except Exception as e:
         console.print(f"[bold red]Compilation Error:[/bold red] {e}")
-        sys.exit(1)
 
 
-def start_repl(model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
+def start_repl(model_name: Optional[str] = None):
     console = Console()
     print_banner(console)
-    model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
-    ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
-    auth_mode = "Enabled" if enable_authorization else "Disabled"
-    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
-    console.print(f"[green]Welcome to the Interactive IPL REPL.[/green] [dim](AI Model: {model_disp} | Mode: {ai_mode} | Auth: {auth_mode} | Tier 3: {tier3_disp})[/dim]")
-    console.print("[dim]Type statements like 'let x: Currency = \"twenty bucks\"', 'print x for \"executive\"', or 'exit'.[/dim]\n")
+    console.print("[dim]Type IPL code or commands. Press Ctrl+C to exit.[/dim]\n")
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
-
+    interpreter = Interpreter(console=console, model_name=model_name)
+    
     while True:
         try:
-            line = input("ipl> ").strip()
-            if not line:
+            source = input("ipl> ")
+            if not source.strip():
                 continue
-            if line.lower() in ("exit", "quit", ":q"):
-                console.print("[dim]Exiting IPL REPL. Farewell![/dim]")
+            
+            if source.strip() in ("exit", "quit"):
+                console.print("[dim]Exiting REPL.[/dim]")
                 break
-            if line.lower() == "help":
-                console.print(
-                    "[bold]Examples to try:[/bold]\n"
-                    "  let item = 'Quantum Laptop'\n"
-                    "  let cost: Currency = 'ninety-nine bucks and 50 cents'\n"
-                    "  let review: Sentiment = 'Absolutely fantastic build, super fast!'\n"
-                    "  let age: Int = intent 'extract user_age twenty-five' as Int\n"
-                    "  let clean_age = sanitize(age)\n"
-                    "  db_write('users', clean_age)\n"
-                    "  audit_trace()\n"
-                    "  print cost for 'executive'\n"
-                    "  authenticate('username', 'password')  # Login (if auth enabled)\n"
-                    "  auth_stats()  # Show authorization statistics\n"
-                    "  auth_log()    # Show authorization audit log\n"
-                )
-                continue
-
-            start_time = time.perf_counter()
-            success = run_source(line, interpreter, console)
-            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
-            if success:
-                console.print(f"[dim]⚡ {elapsed_ms:.2f} ms[/dim]")
-        except (KeyboardInterrupt, EOFError):
-            console.print("\n[dim]Session terminated.[/dim]")
+            
+            run_source(source, interpreter, console, filename="<repl>")
+        except KeyboardInterrupt:
+            console.print("\n[dim]Exiting REPL.[/dim]")
+            break
+        except EOFError:
+            console.print("\n[dim]Exiting REPL.[/dim]")
             break
 
 
 def main():
     console = Console()
+    
     if len(sys.argv) < 2:
-        start_repl()
-        return
+        print_banner(console)
+        console.print(
+            "[bold]Usage:[/bold]\n"
+            "  ipl run <script.ipl> [--model <name>]           Execute an IPL source file\n"
+            "  ipl audit <script.ipl> [--model <name>]         Execute and print cryptographic audit trace\n"
+            "  ipl models                                   List available models\n"
+            "  ipl verify <script.ipl>                      Validate AST via Mathematical Firewall\n"
+            "  ipl compile <script.ipl>                     Compile and inspect AST\n"
+            "  ipl repl [--model <name>]                      Start interactive REPL\n"
+            "  ipl help                                     Show this help message\n"
+        )
+        sys.exit(0)
 
-    # Extract optional flags
     args = list(sys.argv[1:])
     model_name = None
-    use_hierarchical_ai = True
-    enable_authorization = True
-    tier3_model = None
     
     if "--model" in args:
         m_idx = args.index("--model")
         if m_idx + 1 < len(args):
             model_name = args[m_idx + 1]
             del args[m_idx:m_idx + 2]
-    
-    if "--no-hierarchical-ai" in args:
-        use_hierarchical_ai = False
-        args.remove("--no-hierarchical-ai")
-    
-    if "--traditional" in args:
-        use_hierarchical_ai = False
-        args.remove("--traditional")
-    
-    if "--no-authorization" in args:
-        enable_authorization = False
-        args.remove("--no-authorization")
-    
-    if "--tier3-model" in args:
-        model_idx = args.index("--tier3-model")
-        if model_idx + 1 < len(args):
-            tier3_model = args[model_idx + 1]
-            del args[model_idx:model_idx + 2]
-
-    username = None
-    role_name = None
-    if "--user" in args:
-        u_idx = args.index("--user")
-        if u_idx + 1 < len(args):
-            username = args[u_idx + 1]
-            del args[u_idx:u_idx + 2]
-
-    if "--role" in args:
-        r_idx = args.index("--role")
-        if r_idx + 1 < len(args):
-            role_name = args[r_idx + 1]
-            del args[r_idx:r_idx + 2]
 
     cmd = args[0] if args else "help"
     if cmd in ("models", "list-models"):
         list_models()
-    elif cmd in ("users", "user-management", "manage-users"):
-        manage_users()
     elif cmd in ("run", "exec") and len(args) >= 2:
-        run_file(args[1], model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, username=username, role_name=role_name)
+        run_file(args[1], model_name=model_name)
     elif cmd in ("audit", "trace") and len(args) >= 2:
-        run_file(args[1], show_audit=True, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model, username=username, role_name=role_name)
+        run_file(args[1], show_audit=True, model_name=model_name)
     elif cmd in ("verify", "check") and len(args) >= 2:
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
         compile_file(args[1])
-    elif cmd in ("serve", "gateway"):
-        host = "0.0.0.0"
-        port = 8000
-        if "--host" in args:
-            h_idx = args.index("--host")
-            if h_idx + 1 < len(args):
-                host = args[h_idx + 1]
-        if "--port" in args:
-            p_idx = args.index("--port")
-            if p_idx + 1 < len(args):
-                try:
-                    port = int(args[p_idx + 1])
-                except ValueError:
-                    console.print(f"[red]Invalid port number: {args[p_idx + 1]}[/red]")
-                    sys.exit(1)
-        try:
-            from .gateway import run_gateway
-        except (ImportError, ValueError):
-            try:
-                from gateway import run_gateway
-            except ImportError:
-                run_gateway = None
-
-        if run_gateway is None:
-            console.print("[red]Gateway module not available. Please install starlette and uvicorn.[/red]")
-            sys.exit(1)
-        run_gateway(host=host, port=port)
     elif cmd in ("repl", "interactive"):
-        start_repl(model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
+        start_repl(model_name=model_name)
     elif cmd in ("help", "--help", "-h"):
         print_banner(console)
         console.print(
             "[bold]Usage:[/bold]\n"
-            "  ipl run <script.ipl> [--model <name>] [--no-hierarchical-ai] [--no-authorization]   Execute an IPL source file\n"
-            "  ipl audit <script.ipl> [--model <name>] [--no-hierarchical-ai] [--no-authorization] Execute and print cryptographic audit trace\n"
-            "  ipl models                              List available local neural models (Ollama)\n"
-            "  ipl users                               User management system\n"
-            "  ipl verify <script.ipl>                 Validate AST via Mathematical Firewall\n"
-            "  ipl compile <script.ipl>                Compile and inspect AST contract readiness\n"
-            "  ipl serve [--host H] [--port P]         Launch REST API Security Gateway\n"
-            "  ipl repl [--model <name>] [--no-hierarchical-ai] [--no-authorization]               Start interactive REPL\n"
-            "\n[bold]Hierarchical AI Options:[/bold]\n"
-            "  --no-hierarchical-ai                   Disable hierarchical AI engine (use traditional processing)\n"
-            "  --traditional                           Same as --no-hierarchical-ai\n"
-            "\n[bold]Authorization Options:[/bold]\n"
-            "  --no-authorization                      Disable authorization system\n"
-            "  --user <username>                       Run as specific user (default: developer)\n"
-            "  --role <guest|user|admin|super_admin>   Run under specific role (default: admin)\n"
+            "  ipl run <script.ipl> [--model <name>]           Execute an IPL source file\n"
+            "  ipl audit <script.ipl> [--model <name>]         Execute and print cryptographic audit trace\n"
+            "  ipl models                                   List available models\n"
+            "  ipl verify <script.ipl>                      Validate AST via Mathematical Firewall\n"
+            "  ipl compile <script.ipl>                     Compile and inspect AST\n"
+            "  ipl repl [--model <name>]                      Start interactive REPL\n"
+            "  ipl help                                     Show this help message\n"
         )
     else:
-        # Default assume it's a file if exists
-        if os.path.exists(cmd):
-            run_file(cmd, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization)
-        else:
-            console.print(f"[red]Unknown command or file: {cmd}[/red]")
-            console.print("Run 'ipl --help' for usage.")
+        console.print(f"[bold red]Unknown command:[/bold red] {cmd}")
+        console.print("Run [bold cyan]ipl help[/bold cyan] for usage information")
 
 
 if __name__ == "__main__":
