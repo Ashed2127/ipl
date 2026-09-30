@@ -159,8 +159,10 @@ db_write("users", trusted);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 0, "TRUSTED literals should not cause violations"
-    assert len(results["static_safe_sites"]) == 1, "Should be statically safe"
+    if len(results["violations"]) != 0:
+        raise AssertionError(f"TRUSTED literals should not cause violations, got {len(results['violations'])}")
+    if len(results["static_safe_sites"]) != 1:
+        raise AssertionError(f"Should be statically safe, got {len(results['static_safe_sites'])}")
 
 
 def test_static_analysis_binary_op_propagation():
