@@ -2,11 +2,24 @@
 Phase 2: Static Taint Analysis Tests
 Tests the static analysis pass that traces taint flow from sources to sinks.
 """
-import pytest
 from lexer import Lexer
 from parser import Parser
 from static_taint_analyzer import analyze_program_taint
 from taint import TaintLevel, SinkKind
+
+
+def run_test(test_name, test_func):
+    """Run a single test and report results."""
+    try:
+        test_func()
+        print(f"✓ {test_name}")
+        return True
+    except AssertionError as e:
+        print(f"✗ {test_name}: {e}")
+        return False
+    except Exception as e:
+        print(f"✗ {test_name}: Unexpected error: {e}")
+        return False
 
 
 def test_static_analysis_safe_program():
