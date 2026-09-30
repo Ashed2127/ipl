@@ -59,10 +59,14 @@ db_write("users", malicious);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 1, "Should detect 1 violation"
-    assert results["violations"][0]["sink"] == "db_write"
-    assert results["violations"][0]["taint"] == "untrusted"
-    assert "malicious" in results["untrusted_sources"]
+    if len(results["violations"]) != 1:
+        raise AssertionError(f"Should detect 1 violation, got {len(results['violations'])}")
+    if results["violations"][0]["sink"] != "db_write":
+        raise AssertionError(f"Expected db_write, got {results['violations'][0]['sink']}")
+    if results["violations"][0]["taint"] != "untrusted":
+        raise AssertionError(f"Expected untrusted, got {results['violations'][0]['taint']}")
+    if "malicious" not in results["untrusted_sources"]:
+        raise AssertionError("malicious should be in untrusted_sources")
 
 
 def test_static_analysis_multiple_violations():
