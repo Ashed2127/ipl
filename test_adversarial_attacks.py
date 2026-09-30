@@ -297,7 +297,7 @@ db_write("users", html_sanitized);
 def test_general_sanitizer():
     """Test that GENERAL sanitizer works but is less safe"""
     console = Console()
- console.print("[bold cyan]Testing GENERAL Sanitizer (Legacy)[/bold cyan]\n")
+    console.print("[bold cyan]Testing GENERAL Sanitizer (Legacy)[/bold cyan]\n")
     
     # GENERAL should work at any sink but is less safe
     source = """
