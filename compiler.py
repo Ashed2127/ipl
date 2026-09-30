@@ -281,59 +281,14 @@ class MathematicalFirewall:
 
 class LocalInferenceRuntime:
     """
-    System 1: Local Inference Runtime with Hierarchical AI Engine and Authorization.
+    System 1: Local Inference Runtime with Semantic Engine.
     Supports:
-    1. Hierarchical AI Engine (3-tier speculative execution with token optimization)
-    2. Local Neural Models (Ollama running Qwen2.5-Coder, DeepSeek-Coder, Gemma, Llama via localhost)
-    3. Embedded Fast Semantic Engine (sub-millisecond rule-based NLP parser fallback)
-    4. Authorization System (User authentication, role-based access, context-aware security)
-    5. AI-First Mode: Prioritizes AI model decisions with pattern fallback
-    Treats AI outputs strictly as unexecutable candidate AST data structures.
+    1. Embedded Fast Semantic Engine (rule-based NLP parser)
+    Treats outputs strictly as candidate AST data structures.
     """
-    def __init__(self, model_name: Optional[str] = None, ollama_endpoint: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, ai_first_config: Optional[AIFirstConfig] = None):
-        self.model_name = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
-        self.ollama_endpoint = ollama_endpoint or os.environ.get("IPL_OLLAMA_ENDPOINT", "http://localhost:11434")
-        self.use_hierarchical_ai = use_hierarchical_ai
-        self.enable_authorization = enable_authorization
-        self.tier3_model = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
-        
-        # AI-First Configuration
-        self.ai_first_config = ai_first_config or get_ai_first_config()
-        self.decision_tracker = get_ai_decision_tracker()
-        
-        # Override model if AI-first mode is enabled
-        if self.ai_first_config.is_ai_first_enabled():
-            self.model_name = self.ai_first_config.primary_model
-            print(f"🧠 AI-First Mode: Using {self.model_name} as primary decision engine")
-        
-        # Initialize hierarchical AI engine if enabled
-        self.ai_engine = None
+    def __init__(self, model_name: Optional[str] = None):
+        self.model_name = model_name or "embedded-fast-semantic-v1"
         self.semantic_engine = SemanticEngine()
-        
-        if self.use_hierarchical_ai:
-            try:
-                self.ai_engine = get_ai_engine(ollama_endpoint=self.ollama_endpoint, tier3_model=self.tier3_model)
-            except Exception as e:
-                print(f"Warning: Failed to initialize hierarchical AI engine: {e}")
-                self.use_hierarchical_ai = False
-        
-        # Initialize authorization system if enabled
-        self.auth_system = None
-        self.security_context = None
-        
-        if self.enable_authorization:
-            try:
-                self.auth_system = get_authorization_system(self.ai_engine)
-                # Set default developer context with admin permissions for local CLI and test suites
-                self.security_context = SecurityContext(
-                    user_id="developer",
-                    role=UserRole.ADMIN,
-                    permissions=set(Permission),
-                    session_id="default_dev"
-                )
-            except Exception as e:
-                print(f"Warning: Failed to initialize authorization system: {e}")
-                self.enable_authorization = False
 
     @classmethod
     def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
