@@ -676,6 +676,52 @@ class Interpreter:
 
     def run(self, program: Program, source_code: str = "", current_file: Optional[str] = None):
         self.current_file = current_file
+        
+        # Phase 2: Static Taint Analysis
+        self.compiler.audit_trace.record(
+            phase="STATIC_TAINT_ANALYSIS",
+            status="STARTED",
+            details={"program_statements": len(program.statements)}
+        )
+        
+        static_results = analyze_program_taint(program)
+        
+        # Log static analysis results
+        self.compiler.audit_trace.record(
+            phase="STATIC_TAINT_ANALYSIS",
+            status="COMPLETED",
+            details={
+                "violations": len(static_results["violations"]),
+                "static_safe_sites": len(static_results["static_safe_sites"]),
+                "dynamic_sites": len(static_results["dynamic_sites"]),
+                "untrusted_sources": len(static_results["untrusted_sources"])
+            }
+        )
+        
+        # Display static analysis summary
+        if static_results["violations"]:
+            self.console.print(
+                f"[bold red]⚠️ Static Taint Analysis: {len(static_results['violations'])} violations detected[/bold red]"
+            )
+            for v in static_results["violations"]:
+                self.console.print(
+                    f"  [red]• {v['sink']}()[/red]: {v['message']}"
+                )
+        else:
+            self.console.print(
+                f"[green]✓ Static Taint Analysis: No violations detected[/green]"
+            )
+        
+        if static_results["static_safe_sites"]:
+            self.console.print(
+                f"[green]✓ {len(static_results['static_safe_sites'])} sinks statically verified safe[/green]"
+            )
+        
+        if static_results["dynamic_sites"]:
+            self.console.print(
+                f"[yellow]⚡ {len(static_results['dynamic_sites'])} sinks require runtime taint check[/yellow]"
+            )
+        
         # Security check before execution
         if source_code:
             security_analysis = self.security_engine.analyze_code(source_code)
