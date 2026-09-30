@@ -229,20 +229,14 @@ class Environment:
 
 
 class Interpreter:
-    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None):
+    def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
         self.console = console or Console()
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.security_engine = SecurityEngine()
-        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
+        self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
         self.loaded_modules: Set[str] = set()
-        self.use_hierarchical_ai = use_hierarchical_ai
-        self.enable_authorization = enable_authorization
         self._init_builtins()
-        
-        # Sync security context from compiler to environment
-        if self.enable_authorization and self.compiler.system1.security_context:
-            self.global_env.set_security_context(self.compiler.system1.security_context)
 
     def _init_builtins(self):
         def _len(arg_val: IValue) -> IValue:
