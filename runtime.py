@@ -334,6 +334,31 @@ class Interpreter:
             
             return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
 
+        def _html_render(html_val: IValue) -> IValue:
+            """HTML rendering sink that requires sanitized data."""
+            if html_val.taint.level == TaintLevel.UNTRUSTED:
+                self.compiler.audit_trace.record(
+                    phase="SINK_EXECUTION_ATTEMPT",
+                    status="BLOCKED_BY_TAINT",
+                    details={"sink": "html_render", "taint": html_val.taint.level.value}
+                )
+                raise TaintViolationError(
+                    variable_name=str(html_val.get_display_value()),
+                    sink_name="html_render",
+                    taint_level=html_val.taint.level
+                )
+
+            self.compiler.audit_trace.record(
+                phase="SINK_EXECUTION",
+                status="EXECUTED",
+                details={"sink": "html_render", "taint": html_val.taint.level.value}
+            )
+            self.console.print(
+                f"[bold green]🔒 [Zero-Trust HTML Sink Verified][/bold green] "
+                f"Rendered HTML (Taint: [bold green]{html_val.taint.level.value}[/bold green])"
+            )
+            return IValue(True, "Bool", confidence=1.0)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
