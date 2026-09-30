@@ -227,4 +227,30 @@ shell_exec(input);
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    print("Running Phase 2 Static Analysis Tests...\n")
+    
+    tests = [
+        ("Safe program passes static analysis", test_static_analysis_safe_program),
+        ("Detects UNTRUSTED data at sinks", test_static_analysis_detects_untrusted_sink),
+        ("Detects multiple violations", test_static_analysis_multiple_violations),
+        ("Tracks sink kinds for sanitized variables", test_static_analysis_sink_kind_tracking),
+        ("Flags sites requiring runtime checks", test_static_analysis_dynamic_sites),
+        ("TRUSTED data passes static analysis", test_static_analysis_trusted_data),
+        ("Binary operation taint propagation", test_static_analysis_binary_op_propagation),
+        ("Handles conditional branches", test_static_analysis_conditional_branches),
+        ("Handles function parameters", test_static_analysis_function_parameters),
+        ("Sink-specific violations", test_static_analysis_sink_specific_violations),
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for test_name, test_func in tests:
+        if run_test(test_name, test_func):
+            passed += 1
+        else:
+            failed += 1
+    
+    print(f"\n{'='*60}")
+    print(f"Results: {passed} passed, {failed} failed")
+    print(f"{'='*60}")
