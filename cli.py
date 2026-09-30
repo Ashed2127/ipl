@@ -17,14 +17,12 @@ try:
     from .runtime import Interpreter
     from .compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from .ast_nodes import FunctionDef, IntentExpr, SanitizationNode
-    from .authorization_system import get_authorization_system, UserRole
 except (ImportError, ValueError):
     from lexer import Lexer, LexerError
     from parser import Parser, ParserError
     from runtime import Interpreter
     from compiler import MathematicalFirewall, NeuroSymbolicCompiler, LocalInferenceRuntime
     from ast_nodes import FunctionDef, IntentExpr, SanitizationNode
-    from authorization_system import get_authorization_system, UserRole
 
 
 def print_banner(console: Console):
