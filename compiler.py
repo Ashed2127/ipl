@@ -366,39 +366,8 @@ class LocalInferenceRuntime:
             return "semantic_extraction"
         
         return "general"
-            else:
-                return Literal(value=ai_content, type_name="string")
-        
-        elif isinstance(ai_content, (int, float)):
-            type_name = "int" if isinstance(ai_content, int) and not isinstance(ai_content, bool) else "float"
-            return Literal(value=ai_content, type_name=type_name)
-        
-        # Default fallback
-        return Literal(value=str(ai_content), type_name="string")
-    
-    def _fallback_traditional_processing(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
-        """Fallback to traditional processing if AI engine fails."""
-        # Use the existing embedded semantic engine
-        prompt_lower = intent_prompt.lower()
-        
-        if "user_age" in prompt_lower or "age" in prompt_lower or (target_type and target_type.name in ("Int", "Integer")):
-            match = re.search(r"(\d+)", intent_prompt)
-            if match:
-                return Literal(value=int(match.group(1)), type_name="int")
-            
-            num_data = SemanticEngine.extract_number(intent_prompt, as_float=False)
-            if num_data["confidence"] > 0.7:
-                return Literal(value=int(num_data["value"]), type_name="int")
-        
-        if "cost" in prompt_lower or "price" in prompt_lower or (target_type and target_type.name == "Currency"):
-            curr_data = SemanticEngine.extract_currency(intent_prompt)
-            return Literal(value=curr_data, type_name="Currency")
-        
-        if "sentiment" in prompt_lower or "review" in prompt_lower or (target_type and target_type.name == "Sentiment"):
-            sent_data = SemanticEngine.extract_sentiment(intent_prompt)
-            return Literal(value=sent_data, type_name="Sentiment")
-        
-        return Literal(value=intent_prompt, type_name="string")
+
+    def repair_candidate(
 
     def repair_candidate(
         self,
