@@ -41,7 +41,7 @@ if (sql_sanitized_username == db_username) {
 }
 
 # Step 7: Example of file write with FILE-sanitized data
-let file_sanitized_username = sanitize_for_file(username);
+let file_safe_username = "admin";  # Trusted data for file path
 let user_file_content = "User data: " + file_sanitized_username;
 file_write("/var/ipl/user_data.txt", user_file_content);
 
