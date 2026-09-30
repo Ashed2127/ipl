@@ -170,6 +170,111 @@ def compile_file(filepath: str):
         console.print(f"[bold red]Compilation Error:[/bold red] {e}")
 
 
+def analyze_taint(filepath: str):
+    console = Console()
+    if not os.path.exists(filepath):
+        console.print(f"[bold red]File not found:[/bold red] {filepath}")
+        sys.exit(1)
+
+    print_banner(console)
+    console.print(f"[bold cyan]🔍 Static Taint Analysis:[/bold cyan] {filepath}\n")
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        source = f.read()
+
+    try:
+        lexer = Lexer(source)
+        tokens = lexer.tokenize()
+        parser = Parser(tokens)
+        program = parser.parse()
+
+        # Run static taint analysis
+        results = analyze_program_taint(program)
+
+        # Display results
+        console.print(f"[green]✓ Program parsed:[/green] {len(program.statements)} statements\n")
+
+        # Show violations
+        if results["violations"]:
+            console.print(Panel(
+                f"[bold red]⚠️ Static Taint Violations Detected: {len(results['violations'])}[/bold red]",
+                title="Taint Analysis Results",
+                border_style="red"
+            ))
+            table = Table(title="Static Violations", border_style="red")
+            table.add_column("Sink", style="bold")
+            table.add_column("Required Sink", style="cyan")
+            table.add_column("Arg Index", style="yellow")
+            table.add_column("Taint", style="red")
+            table.add_column("Message", style="white")
+
+            for v in results["violations"]:
+                table.add_row(
+                    v["sink"],
+                    v["required_sink"],
+                    str(v["arg_index"]),
+                    v["taint"],
+                    v["message"]
+                )
+            console.print(table)
+        else:
+            console.print(Panel(
+                "[bold green]✓ No Static Taint Violations Detected[/bold green]",
+                title="Taint Analysis Results",
+                border_style="green"
+            ))
+
+        # Show static safe sites
+        if results["static_safe_sites"]:
+            console.print(f"\n[green]✓ Statically Verified Safe Sites: {len(results['static_safe_sites'])}[/green]")
+            table = Table(title="Static Safe Sites", border_style="green")
+            table.add_column("Sink", style="bold")
+            table.add_column("Required Sink", style="cyan")
+            table.add_column("Location", style="dim")
+
+            for site in results["static_safe_sites"]:
+                table.add_row(
+                    site["sink"],
+                    site["required_sink"],
+                    site["location"]
+                )
+            console.print(table)
+
+        # Show dynamic sites (require runtime check)
+        if results["dynamic_sites"]:
+            console.print(f"\n[yellow]⚡ Sites Requiring Runtime Check: {len(results['dynamic_sites'])}[/yellow]")
+            table = Table(title="Dynamic Taint Check Sites", border_style="yellow")
+            table.add_column("Sink", style="bold")
+            table.add_column("Required Sink", style="cyan")
+            table.add_column("Arg Index", style="yellow")
+            table.add_column("Reason", style="white")
+
+            for site in results["dynamic_sites"]:
+                table.add_row(
+                    site["sink"],
+                    site["required_sink"],
+                    str(site["arg_index"]),
+                    site["reason"]
+                )
+            console.print(table)
+
+        # Show untrusted sources
+        if results["untrusted_sources"]:
+            console.print(f"\n[red]⚠️ Untrusted Data Sources: {len(results['untrusted_sources'])}[/red]")
+            console.print(f"[dim]Variables: {', '.join(results['untrusted_sources'])}[/dim]")
+
+        # Show sanitized variables
+        if results["sanitized_vars"]:
+            console.print(f"\n[green]✓ Sanitized Variables: {len(results['sanitized_vars'])}[/green]")
+            for var, sink_kind in results["sanitized_vars"].items():
+                console.print(f"  [cyan]{var}[/cyan] -> [green]{sink_kind.value}[/green]")
+
+    except Exception as e:
+        console.print(f"[bold red]Analysis Error:[/bold red] {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def start_repl(model_name: Optional[str] = None):
     console = Console()
     print_banner(console)
