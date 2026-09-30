@@ -1,65 +1,72 @@
 # IPL (Intelligent Programming Language)
 
-IPL is a security-focused programming language with AI-enhanced compilation capabilities. It combines traditional compiler architecture with modern AI integration to provide intelligent code analysis, security verification, and semantic understanding.
+IPL is a security-focused programming language with symbolic compilation capabilities. It combines traditional compiler architecture with zero-trust security principles to provide secure code analysis, verification, and semantic understanding.
 
-## 🎯 Current Status: Compiler-First Neural Architecture
+## 🎯 Current Status: Symbolic Compiler with Zero-Trust Security
 
-IPL has evolved into a **Compiler-First Neural Programming Language** where intelligence is integrated at every level of the compilation process. Unlike traditional AI-assisted programming (code suggestions), IPL integrates AI directly into the compilation pipeline itself.
+IPL is a **security-first programming language** where all data starts untrusted and must be explicitly sanitized before use at security-sensitive sinks. The compiler uses pattern-based semantic extraction and symbolic verification to provide strong security guarantees.
 
-### Key Innovation: Compiler-Level Intelligence
-- **Traditional**: Code → AI Suggestions → Developer Review → Traditional Compilation
-- **IPL Compiler-First**: Code → [Intelligent Compiler] → Optimized Code (AI is the compiler)
+### Key Innovation: Zero-Trust Taint Tracking
+- **Traditional Languages**: Data is implicitly trusted until a vulnerability is discovered
+- **IPL**: All data is explicitly untrusted until proven safe through sanitization
 
 ### Key Achievements:
-- ✅ **Intelligent Lexer**: Neural token understanding with security detection
-- ✅ **Intelligent Parser**: AI-enhanced parsing with error recovery
-- ✅ **Intelligent Semantic Analyzer**: Deep semantic understanding of code meaning
-- ✅ **Intelligent Type System**: Advanced type inference with AI-powered understanding
-- ✅ **Intelligent Security Analyzer**: Neural threat detection and prevention
-- ✅ **Intelligent Optimizer**: Learning-based optimization with continuous improvement
-- ✅ **Intelligent Code Generator**: AI-powered code generation and optimization
-- ✅ **Unified Neural Compiler**: Coordinated intelligence across all compilation levels
+- ✅ **Sound Taint Lattice**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED) with correct combine() semantics
+- ✅ **Deterministic Runtime**: Same input always produces same output with mathematical guarantees
+- ✅ **Fail-Closed Security**: Security violations block execution rather than risking compromise
+- ✅ **Cryptographic Audit Trail**: SHA-256 signed per-step execution traces
+- ✅ **Pattern-Based Semantic Extraction**: Currency, Sentiment, Quantity, Date parsing without neural dependencies
+- ✅ **Mathematical Firewall**: Safe primitives whitelist and forbidden operations rejection
 
-## 🚀 Compiler-First Neural Architecture
+## 🚀 Architecture
 
-The new compiler-first neural architecture makes IPL the first truly intelligent compiler where AI is integrated at every compilation level:
+The IPL architecture consists of a single canonical compiler pipeline with strong security guarantees:
 
-### Intelligent Components
-1. **Intelligent Lexer** (`intelligent_lexer.py`): Neural token understanding with security detection
-2. **Intelligent Parser** (`intelligent_parser.py`): AI-enhanced parsing with error recovery  
-3. **Intelligent Semantic Analyzer** (`intelligent_semantic_analyzer.py`): Deep semantic understanding
-4. **Intelligent Type System** (`intelligent_type_system.py`): Advanced type inference
-5. **Intelligent Security Analyzer** (`intelligent_security_analyzer.py`): Neural threat detection
-6. **Intelligent Optimizer** (`intelligent_optimizer.py`): Learning-based optimization
-7. **Intelligent Code Generator** (`intelligent_code_generator.py`): AI-powered code generation
-8. **Unified Neural Compiler** (`neural_compiler.py`): Coordinates all intelligent components
+### Core Components
+1. **Lexer** (`lexer.py`): Tokenizes IPL source code with keyword, operator, and literal recognition
+2. **Parser** (`parser.py`): Recursive-descent parser building Abstract Syntax Tree (AST)
+3. **Semantic Engine** (`semantic_engine.py`): Pattern-based natural language extraction for semantic types
+4. **Compiler** (`compiler.py`): Neuro-symbolic compiler with mathematical firewall verification
+5. **Security Engine** (`security_engine.py`): AST security analysis and string sanitization
+6. **Taint System** (`taint.py`): Zero-trust data tracking with sound lattice semantics
+7. **Runtime** (`runtime.py`): Deterministic virtual machine with taint enforcement
 
 ### Usage Example
 ```python
-from neural_compiler import CompilerFirstNeuralCompiler
+from compiler import NeuroSymbolicCompiler
+from runtime import Interpreter
 
-# Initialize the neural compiler
-compiler = CompilerFirstNeuralCompiler()
+# Initialize the compiler
+compiler = NeuroSymbolicCompiler()
 
-# Compile source code with full intelligence
-result = compiler.compile_source(source_code)
+# Compile and execute source code
+source = """
+let user_input = "admin' OR '1'='1";
+let sanitized = sanitize_string(user_input);
+db_write("users", sanitized);
+"""
 
-# Access comprehensive analysis
-print(f"Success: {result['success']}")
-print(f"Overall confidence: {result['overall_confidence']:.2%}")
-print(f"Compilation time: {result['compilation_time']:.3f}s")
+# Parse and verify
+from lexer import Lexer
+from parser import Parser
+lexer = Lexer(source)
+tokens = lexer.tokenize()
+parser = Parser(tokens)
+program = parser.parse()
 
-# Access intelligent insights
-for insight in result['intelligent_insights']:
-    print(f"Insight: {insight}")
+# Execute with taint tracking
+from rich.console import Console
+console = Console()
+interpreter = Interpreter(console=console)
+interpreter.run(program, source_code=source)
 ```
 
 ### Detailed Architecture
-See [COMPILER_FIRST_ARCHITECTURE.md](COMPILER_FIRST_ARCHITECTURE.md) for complete architectural documentation.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for complete architectural documentation.
 
 ## 🚀 Installation
 
-### Quick Install (Compiler-First Neural Mode)
+### Quick Install
 ```bash
 # Clone and setup
 git clone https://github.com/Ashed2127/ipl.git
@@ -67,82 +74,52 @@ cd ipl
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# Test the neural compiler
-python3 test_simple_neural.py
+# Test the compiler
+python3 cli.py run test.ipl
 
-# Use the neural compiler
-python3 -c "
-from neural_compiler import CompilerFirstNeuralCompiler
-compiler = CompilerFirstNeuralCompiler()
-result = compiler.compile_source('let x = 10')
-print(result['success'])
-"
+# Run adversarial attack tests
+python3 test_adversarial_attacks.py
 ```
 
 ## 📖 Usage
 
-### Traditional Compiler Usage
-The traditional compiler is still available and uses the existing AI-first architecture:
-
+### Compiler Usage
 ```bash
-# Run IPL programs with traditional compiler
-python3 cli.py run examples/01_intelligent_variables.ipl
+# Run IPL programs
+python3 cli.py run examples/authorization_demo.ipl
+
+# Run with audit trace
+python3 cli.py audit examples/authorization_demo.ipl
+
+# Verify AST via Mathematical Firewall
+python3 cli.py verify examples/authorization_demo.ipl
+
+# Start interactive REPL
+python3 cli.py repl
 ```
 
-### Neural Compiler Usage
-Use the new compiler-first neural architecture for enhanced intelligence:
-
+### Python Embedding
 ```python
-from neural_compiler import CompilerFirstNeuralCompiler
+from lexer import Lexer
+from parser import Parser
+from runtime import Interpreter
+from rich.console import Console
 
-# Initialize with custom configuration
-config = {
-    "lexer": {"enable_neural_analysis": True, "enable_security_analysis": True},
-    "parser": {"enable_neural_parsing": True, "enable_semantic_validation": True},
-    "security_analyzer": {"enable_neural_detection": True, "enable_attack_vector_analysis": True}
-}
+source = """
+let price: Currency = "ninety-nine bucks and 50 cents";
+let sanitized_price = sanitize_string(price);
+db_write("products", sanitized_price);
+"""
 
-compiler = CompilerFirstNeuralCompiler(config)
-result = compiler.compile_source(source_code)
+lexer = Lexer(source)
+tokens = lexer.tokenize()
+parser = Parser(tokens)
+program = parser.parse()
 
-# Access comprehensive analysis
-print(f"Lexical Analysis: {len(result['lexical_analysis']['tokens'])} tokens")
-print(f"Parsing Confidence: {result['parsing_analysis']['parse_confidence']:.2%}")
-print(f"Security Score: {result['security_analysis']['overall_security'].security_score:.2%}")
-print(f"Optimization Score: {result['optimization_analysis']['optimization_score']:.2%}")
+console = Console()
+interpreter = Interpreter(console=console)
+interpreter.run(program, source_code=source)
 ```
-
-### Component-Level Usage
-Each intelligent component can be used independently:
-
-```python
-# Use intelligent lexer alone
-from intelligent_lexer import CompilerFirstLexer
-lexer = CompilerFirstLexer(source_code, config)
-lexical_analysis = lexer.analyze_source()
-
-# Use intelligent parser alone
-from intelligent_parser import CompilerFirstParser
-parser = CompilerFirstParser(source_code, config)
-parsing_analysis = parser.parse_source()
-
-# Use intelligent security analyzer alone
-from intelligent_security_analyzer import CompilerFirstSecurityAnalyzer
-security_analyzer = CompilerFirstSecurityAnalyzer(config)
-security_analysis = security_analyzer.analyze_program_security(ast)
-```
-
-### Architecture Comparison
-
-| Aspect | Traditional AI (Code Suggestions) | IPL Compiler-First Neural |
-|--------|-------------------------------|------------------------|
-| **Integration Point** | IDE/Editor | Compilation Pipeline |
-| **AI Role** | External assistant | Integral to compilation |
-| **Code Transformation** | Suggestions only | Direct transformation |
-| **Security Blocking** | ❌ No | ✅ Yes (neural analysis) |
-| **Learning Capability** | ❌ No | ✅ Yes (continuous learning) |
-| **Compilation Intelligence** | Traditional compiler | Every level is intelligent |
-| **Error Recovery** | Manual review | Intelligent automatic recovery |
 
 ## 🧠 Architecture Documents
 
