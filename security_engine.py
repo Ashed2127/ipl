@@ -313,7 +313,8 @@ class SecurityEngine:
     @classmethod
     def sanitize_string(cls, data: str, max_length: int = 1000) -> str:
         """
-        Sanitizes a string by removing or neutralizing potentially dangerous content.
+        Legacy general-purpose sanitization (less safe, sink-agnostic).
+        DEPRECATED: Use sink-specific sanitizers instead.
         """
         # Truncate excessive length
         if len(data) > max_length:
@@ -346,6 +347,182 @@ class SecurityEngine:
         # Mask potential API keys
         api_pattern = r'(api[_-]?key|secret[_-]?key|access[_-]?token)\s*[:=]\s*[\'"]?[a-zA-Z0-9]{20,}[\'"]?'
         data = re.sub(api_pattern, '[REDACTED_API_KEY]', data, flags=re.IGNORECASE)
+        
+        return data
+
+    @classmethod
+    def sanitize_for_sql(cls, data: str, max_length: int = 1000) -> str:
+        """
+        SQL-specific sanitization using parameterized binding principles.
+        Removes SQL injection patterns and ensures safe string format.
+        """
+        # Truncate excessive length
+        if len(data) > max_length:
+            data = data[:max_length]
+        
+        # Remove null bytes
+        data = data.replace('\x00', '')
+        
+        # Remove SQL injection patterns
+        sql_injection_patterns = [
+            r"[';]\s*--",           # Comment termination
+            r"[';]\s*#",            # Alternative comment
+            r"\bor\s+",             # Boolean operators
+            r"\band\s+",            # Boolean operators
+            r"\bunion\s+",          # Union queries
+            r"\bselect\s+",        # SELECT statements
+            r"\binsert\s+",        # INSERT statements
+            r"\bupdate\s+",        # UPDATE statements
+            r"\bdelete\s+",        # DELETE statements
+            r"\bdrop\s+",          # DROP statements
+            r"\bexec\s+",          # EXECUTE statements
+            r"\bxp_cmdshell",      # SQL Server command execution
+            r"\bsp_executesql",    # SQL Server dynamic SQL
+            r"\bwaitfor\s+delay",  # Time-based blind SQLi
+            r"\bsleep\s*\(",       # Sleep functions
+            r"\bbenchmark\s*\(",   # MySQL benchmark injection
+        ]
+        
+        for pattern in sql_injection_patterns:
+            data = re.sub(pattern, '', data, flags=re.IGNORECASE)
+        
+        # Remove common SQL metacharacters
+        data = data.replace("'", "''")  # Escape single quotes
+        data = data.replace('"', '""')  # Escape double quotes
+        data = data.replace('\\', '\\\\')  # Escape backslashes
+        
+        # Remove semicolons (statement separators)
+        data = data.replace(';', '')
+        
+        return data
+
+    @classmethod
+    def sanitize_for_html(cls, data: str, max_length: int = 10000) -> str:
+        """
+        HTML-specific sanitization using entity encoding.
+        Prevents XSS by encoding HTML metacharacters.
+        """
+        # Truncate excessive length
+        if len(data) > max_length:
+            data = data[:max_length]
+        
+        # Remove null bytes
+        data = data.replace('\x00', '')
+        
+        # HTML entity encoding
+        html_escape_map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            '/': '&#x2F;',
+        }
+        
+        for char, encoded in html_escape_map.items():
+            data = data.replace(char, encoded)
+        
+        # Remove script tags and event handlers
+        script_patterns = [
+            r'<script[^>]*>.*?</script>',
+            r'on\w+\s*=',  # Event handlers like onclick, onerror
+            r'javascript:',
+            r'data:',
+            r'vbscript:',
+        ]
+        
+        for pattern in script_patterns:
+            data = re.sub(pattern, '', data, flags=re.IGNORECASE | re.DOTALL)
+        
+        return data
+
+    @classmethod
+    def sanitize_for_shell(cls, data: str, allowed_commands: Optional[List[str]] = None, max_length: int = 1000) -> str:
+        """
+        Shell-specific sanitization using allowlist approach.
+        Only allows commands from the allowlist, rejects everything else.
+        """
+        # Truncate excessive length
+        if len(data) > max_length:
+            data = data[:max_length]
+        
+        # Remove null bytes
+        data = data.replace('\x00', '')
+        
+        # If no allowlist provided, use a very restrictive default
+        if allowed_commands is None:
+            allowed_commands = ['echo', 'cat', 'ls', 'pwd']
+        
+        # Remove shell metacharacters
+        shell_metacharacters = [';', '&', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']
+        for char in shell_metacharacters:
+            data = data.replace(char, '')
+        
+        # Remove dangerous command patterns
+        dangerous_patterns = [
+            r'\brm\s+',           # Remove command
+            r'\bdelete\s+',       # Delete command
+            r'\bformat\s+',       # Format command
+            r'\bdel\s+',          # Delete command (Windows)
+            r'\bsudo\s+',         # Sudo
+            r'\bsu\s+',           # Su
+            r'\bchmod\s+',        # Chmod
+            r'\bchown\s+',        # Chown
+            r'\bmv\s+',           # Move
+            r'\bcp\s+',           # Copy
+            r'\b>+\s*',           # Output redirection
+            r'\b<+\s*',           # Input redirection
+        ]
+        
+        for pattern in dangerous_patterns:
+            data = re.sub(pattern, '', data, flags=re.IGNORECASE)
+        
+        # Check if the command is in the allowlist
+        if data.split()[0] not in allowed_commands:
+            # If not in allowlist, reject entirely
+            return ""
+        
+        return data
+
+    @classmethod
+    def sanitize_for_file(cls, data: str, allowed_dirs: Optional[List[str]] = None, max_length: int = 1000) -> str:
+        """
+        File-specific sanitization using path validation.
+        Only allows paths within allowed directories.
+        """
+        # Truncate excessive length
+        if len(data) > max_length:
+            data = data[:max_length]
+        
+        # Remove null bytes
+        data = data.replace('\x00', '')
+        
+        # Remove path traversal attempts
+        data = data.replace('..', '')
+        data = data.replace('~', '')
+        
+        # Remove dangerous path patterns
+        dangerous_patterns = [
+            r'/etc/passwd',
+            r'/etc/shadow',
+            r'/proc/',
+            r'/sys/',
+            r'C:\\Windows\\System32',
+            r'\\\\',
+        ]
+        
+        for pattern in dangerous_patterns:
+            data = re.sub(pattern, '', data, flags=re.IGNORECASE)
+        
+        # If allowed_dirs provided, validate path is within them
+        if allowed_dirs:
+            is_allowed = False
+            for allowed_dir in allowed_dirs:
+                if data.startswith(allowed_dir):
+                    is_allowed = True
+                    break
+            if not is_allowed:
+                return ""
         
         return data
     
