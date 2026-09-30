@@ -138,9 +138,12 @@ db_write("users", safe);
     results = analyze_program_taint(program)
     
     # Should have 1 dynamic site (sink kind check at runtime)
-    assert len(results["dynamic_sites"]) == 1
-    assert results["dynamic_sites"][0]["sink"] == "db_write"
-    assert results["dynamic_sites"][0]["reason"] == "Cannot statically verify sink kind match"
+    if len(results["dynamic_sites"]) != 1:
+        raise AssertionError(f"Should have 1 dynamic site, got {len(results['dynamic_sites'])}")
+    if results["dynamic_sites"][0]["sink"] != "db_write":
+        raise AssertionError(f"Expected db_write, got {results['dynamic_sites'][0]['sink']}")
+    if results["dynamic_sites"][0]["reason"] != "Cannot statically verify sink kind match":
+        raise AssertionError(f"Unexpected reason: {results['dynamic_sites'][0]['reason']}")
 
 
 def test_static_analysis_trusted_data():
