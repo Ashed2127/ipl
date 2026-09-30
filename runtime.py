@@ -315,12 +315,12 @@ class Interpreter:
             return IValue(True, "Bool", confidence=1.0)
 
         def _sanitize_string(arg_val: IValue) -> IValue:
-            """Sanitize a string using the security engine and mark it as SANITIZED."""
+            """Legacy general-purpose sanitization (less safe, sink-agnostic)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_string requires a string argument")
             
             sanitized = self.security_engine.sanitize_string(arg_val.raw_value)
-            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_string")
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_string", SinkKind.GENERAL)
             
             self.compiler.audit_trace.record(
                 phase="SANITIZATION",
@@ -328,7 +328,92 @@ class Interpreter:
                 details={
                     "original_length": len(arg_val.raw_value),
                     "sanitized_length": len(sanitized),
-                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}"
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
+                    "sink_kind": "GENERAL"
+                }
+            )
+            
+            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+
+        def _sanitize_for_sql(arg_val: IValue) -> IValue:
+            """SQL-specific sanitization for database queries."""
+            if not isinstance(arg_val.raw_value, str):
+                raise TypeError("sanitize_for_sql requires a string argument")
+            
+            sanitized = self.security_engine.sanitize_for_sql(arg_val.raw_value)
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_sql", SinkKind.SQL)
+            
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION",
+                status="SANITIZED",
+                details={
+                    "original_length": len(arg_val.raw_value),
+                    "sanitized_length": len(sanitized),
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
+                    "sink_kind": "SQL"
+                }
+            )
+            
+            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+
+        def _sanitize_for_html(arg_val: IValue) -> IValue:
+            """HTML-specific sanitization for rendering."""
+            if not isinstance(arg_val.raw_value, str):
+                raise TypeError("sanitize_for_html requires a string argument")
+            
+            sanitized = self.security_engine.sanitize_for_html(arg_val.raw_value)
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_html", SinkKind.HTML)
+            
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION",
+                status="SANITIZED",
+                details={
+                    "original_length": len(arg_val.raw_value),
+                    "sanitized_length": len(sanitized),
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
+                    "sink_kind": "HTML"
+                }
+            )
+            
+            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+
+        def _sanitize_for_shell(arg_val: IValue) -> IValue:
+            """Shell-specific sanitization using allowlist."""
+            if not isinstance(arg_val.raw_value, str):
+                raise TypeError("sanitize_for_shell requires a string argument")
+            
+            sanitized = self.security_engine.sanitize_for_shell(arg_val.raw_value)
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_shell", SinkKind.SHELL)
+            
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION",
+                status="SANITIZED",
+                details={
+                    "original_length": len(arg_val.raw_value),
+                    "sanitized_length": len(sanitized),
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
+                    "sink_kind": "SHELL"
+                }
+            )
+            
+            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+
+        def _sanitize_for_file(arg_val: IValue) -> IValue:
+            """File-specific sanitization for path validation."""
+            if not isinstance(arg_val.raw_value, str):
+                raise TypeError("sanitize_for_file requires a string argument")
+            
+            sanitized = self.security_engine.sanitize_for_file(arg_val.raw_value)
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_file", SinkKind.FILE)
+            
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION",
+                status="SANITIZED",
+                details={
+                    "original_length": len(arg_val.raw_value),
+                    "sanitized_length": len(sanitized),
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
+                    "sink_kind": "FILE"
                 }
             )
             
