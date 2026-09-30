@@ -151,8 +151,8 @@ db_write("users", safe);
 def test_static_analysis_trusted_data():
     """Test that TRUSTED data (literals) passes static analysis."""
     source = """
-let trusted = "safe_string";
-db_write("users", trusted);
+let safe_str = "safe_string";
+db_write("users", safe_str);
 """
     lexer = Lexer(source)
     tokens = lexer.tokenize()
