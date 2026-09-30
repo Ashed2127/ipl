@@ -366,60 +366,6 @@ class LocalInferenceRuntime:
             return "semantic_extraction"
         
         return "general"
-        """Convert AI engine response to IPL AST node."""
-        prompt_lower = intent_prompt.lower()
-
-        # Handle specific target types with full prompt context
-        if target_type and target_type.name in ("Int", "Integer"):
-            if "twenty-five" in prompt_lower or "twenty five" in prompt_lower:
-                return Literal(value="twenty-five", type_name="string")
-            match = re.search(r"(\d+)", intent_prompt)
-            if match:
-                return Literal(value=int(match.group(1)), type_name="int")
-            num_data = SemanticEngine.extract_number(intent_prompt, as_float=False)
-            if num_data["confidence"] > 0.7:
-                return Literal(value=int(num_data["value"]), type_name="int")
-
-        if target_type and target_type.name == "Float":
-            match = re.search(r"(\d+(?:\.\d+)?)", intent_prompt)
-            if match:
-                return Literal(value=float(match.group(1)), type_name="float")
-
-        if target_type and target_type.name == "Currency":
-            curr_data = SemanticEngine.extract_currency(intent_prompt or str(ai_content))
-            return Literal(value=curr_data, type_name="Currency")
-
-        if target_type and target_type.name == "Sentiment":
-            sent_data = SemanticEngine.extract_sentiment(intent_prompt or str(ai_content))
-            return Literal(value=sent_data, type_name="Sentiment")
-
-        if target_type and target_type.name == "Quantity":
-            q_data = SemanticEngine.extract_quantity(intent_prompt or str(ai_content))
-            return Literal(value=q_data, type_name="Quantity")
-
-        if isinstance(ai_content, dict):
-            # Handle structured responses
-            if "token_classification" in ai_content:
-                return Literal(value=ai_content, type_name="dict")
-            elif "inferred_type" in ai_content:
-                inferred_type = ai_content["inferred_type"]
-                return Literal(value=inferred_type, type_name="string")
-            elif "semantic_features" in ai_content:
-                return Literal(value=ai_content["semantic_features"], type_name="dict")
-            else:
-                return Literal(value=ai_content, type_name="dict")
-        
-        elif isinstance(ai_content, str):
-            if target_type and target_type.name == "Int":
-                try:
-                    return Literal(value=int(ai_content), type_name="int")
-                except ValueError:
-                    return Literal(value=ai_content, type_name="string")
-            elif target_type and target_type.name == "Float":
-                try:
-                    return Literal(value=float(ai_content), type_name="float")
-                except ValueError:
-                    return Literal(value=ai_content, type_name="string")
             else:
                 return Literal(value=ai_content, type_name="string")
         
