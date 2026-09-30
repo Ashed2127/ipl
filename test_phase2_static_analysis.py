@@ -85,12 +85,17 @@ shell_exec(malicious);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 4, "Should detect 4 violations"
+    if len(results["violations"]) != 4:
+        raise AssertionError(f"Should detect 4 violations, got {len(results['violations'])}")
     sinks = [v["sink"] for v in results["violations"]]
-    assert "db_write" in sinks
-    assert "file_write" in sinks
-    assert "html_render" in sinks
-    assert "shell_exec" in sinks
+    if "db_write" not in sinks:
+        raise AssertionError("db_write should be in violations")
+    if "file_write" not in sinks:
+        raise AssertionError("file_write should be in violations")
+    if "html_render" not in sinks:
+        raise AssertionError("html_render should be in violations")
+    if "shell_exec" not in sinks:
+        raise AssertionError("shell_exec should be in violations")
 
 
 def test_static_analysis_sink_kind_tracking():
