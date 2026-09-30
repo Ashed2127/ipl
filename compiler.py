@@ -290,186 +290,21 @@ class LocalInferenceRuntime:
         self.model_name = model_name or "embedded-fast-semantic-v1"
         self.semantic_engine = SemanticEngine()
 
-    @classmethod
-    def list_available_local_models(cls, endpoint: str = "http://localhost:11434") -> List[str]:
-        """Detects and returns active local neural models from Ollama or compatible local endpoints."""
-        try:
-            req = urllib.request.Request(f"{endpoint}/api/tags")
-            with urllib.request.urlopen(req, timeout=1.0) as resp:
-                data = json.loads(resp.read().decode())
-                return [m.get("name", "") for m in data.get("models", []) if m.get("name")]
-        except Exception:
-            return []
-
-    def _query_neural_model(self, intent_prompt: str, target_type: Optional[TypeAnnotation]) -> Optional[ASTNode]:
-        """Queries local neural model (Ollama) to extract structured AST data."""
-        if self.model_name == "embedded-fast-semantic-v1":
-            return None
-
-        target_desc = target_type.name if target_type else "primitive value (int, float, string, or dict)"
-        system_instruction = (
-            f"You are System 1 neural semantic parser for the IPL programming language compiler. "
-            f"Extract the exact target value and type for contract '{target_desc}' from the user text. "
-            f"Respond ONLY with valid JSON containing keys 'value' and 'type'. Never output markdown or extra words."
-        )
-        payload = {
-            "model": self.model_name,
-            "prompt": f"{system_instruction}\nInput Text: \"{intent_prompt}\"",
-            "stream": False,
-            "format": "json"
-        }
-        try:
-            req = urllib.request.Request(
-                f"{self.ollama_endpoint}/api/generate",
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=45.0) as resp:
-                result = json.loads(resp.read().decode("utf-8"))
-                raw_text = result.get("response", "").strip()
-                if raw_text.startswith("```"):
-                    raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
-                    raw_text = re.sub(r"\s*```$", "", raw_text)
-                parsed = json.loads(raw_text)
-                val = parsed.get("value")
-                typ = parsed.get("type", target_desc)
-                if isinstance(val, int) and not isinstance(val, bool):
-                    return Literal(value=val, type_name="int")
-                elif isinstance(val, float):
-                    return Literal(value=val, type_name="float")
-                elif isinstance(val, dict):
-                    return Literal(value=val, type_name=typ)
-                else:
-                    return Literal(value=val, type_name=str(typ).lower())
-        except Exception:
-            return None
-
-    def set_security_context(self, username: str, password: str) -> bool:
-        """Authenticate user and set security context."""
-        if not self.enable_authorization or not self.auth_system:
-            return False
-        
-        context = self.auth_system.authenticate_user(username, password)
-        if context:
-            self.security_context = context
-            return True
-        return False
-    
-    def set_security_context_direct(self, context: SecurityContext):
-        """Set security context directly (for testing or advanced use)."""
-        if self.enable_authorization:
-            self.security_context = context
-    
-    def get_ai_decision_stats(self) -> Dict[str, Any]:
-        """Get AI decision statistics for monitoring and analysis."""
-        return self.decision_tracker.get_statistics()
-    
-    def reset_ai_decision_stats(self):
-        """Reset AI decision statistics."""
-        self.decision_tracker.reset()
-
     def parse_intent(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
         """
         Interprets natural language intent into a candidate AST node.
         Zero raw execution: emits only AST data structures.
-        AI-First Mode: Prioritizes AI model decisions with pattern fallback.
+        Uses pattern-based semantic engine for deterministic parsing.
         """
         prompt_lower = intent_prompt.lower()
-        task_type = self._determine_task_type(intent_prompt, target_type)
 
         # Check for adversarial prompt injection
         if "override_system_rules" in prompt_lower or "bypass_security_guardrails" in prompt_lower or "unauthorized_instruction" in prompt_lower:
             # Neutralize: Treat exclusively as raw string data literal, never executable commands
             return Literal(value=f"[NEUTRALIZED_ADVERSARIAL_INJECTION: {intent_prompt}]", type_name="string")
 
-        # Authorization check if enabled
-        if self.enable_authorization and self.auth_system and self.security_context:
-            auth_decision = self.auth_system.authorize_intent(
-                self.security_context, 
-                intent_prompt, 
-                target_type.name if target_type else None
-            )
-            
-            if not auth_decision.allowed:
-                # Authorization denied - return error node
-                return Literal(
-                    value=f"[AUTHORIZATION_DENIED: {auth_decision.reason}]",
-                    type_name="string"
-                )
-
-        # AI-First Mode: Try AI first, fall back to patterns
-        if self.ai_first_config.is_ai_first_enabled() and self.ai_first_config.should_use_ai_for_task(task_type):
-            return self._parse_with_ai_first(intent_prompt, target_type, task_type)
-
-        # Use hierarchical AI engine if enabled (traditional mode)
-        if self.use_hierarchical_ai and self.ai_engine:
-            return self._parse_with_hierarchical_ai(intent_prompt, target_type)
-
-        # Traditional pattern-based fallback
+        # Use pattern-based semantic engine
         return self._parse_with_patterns(intent_prompt, target_type, prompt_lower)
-    
-    def _parse_with_ai_first(self, intent_prompt: str, target_type: Optional[TypeAnnotation], task_type: str) -> ASTNode:
-        """
-        AI-First parsing: Try AI model first, fall back to patterns only if AI fails.
-        This is the new AI-first approach.
-        """
-        import time
-        start_time = time.time()
-        
-        try:
-            # Try AI model first
-            if self.use_hierarchical_ai and self.ai_engine:
-                context = {
-                    "task_type": task_type,
-                    "target_type": target_type.name if target_type else None,
-                    "prompt_length": len(intent_prompt),
-                    "ai_first_mode": True
-                }
-                
-                ai_response = self.ai_engine.process_speculative(intent_prompt, context)
-                
-                execution_time_ms = (time.time() - start_time) * 1000
-                
-                if ai_response.success and ai_response.confidence >= self.ai_first_config.ai_confidence_threshold:
-                    # AI succeeded with sufficient confidence
-                    ast_node = self._convert_ai_response_to_ast(ai_response.content, target_type, intent_prompt=intent_prompt)
-                    
-                    # Track successful AI decision
-                    self.decision_tracker.record_ai_decision(
-                        task_type, 
-                        True, 
-                        ai_response.confidence, 
-                        execution_time_ms
-                    )
-                    
-                    if self.ai_first_config.track_ai_decisions:
-                        print(f"✅ AI Decision: {task_type} (confidence: {ai_response.confidence:.2f}, time: {execution_time_ms:.1f}ms)")
-                    
-                    return ast_node
-                else:
-                    # AI failed or low confidence, fall back to patterns
-                    fallback_reason = "low_confidence" if ai_response.success else "ai_failure"
-                    
-                    if self.ai_first_config.log_ai_failures:
-                        print(f"⚠️ AI Fallback: {task_type} - {fallback_reason} (confidence: {ai_response.confidence:.2f})")
-                    
-                    self.decision_tracker.record_pattern_fallback(task_type, fallback_reason)
-            else:
-                # AI engine not available, fall back to patterns
-                if self.ai_first_config.log_ai_failures:
-                    print(f"⚠️ AI Fallback: {task_type} - ai_engine_unavailable")
-                
-                self.decision_tracker.record_pattern_fallback(task_type, "ai_engine_unavailable")
-            
-        except Exception as e:
-            # AI threw exception, fall back to patterns
-            if self.ai_first_config.log_ai_failures:
-                print(f"⚠️ AI Fallback: {task_type} - exception: {str(e)}")
-            
-            self.decision_tracker.record_pattern_fallback(task_type, "exception")
-        
-        # Fall back to pattern-based processing
-        return self._parse_with_patterns(intent_prompt, target_type, intent_prompt.lower())
     
     def _parse_with_patterns(self, intent_prompt: str, target_type: Optional[TypeAnnotation], prompt_lower: str) -> ASTNode:
         """
