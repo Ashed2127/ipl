@@ -313,6 +313,7 @@ def main():
             "  ipl models                                   List available models\n"
             "  ipl verify <script.ipl>                      Validate AST via Mathematical Firewall\n"
             "  ipl compile <script.ipl>                     Compile and inspect AST\n"
+            "  ipl taint <script.ipl>                       Run static taint analysis\n"
             "  ipl repl [--model <name>]                      Start interactive REPL\n"
             "  ipl help                                     Show this help message\n"
         )
@@ -338,6 +339,8 @@ def main():
         verify_file(args[1])
     elif cmd in ("compile", "build") and len(args) >= 2:
         compile_file(args[1])
+    elif cmd in ("taint", "analyze-taint") and len(args) >= 2:
+        analyze_taint(args[1])
     elif cmd in ("repl", "interactive"):
         start_repl(model_name=model_name)
     elif cmd in ("help", "--help", "-h"):
@@ -349,6 +352,7 @@ def main():
             "  ipl models                                   List available models\n"
             "  ipl verify <script.ipl>                      Validate AST via Mathematical Firewall\n"
             "  ipl compile <script.ipl>                     Compile and inspect AST\n"
+            "  ipl taint <script.ipl>                       Run static taint analysis\n"
             "  ipl repl [--model <name>]                      Start interactive REPL\n"
             "  ipl help                                     Show this help message\n"
         )
