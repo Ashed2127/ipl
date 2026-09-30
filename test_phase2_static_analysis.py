@@ -247,12 +247,17 @@ shell_exec(input);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 4
+    if len(results["violations"]) != 4:
+        raise AssertionError(f"Should have 4 violations, got {len(results['violations'])}")
     required_sinks = [v["required_sink"] for v in results["violations"]]
-    assert "sql" in required_sinks
-    assert "file" in required_sinks
-    assert "html" in required_sinks
-    assert "shell" in required_sinks
+    if "sql" not in required_sinks:
+        raise AssertionError("sql should be in required_sinks")
+    if "file" not in required_sinks:
+        raise AssertionError("file should be in required_sinks")
+    if "html" not in required_sinks:
+        raise AssertionError("html should be in required_sinks")
+    if "shell" not in required_sinks:
+        raise AssertionError("shell should be in required_sinks")
 
 
 if __name__ == "__main__":
