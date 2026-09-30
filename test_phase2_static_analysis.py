@@ -113,10 +113,14 @@ let file_safe = sanitize_for_file(input);
     
     results = analyze_program_taint(program)
     
-    assert len(results["sanitized_vars"]) == 3
-    assert results["sanitized_vars"]["sql_safe"] == SinkKind.SQL
-    assert results["sanitized_vars"]["html_safe"] == SinkKind.HTML
-    assert results["sanitized_vars"]["file_safe"] == SinkKind.FILE
+    if len(results["sanitized_vars"]) != 3:
+        raise AssertionError(f"Should have 3 sanitized vars, got {len(results['sanitized_vars'])}")
+    if results["sanitized_vars"]["sql_safe"] != SinkKind.SQL:
+        raise AssertionError("sql_safe should have SQL sink kind")
+    if results["sanitized_vars"]["html_safe"] != SinkKind.HTML:
+        raise AssertionError("html_safe should have HTML sink kind")
+    if results["sanitized_vars"]["file_safe"] != SinkKind.FILE:
+        raise AssertionError("file_safe should have FILE sink kind")
 
 
 def test_static_analysis_dynamic_sites():
