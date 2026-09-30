@@ -368,8 +368,6 @@ class LocalInferenceRuntime:
         return "general"
 
     def repair_candidate(
-
-    def repair_candidate(
         self,
         candidate_node: ASTNode,
         diagnostic: str,
