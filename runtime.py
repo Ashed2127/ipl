@@ -314,6 +314,26 @@ class Interpreter:
             )
             return IValue(True, "Bool", confidence=1.0)
 
+        def _sanitize_string(arg_val: IValue) -> IValue:
+            """Sanitize a string using the security engine and mark it as SANITIZED."""
+            if not isinstance(arg_val.raw_value, str):
+                raise TypeError("sanitize_string requires a string argument")
+            
+            sanitized = self.security_engine.sanitize_string(arg_val.raw_value)
+            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_string")
+            
+            self.compiler.audit_trace.record(
+                phase="SANITIZATION",
+                status="SANITIZED",
+                details={
+                    "original_length": len(arg_val.raw_value),
+                    "sanitized_length": len(sanitized),
+                    "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}"
+                }
+            )
+            
+            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
