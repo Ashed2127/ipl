@@ -463,42 +463,6 @@ class Interpreter:
 
         def _now() -> IValue:
             return IValue(datetime.datetime.now(datetime.timezone.utc).isoformat(), "String", confidence=1.0)
-        
-        def _ai_stats() -> IValue:
-            """Get hierarchical AI engine statistics."""
-            if self.use_hierarchical_ai:
-                stats = self.compiler.get_ai_engine_statistics()
-                return IValue(stats, "Dict", confidence=1.0)
-            return IValue({"message": "Hierarchical AI engine not enabled"}, "Dict", confidence=1.0)
-        
-        def _auth_stats() -> IValue:
-            """Get authorization system statistics."""
-            if self.enable_authorization:
-                stats = self.compiler.get_authorization_statistics()
-                return IValue(stats, "Dict", confidence=1.0)
-            return IValue({"message": "Authorization system not enabled"}, "Dict", confidence=1.0)
-        
-        def _authenticate(username_val: IValue, password_val: IValue) -> IValue:
-            """Authenticate user with username and password."""
-            username = str(username_val.raw_value)
-            password = str(password_val.raw_value)
-            success = self.compiler.authenticate_user(username, password)
-            
-            # Update environment security context on successful authentication
-            if success and self.enable_authorization:
-                self.global_env.set_security_context(self.compiler.system1.security_context)
-                self.global_env.log_authorization("authenticate", True, f"User {username} authenticated successfully")
-            elif not success:
-                self.global_env.log_authorization("authenticate", False, f"Authentication failed for user {username}")
-            
-            return IValue(success, "Bool", confidence=1.0)
-        
-        def _auth_log() -> IValue:
-            """Get authorization log from current environment."""
-            if self.enable_authorization:
-                log = self.global_env.get_authorization_log()
-                return IValue(log, "List", confidence=1.0)
-            return IValue([], "List", confidence=1.0)
 
         builtins = {
             "len": _len,
