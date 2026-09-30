@@ -8,6 +8,7 @@ from parser import Parser
 from runtime import Interpreter
 from taint import TaintLevel
 from rich.console import Console
+from rich.panel import Panel
 
 
 def test_sql_injection_protection():
