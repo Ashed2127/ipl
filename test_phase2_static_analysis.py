@@ -38,8 +38,9 @@ db_write("users", safe_username);
     
     if len(results["violations"]) != 0:
         raise AssertionError(f"Safe program should have no violations, got {len(results['violations'])}")
-    if len(results["static_safe_sites"]) != 1:
-        raise AssertionError(f"Should have 1 statically safe site, got {len(results['static_safe_sites'])}")
+    # Sanitized data requires runtime check for sink kind match
+    if len(results["dynamic_sites"]) != 1:
+        raise AssertionError(f"Should have 1 dynamic site, got {len(results['dynamic_sites'])}")
     if "safe_username" not in results["sanitized_vars"]:
         raise AssertionError("safe_username should be in sanitized_vars")
     if results["sanitized_vars"]["safe_username"] != SinkKind.SQL:
