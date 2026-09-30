@@ -216,7 +216,8 @@ class StaticTaintAnalysis:
     
     def _analyze_print(self, stmt: PrintStatement):
         """Analyze a print statement (not a security sink)"""
-        self._analyze_expr(stmt.value)
+        for expr in stmt.exprs:
+            self._analyze_expr(expr)
     
     def _analyze_sanitization(self, stmt: SanitizationNode):
         """Analyze a sanitization node"""
