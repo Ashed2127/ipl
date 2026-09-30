@@ -1,0 +1,57 @@
+# IPL Authorization Demo
+# This is a comprehensive example of authentication/authorization in IPL
+# that actually uses the taint tracking system, not a hand-written Python bypass
+
+# Simulate receiving untrusted user input from an external source
+let username = read_external_input();
+let password = read_external_input();
+
+# These inputs are UNTRUSTED by default (marked by taint system)
+# We must sanitize them before use
+
+# Step 1: Sanitize username for length and allowed characters
+let sanitized_username = sanitize_string(username);
+let sanitized_password = sanitize_string(password);
+
+# Step 2: Check credentials against a trusted database
+# The database values are TRUSTED (hardcoded or from secure source)
+let db_username = "admin";
+let db_password = "secure_password_123";
+
+# Step 3: Authenticate - this will fail if input is still UNTRUSTED
+if (sanitized_username == db_username) && (sanitized_password == db_password) {
+    print("Authentication successful");
+    
+    # Step 4: Set user session with appropriate permissions
+    let user_role = "admin";
+    let user_permissions = ["read", "write", "delete", "admin"];
+    
+    # Step 5: Example of using sanitized data in a sink
+    # This will only work if the data is properly sanitized
+    db_write("audit_log", "User authenticated: " + sanitized_username);
+    
+    # Step 6: Example of attempting to use unsanitized data (should fail)
+    # let unsafe_query = "SELECT * FROM users WHERE username = '" + username + "'";
+    # db_write("users", unsafe_query);  # This would be blocked by taint tracking
+    
+    print("Session established with role: " + user_role);
+} else {
+    print("Authentication failed");
+    
+    # Log failed attempt (sanitized)
+    db_write("audit_log", "Failed auth attempt for: " + sanitized_username);
+}
+
+# Step 7: Example of file write with taint tracking
+let user_file_content = "User data: " + sanitized_username;
+file_write("/var/ipl/user_data.txt", user_file_content);
+
+# Step 8: Example of HTML rendering with taint tracking
+let user_html = "<div>Welcome, " + sanitized_username + "</div>";
+html_render(user_html);
+
+# This demonstrates the complete security pipeline:
+# 1. External input is UNTRUSTED
+# 2. sanitize_string() marks data as SANITIZED
+# 3. Sinks (db_write, file_write, html_render) require SANITIZED or TRUSTED data
+# 4. Using UNTRUSTED data at a sink will be blocked by TaintViolationError
