@@ -1,17 +1,16 @@
-# IPL Authorization Demo
-# This is a comprehensive example of authentication/authorization in IPL
-# that actually uses the taint tracking system, not a hand-written Python bypass
+# IPL Authorization Demo - Phase 1: Sink-Aware Sanitizers
+# This demonstrates the complete sink-aware security pipeline
 
 # Simulate receiving untrusted user input from an external source
-let username = "admin";
-let password = "secret_password";
+let username = set_untrusted("admin");
+let password = set_untrusted("secret_password");
 
 # These inputs are UNTRUSTED by default (marked by taint system)
-# We must sanitize them before use
+# We must sanitize them before use with sink-specific sanitizers
 
-# Step 1: Sanitize username for length and allowed characters
-let sanitized_username = sanitize_string(username);
-let sanitized_password = sanitize_string(password);
+# Step 1: Sanitize username for SQL database usage
+let sql_sanitized_username = sanitize_for_sql(username);
+let sql_sanitized_password = sanitize_for_sql(password);
 
 # Step 2: Check credentials against a trusted database
 # The database values are TRUSTED (hardcoded or from secure source)
@@ -19,17 +18,17 @@ let db_username = "admin";
 let db_password = "secure_password_123";
 
 # Step 3: Authenticate - this will fail if input is still UNTRUSTED
-if (sanitized_username == db_username) {
-    if (sanitized_password == db_password) {
+if (sql_sanitized_username == db_username) {
+    if (sql_sanitized_password == db_password) {
         print("Authentication successful");
 
         # Step 4: Set user session with appropriate permissions
         let user_role = "admin";
         let user_permissions = ["read", "write", "delete", "admin"];
 
-        # Step 5: Example of using sanitized data in a sink
-        # This will only work if the data is properly sanitized
-        db_write("audit_log", "User authenticated: " + sanitized_username);
+        # Step 5: Example of using SQL-sanitized data in a SQL sink
+        # This will only work if the data is SQL-sanitized
+        db_write("audit_log", "User authenticated: " + sql_sanitized_username);
 
         # Step 6: Example of attempting to use unsanitized data (should fail)
         # let unsafe_query = "SELECT * FROM users WHERE username = '" + username + "'";
@@ -39,16 +38,20 @@ if (sanitized_username == db_username) {
     }
 }
 
-# Step 7: Example of file write with taint tracking
-let user_file_content = "User data: " + sanitized_username;
+# Step 7: Example of file write with FILE-sanitized data
+let file_sanitized_username = sanitize_for_file(username);
+let user_file_content = "User data: " + file_sanitized_username;
 file_write("/var/ipl/user_data.txt", user_file_content);
 
-# Step 8: Example of HTML rendering with taint tracking
-let user_html = "<div>Welcome, " + sanitized_username + "</div>";
+# Step 8: Example of HTML rendering with HTML-sanitized data
+let html_sanitized_username = sanitize_for_html(username);
+let user_html = "<div>Welcome, " + html_sanitized_username + "</div>";
 html_render(user_html);
 
-# This demonstrates the complete security pipeline:
+# This demonstrates the complete sink-aware security pipeline:
 # 1. External input is UNTRUSTED
-# 2. sanitize_string() marks data as SANITIZED
-# 3. Sinks (db_write, file_write, html_render) require SANITIZED or TRUSTED data
-# 4. Using UNTRUSTED data at a sink will be blocked by TaintViolationError
+# 2. sanitize_for_sql() marks data as SANITIZED for SQL sinks
+# 3. sanitize_for_html() marks data as SANITIZED for HTML sinks
+# 4. sanitize_for_file() marks data as SANITIZED for FILE sinks
+# 5. Sinks (db_write, file_write, html_render) require matching SANITIZED tags
+# 6. Using UNTRUSTED or mismatched SANITIZED data at a sink will be blocked
