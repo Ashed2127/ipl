@@ -155,6 +155,9 @@ class StaticTaintAnalysis:
                 sink_kind = self.sanitizer_functions[func_name]
                 taint = TaintLevel.SANITIZED
                 self.sanitized_vars[stmt.name] = sink_kind
+            elif func_name in self.source_functions:
+                # Source functions return UNTRUSTED data
+                taint = TaintLevel.UNTRUSTED
         
         self._set_var_taint(stmt.name, taint)
         
