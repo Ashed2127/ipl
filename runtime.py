@@ -40,7 +40,7 @@ except (ImportError, ValueError):
     from semantic_engine import SemanticEngine
     from formatter import IntelligentFormatter
     from security_engine import SecurityEngine
-    from taint import TaintLevel, TaintTag, TaintViolationError
+    from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
     from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
 
 
