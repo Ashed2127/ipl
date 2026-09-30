@@ -18,8 +18,10 @@ let db_username = "admin";
 let db_password = "secure_password_123";
 
 # Step 3: Authenticate - this will fail if input is still UNTRUSTED
+# Note: Password comparison should use trusted passwords, not sanitized ones
+# This is a simplified demo - in practice, passwords would be hashed
 if (sql_sanitized_username == db_username) {
-    if (sql_sanitized_password == db_password) {
+    if (password == db_password) {
         print("Authentication successful");
 
         # Step 4: Set user session with appropriate permissions
