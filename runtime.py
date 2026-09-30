@@ -478,6 +478,43 @@ class Interpreter:
             )
             return IValue(True, "Bool", confidence=1.0)
 
+        def _shell_exec(command_val: IValue) -> IValue:
+            """Shell execution sink that requires SHELL-sanitized data."""
+            if not command_val.taint.is_safe_for_sink(SinkKind.SHELL):
+                self.compiler.audit_trace.record(
+                    phase="SINK_EXECUTION_ATTEMPT",
+                    status="BLOCKED_BY_TAINT",
+                    details={
+                        "sink": "shell_exec",
+                        "taint": command_val.taint.level.value,
+                        "sink_kind": command_val.taint.sink_kind.value if command_val.taint.sink_kind else "None",
+                        "required": "SHELL"
+                    }
+                )
+                raise TaintViolationError(
+                    variable_name=str(command_val.get_display_value()),
+                    sink_name="shell_exec",
+                    taint_level=command_val.taint.level
+                )
+
+            self.compiler.audit_trace.record(
+                phase="SINK_EXECUTION",
+                status="EXECUTED",
+                details={
+                    "sink": "shell_exec",
+                    "taint": command_val.taint.level.value,
+                    "sink_kind": command_val.taint.sink_kind.value if command_val.taint.sink_kind else "None"
+                }
+            )
+            self.console.print(
+                f"[bold green]🔒 [Zero-Trust Shell Sink Verified][/bold green] "
+                f"Shell command allowed (Taint: [bold green]{command_val.taint.level.value}[/bold green], "
+                f"Sink Kind: [bold cyan]{command_val.taint.sink_kind.value if command_val.taint.sink_kind else 'None'}[/bold cyan])"
+            )
+            # Note: Actual shell execution is not implemented for security reasons
+            # This is a placeholder to demonstrate the sink enforcement
+            return IValue(True, "Bool", confidence=1.0)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
