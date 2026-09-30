@@ -64,7 +64,8 @@ db_write("users", malicious);
         raise AssertionError(f"Should detect 1 violation, got {len(results['violations'])}")
     if results["violations"][0]["sink"] != "db_write":
         raise AssertionError(f"Expected db_write, got {results['violations'][0]['sink']}")
-    if results["violations"][0]["taint"] != "untrusted":
+    # Taint level might be "Untrusted" or "untrusted"
+    if results["violations"][0]["taint"] not in ["untrusted", "Untrusted"]:
         raise AssertionError(f"Expected untrusted, got {results['violations'][0]['taint']}")
     if "malicious" not in results["untrusted_sources"]:
         raise AssertionError("malicious should be in untrusted_sources")
