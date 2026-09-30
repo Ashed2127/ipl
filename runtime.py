@@ -522,6 +522,11 @@ class Interpreter:
             # For testing, we return a placeholder with UNTRUSTED taint
             return IValue("untrusted_input", "String", confidence=1.0, taint=TaintTag(level=TaintLevel.UNTRUSTED, provenance="user_input"))
 
+        def _set_untrusted(arg_val: IValue) -> IValue:
+            """Mark a value as UNTRUSTED (for testing adversarial payloads)."""
+            new_taint = TaintTag(level=TaintLevel.UNTRUSTED, provenance="set_untrusted")
+            return IValue(arg_val.raw_value, arg_val.type_name, confidence=arg_val.confidence, taint=new_taint)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
