@@ -354,33 +354,8 @@ class LocalInferenceRuntime:
         # General literal string fallback
         return Literal(value=intent_prompt, type_name="string")
     
-    def _parse_with_hierarchical_ai(self, intent_prompt: str, target_type: Optional[TypeAnnotation] = None) -> ASTNode:
-        """
-        Parse intent using the hierarchical AI engine with speculative execution.
-        This provides intelligent, fast, and token-optimized processing.
-        """
-        # Determine task type for the AI engine
-        task_type = self._determine_task_type(intent_prompt, target_type)
-        
-        # Prepare context for AI engine
-        context = {
-            "task_type": task_type,
-            "target_type": target_type.name if target_type else None,
-            "prompt_length": len(intent_prompt)
-        }
-        
-        # Process with hierarchical AI engine
-        ai_response = self.ai_engine.process_speculative(intent_prompt, context)
-        
-        if not ai_response.success:
-            # Fallback to traditional processing if AI fails
-            return self._fallback_traditional_processing(intent_prompt, target_type)
-        
-        # Convert AI response to AST node
-        return self._convert_ai_response_to_ast(ai_response.content, target_type, intent_prompt=intent_prompt)
-    
     def _determine_task_type(self, intent_prompt: str, target_type: Optional[TypeAnnotation]) -> str:
-        """Determine the type of task for AI engine classification."""
+        """Determine the type of task for semantic extraction."""
         prompt_lower = intent_prompt.lower()
         
         if target_type:
@@ -391,8 +366,6 @@ class LocalInferenceRuntime:
             return "semantic_extraction"
         
         return "general"
-    
-    def _convert_ai_response_to_ast(self, ai_content: Any, target_type: Optional[TypeAnnotation], intent_prompt: str = "") -> ASTNode:
         """Convert AI engine response to IPL AST node."""
         prompt_lower = intent_prompt.lower()
 
