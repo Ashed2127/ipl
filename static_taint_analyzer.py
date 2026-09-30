@@ -248,9 +248,9 @@ class StaticTaintAnalysis:
         # For other expression types, conservatively return TRUSTED
         return TaintLevel.TRUSTED
     
-    def _analyze_call(self, expr: CallExpr) -> TaintLevel:
+    def _analyze_call(self, expr: FunctionCall) -> TaintLevel:
         """Analyze a function call"""
-        func_name = self._get_function_name(expr.function)
+        func_name = self._get_function_name(expr.callee)
         
         # Check if it's a sink function
         if func_name in self.sink_functions:
