@@ -93,69 +93,6 @@ def _print_ai_stats(console: Console, stats: Dict[str, Any]):
     ))
 
 
-                
-                if auth_system.add_user(username, password, role):
-                    console.print(f"[green]✓ User '{username}' added successfully as {role.name}.[/green]")
-                else:
-                    console.print(f"[red]✗ Failed to add user '{username}'. User may already exist.[/red]")
-            
-            elif choice == "3":
-                username = input("Enter username to delete: ").strip()
-                if auth_system.delete_user(username):
-                    console.print(f"[green]✓ User '{username}' deleted successfully.[/green]")
-                else:
-                    console.print(f"[red]✗ Failed to delete user '{username}'. User may not exist.[/red]")
-            
-            elif choice == "4":
-                username = input("Enter username: ").strip()
-                console.print("[bold]Available Roles:[/bold]")
-                console.print("  1. GUEST")
-                console.print("  2. USER")
-                console.print("  3. ADMIN")
-                console.print("  4. SUPER_ADMIN")
-                
-                role_choice = input("Select new role (1-4): ").strip()
-                role_map = {
-                    "1": UserRole.GUEST,
-                    "2": UserRole.USER,
-                    "3": UserRole.ADMIN,
-                    "4": UserRole.SUPER_ADMIN
-                }
-                
-                if role_choice not in role_map:
-                    console.print("[red]Invalid role selection.[/red]")
-                    continue
-                
-                role = role_map[role_choice]
-                if auth_system.update_user_role(username, role):
-                    console.print(f"[green]✓ User '{username}' role updated to {role.name}.[/green]")
-                else:
-                    console.print(f"[red]✗ Failed to update user '{username}' role. User may not exist.[/red]")
-            
-            elif choice == "5":
-                username = input("Enter username: ").strip()
-                user_info = auth_system.get_user_info(username)
-                if user_info:
-                    console.print(f"[bold cyan]User: {username}[/bold cyan]")
-                    console.print(f"Role: {user_info['role']}")
-                    console.print(f"Permissions: {', '.join(user_info['permissions'])}")
-                else:
-                    console.print(f"[red]User '{username}' not found.[/red]")
-            
-            elif choice == "6":
-                console.print("[dim]Exiting user management.[/dim]")
-                break
-            
-            else:
-                console.print("[red]Invalid option. Please select 1-6.[/red]")
-        
-        except (KeyboardInterrupt, EOFError):
-            console.print("\n[dim]User management terminated.[/dim]")
-            break
-        except Exception as e:
-            console.print(f"[red]Error: {e}[/red]")
-
-
 def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
     console = Console()
     if not os.path.exists(filepath):
