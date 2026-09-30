@@ -5,13 +5,13 @@
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                        IPL PROGRAMMING LANGUAGE ARCHITECTURE                        │
-│                    Neuro-Symbolic Compiler & Deterministic Runtime                    │
+│                    Symbolic Compiler & Deterministic Runtime                        │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                          INPUT LAYER - Source Code Entry                             │
 └─────────────────────────────────────────────────────────────────────────────────────┘
-                                    
+
     CLI Interface              REPL Mode              REST API Gateway          Python Embedding
          │                        │                        │                        │
          ▼                        ▼                        ▼                        ▼
@@ -45,41 +45,19 @@
                                         │
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  3. NEURO-SYMBOLIC COMPILER (compiler.py)                                            │
-│     • System 1: Neural Intent Processing (Local Inference Runtime)                │
+│  3. SEMANTIC ENGINE (semantic_engine.py)                                             │
+│     • Pattern-based natural language extraction for semantic types                  │
+│     • Currency, Sentiment, Quantity, Date parsing                                   │
+│     • Deterministic semantic type recognition                                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│  4. NEURO-SYMBOLIC COMPILER (compiler.py)                                            │
+│     • System 1: Semantic Engine (pattern-based parsing)                            │
 │     • System 2: Mathematical Firewall Verification                                   │
 │     • Self-Correction Loop for type mismatches                                      │
 │     • Audit Trail Generation (SHA-256 signed)                                       │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    HIERARCHICAL AI ENGINE (hierarchical_ai_engine.py)                │
-│     • Multi-tier AI processing with automatic complexity classification              │
-│     • Speculative execution and caching                                             │
-│     • Token optimization and cost estimation                                        │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-
-    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-    │   TIER 1        │    │   TIER 2        │    │   TIER 3        │
-    │  Lightning      │    │  Specialized    │    │  Reasoning      │
-    │  Fast Pattern  │    │  Semantic       │    │  Deep API       │
-    │  Matching       │    │  Analysis       │    │  Integration    │
-    │                 │    │                 │    │                 │
-    │ • Token Class   │    │ • Type Infer    │    │ • Local LLM     │
-    │ • Fast Extract  │    │ • Security      │    │ • Complex       │
-    │ • <0.1ms        │    │ • Optimizations │    │   Optimization  │
-    │ • Always Avail  │    │ • Rule-based    │    │ • Security      │
-    └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┴───────────────────────┘
-                                 │
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    SEMANTIC ENGINE (semantic_engine.py)                               │
-│     • Natural language extraction for semantic types                                │
-│     • Currency, Sentiment, Quantity, Date parsing                                   │
-│     • Intent classification and probabilistic confidence                           │
-│     • Audience adaptation for output formatting                                     │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
@@ -99,17 +77,16 @@
 │  ZERO-TRUST TAINT TRACKING (taint.py)                                                │
 │     • Three-level security lattice: Untrusted → Sanitized → Trusted                │
 │     • Automatic taint propagation                                                   │
-│     • Fail-closed security sinks (db_write, file_write)                            │
+│     • Fail-closed security sinks (db_write, file_write, html_render)              │
 │     • SanitizationNode validation                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  AUTHORIZATION SYSTEM (authorization_system.py)                                     │
-│     • User authentication and session management                                    │
-│     • Role-based access control (RBAC)                                              │
-│     • Context-aware security policies                                               │
-│     • Permission-based operation control                                            │
+│  SECURITY ENGINE (security_engine.py)                                                │
+│     • Pre-execution AST security analysis                                           │
+│     • String sanitization and input validation                                      │
+│     • Vulnerability pattern detection                                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
@@ -124,6 +101,7 @@
 │     • Control flow execution (if/else, for, while)                                  │
 │     • Function call stack and recursion                                             │
 │     • Standard library built-ins (crypto, encoding, time)                           │
+│     • Taint enforcement at security-sensitive sinks                                 │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
@@ -132,14 +110,6 @@
 │     • Audience-specific output presentation (executive, developer, child)           │
 │     • Visual formats (tables, bar charts, gauges, cards)                            │
 │     • Rich terminal output with colors and formatting                               │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  SECURITY ENGINE (security_engine.py)                                                │
-│     • Pre-execution AST security analysis                                           │
-│     • String sanitization and input validation                                      │
-│     • Vulnerability pattern detection                                               │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
@@ -160,11 +130,11 @@
 │                          DATA FLOW ARCHITECTURE                                      │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-Source Code → Lexer → Parser → AST → Compiler → Security Verification → 
+Source Code → Lexer → Parser → AST → Semantic Analysis →
   ↓
-  Semantic Analysis (AI Engine) → Self-Correction → Firewall Validation →
+  Self-Correction → Firewall Validation → Taint Tracking →
   ↓
-  Taint Tracking → Authorization Check → Runtime Execution → Formatted Output
+  Runtime Execution → Formatted Output
   ↓
   Audit Trail Generation (SHA-256 signed per step)
 
@@ -172,13 +142,13 @@ Source Code → Lexer → Parser → AST → Compiler → Security Verification 
 │                          KEY ARCHITECTURAL PRINCIPLES                                 │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-1. NEURO-SYMBOLIC HYBRID: Combines neural language understanding with symbolic verification
+1. SYMBOLIC COMPILATION: Pattern-based semantic extraction with deterministic behavior
 2. ZERO-TRUST SECURITY: All data starts untrusted, must be explicitly sanitized
 3. FAIL-CLOSED DESIGN: Security violations block execution rather than risking compromise
 4. DETERMINISTIC RUNTIME: Same input always produces same output (mathematical guarantees)
 5. CRYPTOGRAPHIC AUDIT: Every operation signed with SHA-256 for compliance
-6. MODULAR TIERS: AI processing scales from embedded to external APIs based on complexity
-7. SELF-HEALING: Automatic type correction between neural intent and formal types
+6. SOUND TAINT LATTICE: Three-level security lattice with correct combine() semantics
+7. PATTERN-BASED SEMANTICS: No neural dependencies for core functionality
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                          MODULE DEPENDENCIES                                          │
@@ -190,15 +160,13 @@ Core Modules:
 • parser.py - AST generation
 • ast_nodes.py - AST node definitions
 
-AI & Intelligence:
-• hierarchical_ai_engine.py - Multi-tier AI processing
-• semantic_engine.py - Natural language extraction
+Compilation:
+• semantic_engine.py - Pattern-based natural language extraction
 • compiler.py - Neuro-symbolic compiler with firewall
 
 Security:
-• taint.py - Zero-trust data tracking
-• authorization_system.py - User authentication and RBAC
-• security_engine.py - AST security analysis
+• taint.py - Zero-trust data tracking with sound lattice
+• security_engine.py - AST security analysis and sanitization
 
 Runtime:
 • runtime.py - Deterministic VM and interpreter
@@ -208,17 +176,21 @@ Runtime:
 Interfaces:
 • cli.py - Command-line interface
 • gateway.py - REST API microservice
-• security_engine.py - Security validation
+
+Testing:
+• test_adversarial_attacks.py - Adversarial attack tests
+
+Examples:
+• examples/authorization_demo.ipl - Authorization demo using taint pipeline
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
                           EXECUTION CHARACTERISTICS
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-• Startup Time: <100ms (embedded mode)
+• Startup Time: <100ms
 • Typical Execution: 1-50ms for most operations
 • Memory Footprint: ~50MB base, scales with workload
 • Security Overhead: <5% (deterministic validation)
-• AI Latency: 0ms (embedded) to 2s (external API)
 • Audit Trail: Cryptographic per-step logging
 • Error Recovery: Self-correction loop for type mismatches
 • Concurrency: Thread-safe for parallel processing
