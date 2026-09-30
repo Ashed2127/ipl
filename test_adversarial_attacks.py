@@ -128,7 +128,7 @@ def test_xss_protection():
     blocked = 0
     for payload in xss_payloads:
         source = f"""
-let user_input = "{payload}";
+let user_input = set_untrusted("{payload}");
 html_render(user_input);
 """
         try:
