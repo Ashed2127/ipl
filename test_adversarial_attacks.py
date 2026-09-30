@@ -202,7 +202,7 @@ def test_command_injection_protection():
     blocked = 0
     for payload in command_payloads:
         source = f"""
-let user_input = "echo hello {payload}";
+let user_input = set_untrusted("echo hello {payload}");
 shell_exec(user_input);
 """
         try:
