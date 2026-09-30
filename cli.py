@@ -156,7 +156,7 @@ def _print_ai_stats(console: Console, stats: Dict[str, Any]):
             console.print(f"[red]Error: {e}[/red]")
 
 
-def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None, use_hierarchical_ai: bool = True, enable_authorization: bool = True, tier3_model: Optional[str] = None, username: Optional[str] = None, role_name: Optional[str] = None):
+def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] = None):
     console = Console()
     if not os.path.exists(filepath):
         console.print(f"[bold red]File not found:[/bold red] {filepath}")
@@ -164,36 +164,12 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
 
     print_banner(console)
     model_disp = model_name or os.environ.get("IPL_MODEL", "embedded-fast-semantic-v1")
-    ai_mode = "Hierarchical AI Engine" if use_hierarchical_ai else "Traditional Processing"
-    user_disp = username or "developer"
-    role_disp = role_name or ("admin" if not username else "user")
-    auth_mode = f"Enabled (User: {user_disp}, Role: {role_disp})" if enable_authorization else "Disabled"
-    tier3_disp = tier3_model or os.environ.get("IPL_TIER3_MODEL", "qwen2.5-coder:0.5b")
-    console.print(f"[dim]Executing: {filepath} | AI Model: [bold cyan]{model_disp}[/bold cyan] | Mode: [bold green]{ai_mode}[/bold green] | Auth: [bold yellow]{auth_mode}[/bold yellow] | Tier 3: [bold magenta]{tier3_disp}[/bold magenta][/dim]\n")
+    console.print(f"[dim]Executing: {filepath} | Model: [bold cyan]{model_disp}[/bold cyan][/dim]\n")
 
     with open(filepath, "r", encoding="utf-8") as f:
         source = f.read()
 
-    interpreter = Interpreter(console=console, model_name=model_name, use_hierarchical_ai=use_hierarchical_ai, enable_authorization=enable_authorization, tier3_model=tier3_model)
-    if enable_authorization and (username or role_name):
-        role_map = {
-            "guest": UserRole.GUEST,
-            "user": UserRole.USER,
-            "admin": UserRole.ADMIN,
-            "super_admin": UserRole.SUPER_ADMIN
-        }
-        target_role = role_map.get((role_name or "admin").lower(), UserRole.ADMIN)
-        try:
-            from authorization_system import SecurityContext, Permission
-        except ImportError:
-            from .authorization_system import SecurityContext, Permission
-        perms = set(Permission) if target_role in (UserRole.ADMIN, UserRole.SUPER_ADMIN) else ({Permission.READ, Permission.WRITE} if target_role == UserRole.USER else {Permission.READ})
-        interpreter.compiler.system1.set_security_context_direct(SecurityContext(
-            user_id=username or "developer",
-            role=target_role,
-            permissions=perms,
-            session_id="cli_session"
-        ))
+    interpreter = Interpreter(console=console, model_name=model_name)
     start_time = time.perf_counter()
     success = run_source(source, interpreter, console, filename=filepath)
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
@@ -201,18 +177,6 @@ def run_file(filepath: str, show_audit: bool = False, model_name: Optional[str] 
     if show_audit:
         console.print("\n[bold cyan]─── Cryptographic Verified Audit Trace ───[/bold cyan]")
         interpreter.compiler.audit_trace.render_table(console)
-        
-        # Show AI engine statistics if hierarchical AI is enabled
-        if use_hierarchical_ai:
-            console.print("\n[bold cyan]─── Hierarchical AI Engine Statistics ───[/bold cyan]")
-            ai_stats = interpreter.compiler.get_ai_engine_statistics()
-            _print_ai_stats(console, ai_stats)
-        
-        # Show authorization statistics if enabled
-        if enable_authorization:
-            console.print("\n[bold cyan]─── Authorization System Statistics ───[/bold cyan]")
-            auth_stats = interpreter.compiler.get_authorization_statistics()
-            _print_auth_stats(console, auth_stats)
 
     if success:
         console.print(f"\n[dim]⚡ Execution time: [bold green]{elapsed_ms:.2f} ms[/bold green][/dim]")
