@@ -179,8 +179,10 @@ db_write("users", combined);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 1, "Combined untrusted data should violate"
-    assert results["violations"][0]["sink"] == "db_write"
+    if len(results["violations"]) != 1:
+        raise AssertionError(f"Combined untrusted data should violate, got {len(results['violations'])}")
+    if results["violations"][0]["sink"] != "db_write":
+        raise AssertionError(f"Expected db_write, got {results['violations'][0]['sink']}")
 
 
 def test_static_analysis_conditional_branches():
