@@ -444,12 +444,17 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
 
         def _html_render(html_val: IValue) -> IValue:
-            """HTML rendering sink that requires sanitized data."""
-            if html_val.taint.level == TaintLevel.UNTRUSTED:
+            """HTML rendering sink that requires HTML-sanitized data."""
+            if not html_val.taint.is_safe_for_sink(SinkKind.HTML):
                 self.compiler.audit_trace.record(
                     phase="SINK_EXECUTION_ATTEMPT",
                     status="BLOCKED_BY_TAINT",
-                    details={"sink": "html_render", "taint": html_val.taint.level.value}
+                    details={
+                        "sink": "html_render",
+                        "taint": html_val.taint.level.value,
+                        "sink_kind": html_val.taint.sink_kind.value if html_val.taint.sink_kind else "None",
+                        "required": "HTML"
+                    }
                 )
                 raise TaintViolationError(
                     variable_name=str(html_val.get_display_value()),
@@ -460,11 +465,16 @@ class Interpreter:
             self.compiler.audit_trace.record(
                 phase="SINK_EXECUTION",
                 status="EXECUTED",
-                details={"sink": "html_render", "taint": html_val.taint.level.value}
+                details={
+                    "sink": "html_render",
+                    "taint": html_val.taint.level.value,
+                    "sink_kind": html_val.taint.sink_kind.value if html_val.taint.sink_kind else "None"
+                }
             )
             self.console.print(
                 f"[bold green]🔒 [Zero-Trust HTML Sink Verified][/bold green] "
-                f"Rendered HTML (Taint: [bold green]{html_val.taint.level.value}[/bold green])"
+                f"Rendered HTML (Taint: [bold green]{html_val.taint.level.value}[/bold green], "
+                f"Sink Kind: [bold cyan]{html_val.taint.sink_kind.value if html_val.taint.sink_kind else 'None'}[/bold cyan])"
             )
             return IValue(True, "Bool", confidence=1.0)
 
