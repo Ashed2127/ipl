@@ -515,6 +515,13 @@ class Interpreter:
             # This is a placeholder to demonstrate the sink enforcement
             return IValue(True, "Bool", confidence=1.0)
 
+        def _user_input(prompt_val: IValue) -> IValue:
+            """Simulate untrusted user input (for testing). Returns UNTRUSTED data."""
+            prompt = str(prompt_val.raw_value) if prompt_val else ""
+            # In a real implementation, this would read from stdin
+            # For testing, we return a placeholder with UNTRUSTED taint
+            return IValue("untrusted_input", "String", confidence=1.0, taint=TaintTag(level=TaintLevel.UNTRUSTED, provenance="user_input"))
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
