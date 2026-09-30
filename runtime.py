@@ -508,6 +508,8 @@ class Interpreter:
             "taint_of": _taint_of,
             "db_write": _db_write,
             "file_write": _file_write,
+            "html_render": _html_render,
+            "sanitize_string": _sanitize_string,
             "audit_trace": _audit_trace,
             "keys": _keys,
             "values": _values,
@@ -527,10 +529,6 @@ class Interpreter:
             "json_encode": _json_encode,
             "json_decode": _json_decode,
             "now": _now,
-            "ai_stats": _ai_stats,
-            "auth_stats": _auth_stats,
-            "authenticate": _authenticate,
-            "auth_log": _auth_log,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
