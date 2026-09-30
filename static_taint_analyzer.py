@@ -10,7 +10,7 @@ import ast
 from ast_nodes import (
     Program, LetStatement, AssignStatement, FunctionDef, IfStatement, WhileStatement,
     ForStatement, ReturnStatement, PrintStatement, SanitizationNode, Expr, Literal,
-    Identifier, BinaryOp, UnaryOp, CallExpr, TypeAnnotation
+    Identifier, BinaryOp, UnaryOp, FunctionCall, TypeAnnotation
 )
 from taint import TaintLevel, TaintTag, SinkKind
 
@@ -241,7 +241,7 @@ class StaticTaintAnalysis:
             # Unary operations: preserve operand taint
             return self._analyze_expr(expr.operand)
         
-        elif isinstance(expr, CallExpr):
+        elif isinstance(expr, FunctionCall):
             # Function calls: check if it's a sink or sanitizer
             return self._analyze_call(expr)
         
