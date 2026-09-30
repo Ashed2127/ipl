@@ -226,6 +226,9 @@ process_data(input);
     # Function parameters are conservatively treated as TRUSTED
     # This is a limitation of the current analysis
     # In a more sophisticated analysis, we'd track inter-procedural flow
+    # This test just ensures it doesn't crash
+    if results is None:
+        raise AssertionError("Analysis should return results")
 
 
 def test_static_analysis_sink_specific_violations():
