@@ -39,13 +39,6 @@ if (sanitized_username == db_username) {
     }
 }
 
-if (sanitized_username != db_username) || (sanitized_password != db_password) {
-    print("Authentication failed");
-
-    # Log failed attempt (sanitized)
-    db_write("audit_log", "Failed auth attempt for: " + sanitized_username);
-}
-
 # Step 7: Example of file write with taint tracking
 let user_file_content = "User data: " + sanitized_username;
 file_write("/var/ipl/user_data.txt", user_file_content);
