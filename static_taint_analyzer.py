@@ -137,11 +137,11 @@ class StaticTaintAnalysis:
     
     def _analyze_assign(self, stmt: AssignStatement):
         """Analyze an assignment statement"""
-        taint = self._analyze_expr(stmt.value)
+        taint = self._analyze_expr(stmt.value_expr)
         
         # If the value is a function call to a sanitizer, mark the result as SANITIZED
-        if isinstance(stmt.value, FunctionCall):
-            func_name = self._get_function_name(stmt.value.callee)
+        if isinstance(stmt.value_expr, FunctionCall):
+            func_name = self._get_function_name(stmt.value_expr.callee)
             if func_name in self.sanitizer_functions:
                 sink_kind = self.sanitizer_functions[func_name]
                 taint = TaintLevel.SANITIZED
