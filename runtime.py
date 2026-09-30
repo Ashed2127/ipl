@@ -265,11 +265,17 @@ class Interpreter:
             return IValue(arg_val.taint.level.value, "String", confidence=1.0)
 
         def _db_write(table_val: IValue, record_val: IValue) -> IValue:
-            if record_val.taint.level == TaintLevel.UNTRUSTED:
+            if not record_val.taint.is_safe_for_sink(SinkKind.SQL):
                 self.compiler.audit_trace.record(
                     phase="SINK_EXECUTION_ATTEMPT",
                     status="BLOCKED_BY_TAINT",
-                    details={"sink": "db_write", "table": str(table_val.raw_value), "taint": record_val.taint.level.value}
+                    details={
+                        "sink": "db_write",
+                        "table": str(table_val.raw_value),
+                        "taint": record_val.taint.level.value,
+                        "sink_kind": record_val.taint.sink_kind.value if record_val.taint.sink_kind else "None",
+                        "required": "SQL"
+                    }
                 )
                 raise TaintViolationError(
                     variable_name=str(record_val.get_display_value()),
@@ -280,12 +286,18 @@ class Interpreter:
             self.compiler.audit_trace.record(
                 phase="SINK_EXECUTION",
                 status="EXECUTED",
-                details={"sink": "db_write", "table": str(table_val.raw_value), "taint": record_val.taint.level.value}
+                details={
+                    "sink": "db_write",
+                    "table": str(table_val.raw_value),
+                    "taint": record_val.taint.level.value,
+                    "sink_kind": record_val.taint.sink_kind.value if record_val.taint.sink_kind else "None"
+                }
             )
             self.console.print(
                 f"[bold green]🔒 [Zero-Trust DB Sink Verified][/bold green] "
                 f"Successfully committed record into table [cyan]'{table_val.raw_value}'[/cyan] "
-                f"(Taint: [bold green]{record_val.taint.level.value}[/bold green])"
+                f"(Taint: [bold green]{record_val.taint.level.value}[/bold green], "
+                f"Sink Kind: [bold cyan]{record_val.taint.sink_kind.value if record_val.taint.sink_kind else 'None'}[/bold cyan])"
             )
             return IValue(True, "Bool", confidence=1.0)
 
