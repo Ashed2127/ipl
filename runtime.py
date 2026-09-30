@@ -302,11 +302,17 @@ class Interpreter:
             return IValue(True, "Bool", confidence=1.0)
 
         def _file_write(path_val: IValue, data_val: IValue) -> IValue:
-            if data_val.taint.level == TaintLevel.UNTRUSTED:
+            if not data_val.taint.is_safe_for_sink(SinkKind.FILE):
                 self.compiler.audit_trace.record(
                     phase="SINK_EXECUTION_ATTEMPT",
                     status="BLOCKED_BY_TAINT",
-                    details={"sink": "file_write", "path": str(path_val.raw_value), "taint": data_val.taint.level.value}
+                    details={
+                        "sink": "file_write",
+                        "path": str(path_val.raw_value),
+                        "taint": data_val.taint.level.value,
+                        "sink_kind": data_val.taint.sink_kind.value if data_val.taint.sink_kind else "None",
+                        "required": "FILE"
+                    }
                 )
                 raise TaintViolationError(
                     variable_name=str(data_val.get_display_value()),
@@ -317,12 +323,18 @@ class Interpreter:
             self.compiler.audit_trace.record(
                 phase="SINK_EXECUTION",
                 status="EXECUTED",
-                details={"sink": "file_write", "path": str(path_val.raw_value), "taint": data_val.taint.level.value}
+                details={
+                    "sink": "file_write",
+                    "path": str(path_val.raw_value),
+                    "taint": data_val.taint.level.value,
+                    "sink_kind": data_val.taint.sink_kind.value if data_val.taint.sink_kind else "None"
+                }
             )
             self.console.print(
                 f"[bold green]🔒 [Zero-Trust File Sink Verified][/bold green] "
                 f"Wrote to [cyan]'{path_val.raw_value}'[/cyan] "
-                f"(Taint: [bold green]{data_val.taint.level.value}[/bold green])"
+                f"(Taint: [bold green]{data_val.taint.level.value}[/bold green], "
+                f"Sink Kind: [bold cyan]{data_val.taint.sink_kind.value if data_val.taint.sink_kind else 'None'}[/bold cyan])"
             )
             return IValue(True, "Bool", confidence=1.0)
 
