@@ -123,6 +123,9 @@ class StaticTaintAnalysis:
             self._analyze_print(stmt)
         elif isinstance(stmt, SanitizationNode):
             self._analyze_sanitization(stmt)
+        # Handle function calls as standalone statements
+        elif isinstance(stmt, FunctionCall):
+            self._analyze_call(stmt)
     
     def _analyze_let(self, stmt: LetStatement):
         """Analyze a let statement"""
