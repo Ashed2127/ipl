@@ -1,0 +1,22 @@
+# IPL Taint Violation Demo - Phase 2: Static Analysis
+# This demonstrates static taint analysis detecting violations
+
+# Simulate receiving untrusted user input
+let malicious_input = set_untrusted("'; DROP TABLE users; --");
+
+# VIOLATION: Using UNTRUSTED data directly in SQL sink without sanitization
+# This should be detected by static analysis
+db_write("users", malicious_input);
+
+# Another violation: UNTRUSTED data in file sink
+file_write("/tmp/malicious.txt", malicious_input);
+
+# Another violation: UNTRUSTED data in HTML sink
+html_render(malicious_input);
+
+# Another violation: UNTRUSTED data in shell sink
+shell_exec(malicious_input);
+
+# CORRECT: Properly sanitized data should be allowed
+let safe_input = sanitize_for_sql(malicious_input);
+db_write("audit_log", safe_input);
