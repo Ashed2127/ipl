@@ -211,8 +211,8 @@ class StaticTaintAnalysis:
     
     def _analyze_return(self, stmt: ReturnStatement):
         """Analyze a return statement"""
-        if stmt.value:
-            self._analyze_expr(stmt.value)
+        if stmt.value_expr:
+            self._analyze_expr(stmt.value_expr)
     
     def _analyze_print(self, stmt: PrintStatement):
         """Analyze a print statement (not a security sink)"""
