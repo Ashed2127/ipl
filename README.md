@@ -123,35 +123,19 @@ interpreter.run(program, source_code=source)
 
 ## 🧠 Architecture Documents
 
-- **[COMPILER_FIRST_ARCHITECTURE.md](COMPILER_FIRST_ARCHITECTURE.md)**: Complete architectural documentation
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Original compiler architecture  
-- **[AI_FIRST_IMPLEMENTATION.md](AI_FIRST_IMPLEMENTATION.md)**: AI-first implementation details
-- **[EXPERT_LEVEL_INTELLIGENCE.md](EXPERT_LEVEL_INTELLIGENCE.md)**: Expert system integration
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Complete compiler architecture
+- **[CONSOLIDATION_LOG.md](CONSOLIDATION_LOG.md)**: Consolidation history and rationale
+- **[HONEST_SECURITY_ASSESSMENT.md](HONEST_SECURITY_ASSESSMENT.md)**: Security assessment and known vulnerabilities
 
 ## 🔬 Testing
 
-### Test Neural Compiler
+### Run Adversarial Attack Tests
 ```bash
-# Run basic neural compiler test
-python3 test_simple_neural.py
+# Test SQL injection protection
+python3 test_adversarial_attacks.py
 
-# Run comprehensive test suite
-python3 test_neural_compiler.py
-```
-
-### Test Individual Components
-```python
-# Test intelligent lexer
-from intelligent_lexer import CompilerFirstLexer
-lexer = CompilerFirstLexer("let x = 10", {})
-analysis = lexer.analyze_source()
-print(f"Tokens: {len(analysis['tokens'])}")
-
-# Test intelligent parser
-from intelligent_parser import CompilerFirstParser
-parser = CompilerFirstParser("let x = 10", {})
-analysis = parser.parse_source()
-print(f"AST: {analysis['ast']}")
+# Run canonical pipeline test
+python3 cli.py run test.ipl
 ```
 
 ## 🎯 Key Differentiators
