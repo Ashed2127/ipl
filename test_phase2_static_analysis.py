@@ -36,10 +36,14 @@ db_write("users", safe_username);
     
     results = analyze_program_taint(program)
     
-    assert len(results["violations"]) == 0, "Safe program should have no violations"
-    assert len(results["static_safe_sites"]) == 1, "Should have 1 statically safe site"
-    assert "safe_username" in results["sanitized_vars"]
-    assert results["sanitized_vars"]["safe_username"] == SinkKind.SQL
+    if len(results["violations"]) != 0:
+        raise AssertionError(f"Safe program should have no violations, got {len(results['violations'])}")
+    if len(results["static_safe_sites"]) != 1:
+        raise AssertionError(f"Should have 1 statically safe site, got {len(results['static_safe_sites'])}")
+    if "safe_username" not in results["sanitized_vars"]:
+        raise AssertionError("safe_username should be in sanitized_vars")
+    if results["sanitized_vars"]["safe_username"] != SinkKind.SQL:
+        raise AssertionError("safe_username should have SQL sink kind")
 
 
 def test_static_analysis_detects_untrusted_sink():
