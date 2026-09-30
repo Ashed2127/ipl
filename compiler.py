@@ -503,16 +503,16 @@ class NeuroSymbolicCompiler:
             # Self-Correction: Feed diagnostic back to System 1 to structurally repair candidate
             candidate_ast = self.system1.repair_candidate(candidate_ast, diagnostic, effective_type)
             self.audit_trace.record(
-                phase="SYSTEM1_NEURAL_REPAIR",
+                phase="SYSTEM1_REPAIR",
                 status="REPAIRED",
                 details={"repaired_ast": type(candidate_ast).__name__, "new_payload": str(getattr(candidate_ast, 'value', candidate_ast))}
             )
 
         # Step 5: Data Taint Allocation
-        # Neural output is explicitly tagged as UNTRUSTED
+        # Output is explicitly tagged as UNTRUSTED
         taint_tag = TaintTag(
             level=TaintLevel.UNTRUSTED,
-            provenance="neural_intent_generation",
+            provenance="intent_generation",
             audit_history=[f"Created from intent: '{prompt[:40]}...' as UNTRUSTED"]
         )
         self.audit_trace.record(
@@ -522,23 +522,3 @@ class NeuroSymbolicCompiler:
         )
 
         return candidate_ast, taint_tag
-    
-    def get_ai_engine_statistics(self) -> Dict[str, Any]:
-        """Get statistics from the hierarchical AI engine if available."""
-        if self.use_hierarchical_ai and self.system1.ai_engine:
-            return self.system1.ai_engine.get_statistics()
-        return {"message": "Hierarchical AI engine not enabled or available"}
-    
-    def authenticate_user(self, username: str, password: str) -> bool:
-        """Authenticate user and set security context."""
-        return self.system1.set_security_context(username, password)
-    
-    def set_security_context(self, context: SecurityContext):
-        """Set security context directly."""
-        self.system1.set_security_context_direct(context)
-    
-    def get_authorization_statistics(self) -> Dict[str, Any]:
-        """Get authorization system statistics."""
-        if self.enable_authorization and self.system1.auth_system:
-            return self.system1.auth_system.get_statistics()
-        return {"message": "Authorization system not enabled or available"}
