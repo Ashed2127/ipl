@@ -54,7 +54,7 @@ def test_sql_injection_protection():
     blocked = 0
     for payload in sql_payloads:
         source = f"""
-let user_input = "{payload}";
+let user_input = set_untrusted("{payload}");
 db_write("users", user_input);
 """
         try:
