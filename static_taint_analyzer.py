@@ -121,6 +121,15 @@ class StaticTaintAnalysis:
     def _analyze_let(self, stmt: LetStatement):
         """Analyze a let statement"""
         taint = self._analyze_expr(stmt.value)
+        
+        # If the value is a function call to a sanitizer, mark the result as SANITIZED
+        if isinstance(stmt.value, FunctionCall):
+            func_name = self._get_function_name(stmt.value.callee)
+            if func_name in self.sanitizer_functions:
+                sink_kind = self.sanitizer_functions[func_name]
+                taint = TaintLevel.SANITIZED
+                self.sanitized_vars[stmt.name] = sink_kind
+        
         self._set_var_taint(stmt.name, taint)
         
         if taint == TaintLevel.UNTRUSTED:
