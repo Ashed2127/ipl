@@ -201,9 +201,9 @@ if (true) {
     
     results = analyze_program_taint(program)
     
-    # Should have 1 dynamic site (conditional requires runtime check)
-    # This test just ensures it doesn't crash
-    if len(results["dynamic_sites"]) < 0 and len(results["violations"]) < 0:
+    # This test just ensures it doesn't crash on conditionals
+    # Should have at least one result
+    if len(results["dynamic_sites"]) == 0 and len(results["violations"]) == 0:
         raise AssertionError("Should have either dynamic sites or violations")
 
 
