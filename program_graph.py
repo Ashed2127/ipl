@@ -178,16 +178,23 @@ class ProgramGraph:
         elif isinstance(node, BinaryOp) or isinstance(node, UnaryOp):
             return NodeType.OPERATION
         elif isinstance(node, FunctionCall):
+            # Get function name
+            func_name = None
+            if hasattr(node, 'callee'):
+                func_name = node.callee.name if hasattr(node.callee, 'name') else str(node.callee)
+            elif hasattr(node, 'function_name'):
+                func_name = node.function_name
+
             # Check if it's a security sink
-            if node.function_name in ['db_write', 'file_write', 'html_render', 'shell_exec']:
+            if func_name in ['db_write', 'file_write', 'html_render', 'shell_exec']:
                 return NodeType.SINK
             # Check if it's a sanitizer
-            elif node.function_name in ['sanitize_for_sql', 'sanitize_for_html',
-                                         'sanitize_for_shell', 'sanitize_for_file',
-                                         'sanitize_string']:
+            elif func_name in ['sanitize_for_sql', 'sanitize_for_html',
+                              'sanitize_for_shell', 'sanitize_for_file',
+                              'sanitize_string']:
                 return NodeType.SANITIZER
             # Check if it's a source
-            elif node.function_name in ['set_untrusted', 'user_input']:
+            elif func_name in ['set_untrusted', 'user_input']:
                 return NodeType.SOURCE
             else:
                 return NodeType.INSTRUCTION
