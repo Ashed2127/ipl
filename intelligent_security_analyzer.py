@@ -172,39 +172,6 @@ class IntelligentSecurityAnalyzer:
         """
         violations = []
 
-        # Find all sink nodes
-        for node_id in program_graph.graph.nodes():
-            node_data = program_graph.graph.nodes[node_id]
-            node_type = node_data.get('node_type')
-
-            if node_type == 'sink':
-                # Check if data flow from source to sink without sanitization
-                function_name = node_data.get('function_name', 'unknown')
-
-                # Find data flow paths
-                sources = []
-                for src_id in program_graph.graph.nodes():
-                    src_data = program_graph.graph.nodes[src_id]
-                    if src_data.get('node_type') == 'source':
-                        sources.append(src_id)
-
-                for source_id in sources:
-                    path = program_graph.get_data_flow_path(source_id, node_id)
-                    if path:
-                        # Check if sanitizer in path
-                        has_sanitizer = any(
-                            program_graph.graph.nodes[n].get('node_type') == 'sanitizer'
-                            for n in path
-                        )
-
-                        if not has_sanitizer:
-                            violations.append({
-                                'sink': function_name,
-                                'source': program_graph.graph.nodes[source_id].get('variable_name', 'unknown'),
-                                'path_length': len(path),
-                                'violation_type': self._map_sink_to_threat(function_name)
-                            })
-
         # Additional check: if there's a source but no sanitizer anywhere, flag as violation
         has_source = any(
             program_graph.graph.nodes[n].get('node_type') == 'source'
