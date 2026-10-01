@@ -215,17 +215,15 @@ class BytecodeCompiler:
 
         if stmt.value_expr:
             self._compile_expr(stmt.value_expr)
-            self._emit(OpCode.STORE_VAR, slot)
 
             # Track if this is a source function
             if isinstance(stmt.value_expr, FunctionCall):
                 func_name = self._get_function_name(stmt.value_expr.callee)
                 if func_name in ["set_untrusted", "user_input"]:
-                    # Replace with source instruction
-                    self.program.instructions[-1] = Instruction(
-                        OpCode.SET_UNTRUSTED if func_name == "set_untrusted" else OpCode.USER_INPUT,
-                        slot, getattr(stmt, 'line', 0)
-                    )
+                    # Mark the value on stack as untrusted
+                    self._emit(OpCode.SET_UNTRUSTED if func_name == "set_untrusted" else OpCode.USER_INPUT)
+
+            self._emit(OpCode.STORE_VAR, slot)
 
     def _compile_assign(self, stmt):
         """Compile an assignment statement"""
