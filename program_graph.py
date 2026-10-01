@@ -190,30 +190,30 @@ class ProgramGraph:
         """Process children of AST node and return their graph IDs"""
         child_ids = []
 
-        if isinstance(node, BinaryOpNode):
+        if isinstance(node, BinaryOp):
             left_id = self._process_node(node.left, parent_id)
             right_id = self._process_node(node.right, parent_id)
             child_ids.extend([left_id, right_id])
 
-        elif isinstance(node, UnaryOpNode):
+        elif isinstance(node, UnaryOp):
             operand_id = self._process_node(node.operand, parent_id)
             child_ids.append(operand_id)
 
-        elif isinstance(node, FunctionCallNode):
+        elif isinstance(node, FunctionCall):
             for arg in node.arguments:
                 arg_id = self._process_node(arg, parent_id)
                 child_ids.append(arg_id)
                 self._add_edge(parent_id, arg_id, EdgeType.PARAMETER)
 
-        elif isinstance(node, AssignmentNode):
+        elif isinstance(node, AssignStatement):
             value_id = self._process_node(node.value, parent_id)
             child_ids.append(value_id)
 
             # Track variable definition
-            if isinstance(node.target, VariableNode):
+            if isinstance(node.target, Identifier):
                 self.variable_definitions[node.target.name] = parent_id
 
-        elif isinstance(node, IfNode):
+        elif isinstance(node, IfStatement):
             condition_id = self._process_node(node.condition, parent_id)
             child_ids.append(condition_id)
 
@@ -225,7 +225,7 @@ class ProgramGraph:
                 else_id = self._process_node(node.else_branch, parent_id)
                 child_ids.append(else_id)
 
-        elif isinstance(node, ForNode):
+        elif isinstance(node, ForStatement):
             # Process init, condition, increment, body
             if node.init:
                 init_id = self._process_node(node.init, parent_id)
@@ -240,14 +240,14 @@ class ProgramGraph:
                 body_id = self._process_node(node.body, parent_id)
                 child_ids.append(body_id)
 
-        elif isinstance(node, WhileNode):
+        elif isinstance(node, WhileStatement):
             cond_id = self._process_node(node.condition, parent_id)
             child_ids.append(cond_id)
             if node.body:
                 body_id = self._process_node(node.body, parent_id)
                 child_ids.append(body_id)
 
-        elif isinstance(node, FunctionDefinitionNode):
+        elif isinstance(node, FunctionDef):
             for param in node.parameters:
                 param_id = self._process_node(param, parent_id)
                 child_ids.append(param_id)
@@ -255,7 +255,7 @@ class ProgramGraph:
                 body_id = self._process_node(node.body, parent_id)
                 child_ids.append(body_id)
 
-        elif isinstance(node, BlockNode):
+        elif isinstance(node, Block):
             for stmt in node.statements:
                 stmt_id = self._process_node(stmt, parent_id)
                 child_ids.append(stmt_id)
@@ -265,23 +265,23 @@ class ProgramGraph:
     def _add_data_flow_edges(self, node: ASTNode, node_id: int, child_ids: List[int]):
         """Add data flow edges based on node semantics"""
         # Variable reference to definition
-        if isinstance(node, VariableNode):
+        if isinstance(node, Identifier):
             if node.name in self.variable_definitions:
                 def_id = self.variable_definitions[node.name]
                 self._add_edge(def_id, node_id, EdgeType.DEFINITION_USE)
 
         # Function call edges
-        if isinstance(node, FunctionCallNode):
+        if isinstance(node, FunctionCall):
             for child_id in child_ids:
                 self._add_edge(child_id, node_id, EdgeType.DATA_FLOW)
 
         # Assignment data flow
-        if isinstance(node, AssignmentNode):
+        if isinstance(node, AssignStatement):
             if len(child_ids) > 0:
                 self._add_edge(child_ids[0], node_id, EdgeType.DATA_FLOW)
 
         # Binary/Unary operation data flow
-        if isinstance(node, (BinaryOpNode, UnaryOpNode)):
+        if isinstance(node, (BinaryOp, UnaryOp)):
             for child_id in child_ids:
                 self._add_edge(child_id, node_id, EdgeType.DATA_FLOW)
 
