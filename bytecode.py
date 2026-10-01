@@ -663,9 +663,6 @@ class BytecodeInterpreter:
             record = self.stack.pop()
             record_taint = self.taint_tags.pop()
 
-            # Debug
-            print(f"[DEBUG] DB_WRITE: record={record}, taint_level={record_taint.level}, safe_for_sql={record_taint.is_safe_for_sink(SinkKind.SQL)}")
-
             if not record_taint.is_safe_for_sink(SinkKind.SQL):
                 raise TaintViolationError(
                     variable_name=str(record),
@@ -785,6 +782,7 @@ class BytecodeInterpreter:
             # Mark the top of stack as UNTRUSTED (don't pop, just replace taint tag)
             if self.taint_tags:
                 self.taint_tags[-1] = TaintTag(level=TaintLevel.UNTRUSTED, provenance="set_untrusted")
+            print(f"[DEBUG] SET_UNTRUSTED: marked value as UNTRUSTED")
 
         elif opcode == OpCode.USER_INPUT:
             self.stack.append("<user_input>")
