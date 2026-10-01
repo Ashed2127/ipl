@@ -161,13 +161,13 @@ class ProgramGraph:
 
     def _determine_node_type(self, node: ASTNode) -> NodeType:
         """Determine the graph node type based on AST node"""
-        if isinstance(node, LiteralNode):
+        if isinstance(node, Literal):
             return NodeType.CONSTANT
-        elif isinstance(node, VariableNode):
+        elif isinstance(node, Identifier):
             return NodeType.VARIABLE
-        elif isinstance(node, BinaryOpNode) or isinstance(node, UnaryOpNode):
+        elif isinstance(node, BinaryOp) or isinstance(node, UnaryOp):
             return NodeType.OPERATION
-        elif isinstance(node, FunctionCallNode):
+        elif isinstance(node, FunctionCall):
             # Check if it's a security sink
             if node.function_name in ['db_write', 'file_write', 'html_render', 'shell_exec']:
                 return NodeType.SINK
@@ -181,7 +181,7 @@ class ProgramGraph:
                 return NodeType.SOURCE
             else:
                 return NodeType.INSTRUCTION
-        elif isinstance(node, (IfNode, ForNode, WhileNode, FunctionDefinitionNode)):
+        elif isinstance(node, (IfStatement, ForStatement, WhileStatement, FunctionDef)):
             return NodeType.CONTROL_FLOW
         else:
             return NodeType.INSTRUCTION
