@@ -347,13 +347,11 @@ class BytecodeCompiler:
         )
 
         if isinstance(expr, Literal):
-            line = getattr(expr, 'line', 0)
-            self._emit(OpCode.PUSH_CONST, expr.value, line)
+            self._emit(OpCode.PUSH_CONST, expr.value)
 
         elif isinstance(expr, Identifier):
-            line = getattr(expr, 'line', 0)
             slot = self._get_slot(expr.name)
-            self._emit(OpCode.LOAD_VAR, slot, line)
+            self._emit(OpCode.LOAD_VAR, slot)
 
         elif isinstance(expr, BinaryOp):
             self._compile_expr(expr.left)
@@ -365,16 +363,14 @@ class BytecodeCompiler:
                 'and': OpCode.AND, 'or': OpCode.OR
             }
             opcode = op_map.get(expr.op, OpCode.ADD)
-            line = getattr(expr, 'line', 0)
-            self._emit(opcode, line=line)
+            self._emit(opcode)
 
         elif isinstance(expr, UnaryOp):
             self._compile_expr(expr.operand)
-            line = getattr(expr, 'line', 0)
             if expr.op == '-':
-                self._emit(OpCode.NEG, line=line)
+                self._emit(OpCode.NEG)
             elif expr.op == 'not':
-                self._emit(OpCode.NOT, line=line)
+                self._emit(OpCode.NOT)
 
         elif isinstance(expr, FunctionCall):
             self._compile_function_call_expr(expr)
