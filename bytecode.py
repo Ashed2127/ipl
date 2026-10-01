@@ -669,7 +669,6 @@ class BytecodeInterpreter:
                     sink_name=f"db_write('{table}')",
                     taint_level=record_taint.level
                 )
-            print(f"[DB_WRITE] Committed to table '{table}'")
 
         elif opcode == OpCode.DB_WRITE_SAFE:
             # Skip taint check (statically proven safe)
