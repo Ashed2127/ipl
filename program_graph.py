@@ -16,7 +16,7 @@ from enum import Enum
 import hashlib
 from ast_nodes import (
     ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
-    MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
+    MemberAccess, IndexAccess, FunctionCall, Block, Program as ProgramNode, IfStatement, ForStatement, WhileStatement,
     BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
     AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement,
     SanitizationNode as SanitizationNodeExpr
@@ -264,6 +264,11 @@ class ProgramGraph:
                 child_ids.append(body_id)
 
         elif isinstance(node, Block):
+            for stmt in node.statements:
+                stmt_id = self._process_node(stmt, parent_id)
+                child_ids.append(stmt_id)
+
+        elif isinstance(node, Program):
             for stmt in node.statements:
                 stmt_id = self._process_node(stmt, parent_id)
                 child_ids.append(stmt_id)
