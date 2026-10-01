@@ -185,32 +185,69 @@ class StaticTaintAnalysis:
         # when the function is called. We'll analyze it on-demand during call analysis.
     
     def _analyze_if(self, stmt: IfStatement):
-        """Analyze an if statement (both branches)"""
+        """
+        Analyze an if statement with proper branch join using lattice meet.
+        After analyzing both branches, a variable's taint at the merge point is the
+        lattice meet of its level on each branch (UNTRUSTED on either branch = UNTRUSTED after merge).
+        """
         # Analyze condition to understand branching
         self._analyze_expr(stmt.condition)
+        
+        # Save current scope state before analyzing branches
+        pre_branch_scope = dict(self.scopes[-1])
         
         # Analyze then branch
         then_scope_size = len(self.scopes)
         self._analyze_block(stmt.then_branch)
+        then_scope = dict(self.scopes[-1]) if self.scopes else {}
         
         # Restore scope for else branch
         while len(self.scopes) > then_scope_size:
             self.scopes.pop()
-        
-        # Analyze elif branches
-        for elif_cond, elif_block in stmt.elif_branches:
-            self._analyze_expr(elif_cond)
-            elif_scope_size = len(self.scopes)
-            self._analyze_block(elif_block)
-            while len(self.scopes) > elif_scope_size:
-                self.scopes.pop()
+        self.scopes[-1] = dict(pre_branch_scope)
         
         # Analyze else branch
         if stmt.else_branch is not None:
             else_scope_size = len(self.scopes)
             self._analyze_block(stmt.else_branch)
+            else_scope = dict(self.scopes[-1]) if self.scopes else {}
+            
+            # Restore scope after else branch
             while len(self.scopes) > else_scope_size:
                 self.scopes.pop()
+            
+            # Merge scopes using lattice meet
+            merged_scope = {}
+            all_vars = set(pre_branch_scope.keys()) | set(then_scope.keys()) | set(else_scope.keys())
+            
+            for var in all_vars:
+                pre_taint = pre_branch_scope.get(var, TaintLevel.TRUSTED)
+                then_taint = then_scope.get(var, TaintLevel.TRUSTED)
+                else_taint = else_scope.get(var, TaintLevel.TRUSTED)
+                
+                # Lattice meet: take the worst (lowest) taint level
+                # UNTRUSTED < SANITIZED < TRUSTED
+                # If any branch has UNTRUSTED, result is UNTRUSTED
+                # If any branch has SANITIZED (and none UNTRUSTED), result is SANITIZED
+                # Only if all branches have TRUSTED, result is TRUSTED
+                merged_taint = self._lattice_meet(pre_taint, then_taint, else_taint)
+                merged_scope[var] = merged_taint
+            
+            self.scopes[-1] = merged_scope
+        else:
+            # No else branch: merge pre_branch with then_branch
+            merged_scope = {}
+            all_vars = set(pre_branch_scope.keys()) | set(then_scope.keys())
+            
+            for var in all_vars:
+                pre_taint = pre_branch_scope.get(var, TaintLevel.TRUSTED)
+                then_taint = then_scope.get(var, TaintLevel.TRUSTED)
+                
+                # Lattice meet of two values
+                merged_taint = self._lattice_meet(pre_taint, then_taint)
+                merged_scope[var] = merged_taint
+            
+            self.scopes[-1] = merged_scope
     
     def _analyze_while(self, stmt: WhileStatement):
         """Analyze a while statement"""
