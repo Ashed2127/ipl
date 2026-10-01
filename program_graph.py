@@ -14,7 +14,12 @@ import networkx as nx
 from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 import hashlib
-from ast_nodes import *
+from ast_nodes import (
+    ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
+    MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
+    BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
+    AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
+)
 
 
 class NodeType(Enum):
