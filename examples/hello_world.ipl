@@ -1,4 +1,0 @@
-print "Hello, World!"
-
-let x = 42 + 2
-print x

@@ -1,2 +1,0 @@
-let price: Currency = "ninety-nine dollars"
-print price for "executive"
