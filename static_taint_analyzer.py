@@ -411,8 +411,23 @@ class StaticTaintAnalysis:
         return TaintLevel.TRUSTED
     
     def _analyze_call(self, expr: FunctionCall) -> TaintLevel:
-        """Analyze a function call"""
+        """
+        Analyze a function call with interprocedural taint propagation.
+        If the function is defined, analyze its body with argument taints propagated in.
+        If the function is not defined or is an indirect call, defer to runtime.
+        """
         func_name = self._get_function_name(expr.callee)
+        
+        # Check if it's an indirect call (callee is not a simple identifier)
+        if not isinstance(expr.callee, Identifier):
+            # Indirect call - cannot resolve statically
+            self.dynamic_sites.append({
+                "type": "dynamic_taint_check",
+                "sink": "unknown",
+                "reason": "Indirect call - cannot resolve function statically",
+                "location": "static_analysis"
+            })
+            return TaintLevel.TRUSTED  # Conservative return
         
         # Check if it's a sink function
         if func_name in self.sink_functions:
@@ -458,6 +473,8 @@ class StaticTaintAnalysis:
                     "required_sink": required_sink.value,
                     "location": "static_analysis"
                 })
+            
+            return TaintLevel.TRUSTED
         
         # Check if it's a sanitizer function
         elif func_name in self.sanitizer_functions:
@@ -468,9 +485,25 @@ class StaticTaintAnalysis:
             # This is a limitation of the current analysis
             return TaintLevel.SANITIZED
         
-        # For other functions, conservatively analyze arguments and return TRUSTED
+        # Check if it's a source function
+        elif func_name in self.source_functions:
+            return TaintLevel.UNTRUSTED
+        
+        # Check if it's a user-defined function (interprocedural analysis)
+        elif hasattr(self, 'function_signatures') and func_name in self.function_signatures:
+            return self._analyze_user_function_call(func_name, expr.args)
+        
+        # For other functions (unknown/external), conservatively analyze arguments and defer to runtime
         for arg in expr.args:
             self._analyze_expr(arg)
+        
+        self.dynamic_sites.append({
+            "type": "dynamic_taint_check",
+            "sink": func_name,
+            "reason": "External function - cannot analyze statically",
+            "location": "static_analysis"
+        })
+        
         return TaintLevel.TRUSTED
     
     def _get_function_name(self, func_expr: Expr) -> str:
