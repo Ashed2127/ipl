@@ -149,8 +149,8 @@ def main():
     print("BENCHMARK 4: Loop with operations")
     print("=" * 60)
     code4 = """
-    let sum = 0;
-    let i = 0;
+    var sum = 0;
+    var i = 0;
     while i < 100 {
         sum = sum + i;
         i = i + 1;
