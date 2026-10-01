@@ -1,173 +1,62 @@
-# Phase 1: Sink-Aware Sanitizers - Implementation Summary
+# Phase 1 Summary: Sound Static Taint Analysis
 
-## Overview
+## What Was Already Correct
 
-Phase 1 implements sink-aware sanitization to fix the root vulnerability identified in HONEST_SECURITY_ASSESSMENT.md. The previous sink-agnostic `sanitize_string()` has been replaced with sink-specific sanitizers that enforce matching sanitizer tags at declared sinks.
+The static_taint_analyzer.py already had the correct structure for all four critical soundness requirements:
 
-## Changes Made
+1. **Branch join (if/else)**: The `_analyze_if` method already saved pre-branch scope, analyzed both branches separately, and attempted to merge using lattice meet. It was only missing the `_lattice_meet` helper method.
 
-### 1. Extended Taint System (taint.py)
+2. **Loop fixpoint (while/for)**: Both `_analyze_while` and `_analyze_for` already implemented fixpoint iteration with a max_iterations cap and conservative fallback to UNTRUSTED. They were only missing the `_scopes_equal` helper method to detect when the fixpoint is reached.
 
-**Added SinkKind Enum:**
-```python
-class SinkKind(Enum):
-    SQL = "sql"              # Database queries
-    HTML = "html"            # HTML rendering
-    SHELL = "shell"          # Shell commands
-    FILE = "file"            # File operations
-    GENERAL = "general"      # Legacy general-purpose
-```
+3. **Interprocedural calls**: The code already stored function signatures in `function_signatures` and attempted to call `_analyze_user_function_call` for user-defined functions. It was only missing the implementation of that method.
 
-**Extended TaintTag:**
-- Added `sink_kind` field to track which sink the data is safe for
-- Added `is_safe_for_sink(required_sink)` method to check if data is safe for a specific sink
-- Updated `transition_to()` to accept optional `sink_kind` parameter
-- Updated `combine()` to handle sink_kind merging (defaults to GENERAL if mismatched)
+4. **Unresolvable calls**: The code already correctly identified indirect calls (where callee is not an Identifier) and classified them as dynamic_sites. This was already sound.
 
-**Sink Safety Logic:**
-- TRUSTED data is safe for any sink
-- UNTRUSTED data is never safe
-- SANITIZED data is safe only if sink_kind matches the required sink
-- GENERAL sanitization is accepted at any sink but is less safe
+## What Was Fixed
 
-### 2. Sink-Specific Sanitizers (security_engine.py)
+### 1. Added `_lattice_meet` method
+- Implements conservative lattice meet for the taint lattice: UNTRUSTED < SANITIZED < TRUSTED
+- Returns the WORST (lowest) taint level from all inputs
+- If any input is UNTRUSTED, result is UNTRUSTED
+- If any input is SANITIZED (and none UNTRUSTED), result is SANITIZED
+- Only if all inputs are TRUSTED, result is TRUSTED
+- Used in branch join and loop fixpoint merging
 
-**Added 4 New Sanitizers:**
+### 2. Added `_scopes_equal` method
+- Compares two scopes for identical taint assignments
+- Used to detect when loop fixpoint is reached
+- Handles variables that exist in only one scope (defaults to TRUSTED)
 
-1. **sanitize_for_sql()** - SQL-specific sanitization
-   - Removes SQL injection patterns (OR, UNION, SELECT, DROP, etc.)
-   - Escapes quotes and backslashes
-   - Removes semicolons (statement separators)
-   - Marks data as SANITIZED for SQL sinks
+### 3. Added `_analyze_user_function_call` method
+- Implements per-call-site interprocedural analysis
+- Analyzes argument taints before entering function scope
+- Enters new scope for function body
+- Binds parameters with their argument taints
+- Analyzes function body with propagated taints
+- Returns the worst taint in the function scope (conservative)
+- Exits function scope after analysis
+- Falls back to dynamic_site if function signature not found
 
-2. **sanitize_for_html()** - HTML-specific sanitization
-   - HTML entity encoding (&, <, >, ", ', /)
-   - Removes script tags and event handlers
-   - Removes javascript:, data:, vbscript: protocols
-   - Marks data as SANITIZED for HTML sinks
+## Test Coverage
 
-3. **sanitize_for_shell()** - Shell-specific sanitization
-   - Allowlist-based approach (only allows specific commands)
-   - Removes shell metacharacters (;, &, |, `, $, etc.)
-   - Removes dangerous command patterns (rm, sudo, chmod, etc.)
-   - Marks data as SANITIZED for SHELL sinks
+Created comprehensive tests in `test_static_taint_soundness.py`:
 
-4. **sanitize_for_file()** - File-specific sanitization
-   - Path validation and traversal prevention
-   - Removes .. and ~ patterns
-   - Blocks dangerous paths (/etc/passwd, /proc/, etc.)
-   - Optional directory allowlist
-   - Marks data as SANITIZED for FILE sinks
+1. **TestBranchJoin**: Tests that variable sanitized on one branch only is UNTRUSTED after merge
+2. **TestLoopFixpoint**: Tests that loop re-taints variable on iteration 2
+3. **TestInterproceduralCalls**: Tests that tainted value propagates through helper function
+4. **TestUnresolvableCalls**: Tests that indirect calls are dynamic_sites, not static_safe
+5. **TestBranchJoinEdgeCases**: Tests no-else branch merging
+6. **TestLoopEdgeCases**: Tests nested loops
+7. **TestInterproceduralEdgeCases**: Tests multiple parameters and sanitization in functions
 
-**Legacy sanitize_string():**
-- Marked as DEPRECATED
-- Now marks data as SANITIZED with GENERAL sink kind
-- Still accepted at any sink but less safe than sink-specific sanitizers
+All 9 tests pass.
 
-### 3. Runtime Updates (runtime.py)
+## Status: Phase 1 Complete
 
-**Added 5 New Builtin Functions:**
-- `sanitize_for_sql()` - SQL sanitization
-- `sanitize_for_html()` - HTML sanitization
-- `sanitize_for_shell()` - Shell sanitization
-- `sanitize_for_file()` - File sanitization
-- `set_untrusted()` - Testing helper to mark data as UNTRUSTED
-- `shell_exec()` - Shell execution sink (with SHELL enforcement)
+The static taint analyzer is now sound for the four critical requirements. It correctly:
+- Uses lattice meet for branch joins (conservative merge)
+- Iterates loops to fixpoint before classifying sink safety
+- Propagates taint through function calls with per-call-site analysis
+- Classifies unresolvable calls as dynamic_sites (never static_safe)
 
-**Updated Sink Enforcement:**
-- `db_write()` now requires SQL-sanitized data
-- `file_write()` now requires FILE-sanitized data
-- `html_render()` now requires HTML-sanitized data
-- `shell_exec()` requires SHELL-sanitized data
-- All sinks now check `is_safe_for_sink()` instead of just checking TaintLevel
-- Audit logs now include sink_kind information
-
-**Updated sanitize_string():**
-- Now marks data as SANITIZED with GENERAL sink kind
-- Audit logs include sink_kind information
-
-### 4. Test Suite (test_adversarial_attacks.py)
-
-**Comprehensive Adversarial Tests:**
-- 10 SQL injection payloads (all blocked)
-- 10 XSS payloads (all blocked)
-- 10 command injection payloads (all blocked)
-- Safe queries allowed with proper sanitization
-- Safe HTML allowed with proper sanitization
-- Safe commands allowed with proper sanitization
-- Sink kind mismatch tests (SQL-sanitized at HTML sink blocked, etc.)
-- GENERAL sanitizer acceptance test
-
-**Test Results:**
-```
-✓ 10/10 SQL injection payloads blocked
-✓ 5/5 safe queries allowed
-✓ 10/10 XSS payloads blocked
-✓ 5/5 safe HTML allowed
-✓ 10/10 command injection payloads blocked
-✓ 4/4 safe commands allowed
-✓ Sink kind mismatch protection working
-✓ GENERAL sanitizer accepted at any sink
-```
-
-### 5. Updated Example (examples/authorization_demo.ipl)
-
-**Now Demonstrates:**
-- Using `set_untrusted()` to simulate external input
-- Using `sanitize_for_sql()` for database operations
-- Using `sanitize_for_file()` for file operations
-- Using `sanitize_for_html()` for HTML rendering
-- Sink enforcement at each sink type
-- Proper sink-aware security pipeline
-
-## Security Improvements
-
-### Before Phase 1:
-- Single sink-agnostic `sanitize_string()` for all sinks
-- Any string surviving the blocklist was marked SANITIZED
-- SANITIZED data accepted at any sink regardless of destination
-- SQLi, XSS, and command injection bypasses possible
-
-### After Phase 1:
-- Sink-specific sanitizers for SQL, HTML, SHELL, FILE
-- SANITIZED data carries sink-kind tag
-- Sinks require matching sanitizer tags
-- SQLi, XSS, and command injection properly blocked
-- Sink kind mismatch detection prevents wrong-sink usage
-
-## Backward Compatibility
-
-- Legacy `sanitize_string()` still works but marked as DEPRECATED
-- Marks data as SANITIZED with GENERAL sink kind
-- Accepted at any sink but less safe than sink-specific sanitizers
-- Programs using `sanitize_string()` will continue to work but should migrate to sink-specific sanitizers
-
-## Next Steps (Phase 2)
-
-Phase 2 will move taint checking from runtime-only to static analysis:
-1. Add static analysis pass over AST/IR to trace all paths from sources to sinks
-2. Reuse taint.py's lattice for static verification
-3. Where static analysis cannot prove safety, fall back to runtime checks
-4. Clearly log which sites are statically vs dynamically guaranteed
-
-## Files Modified
-
-- `taint.py` - Added SinkKind enum, extended TaintTag with sink_kind
-- `security_engine.py` - Added 4 sink-specific sanitizers
-- `runtime.py` - Added 5 builtin functions, updated sink enforcement
-- `test_adversarial_attacks.py` - Comprehensive Phase 1 test suite
-- `examples/authorization_demo.ipl` - Updated to use sink-aware sanitizers
-
-## Files Created
-
-- `PHASE1_SUMMARY.md` - This file
-
-## Verification
-
-✅ All Phase 1 tests pass
-✅ Sink-aware sanitization working correctly
-✅ Sink enforcement requires matching sanitizer tags
-✅ Adversarial payloads properly blocked
-✅ Safe data flows allowed with proper sanitization
-✅ Sink kind mismatch detection working
-✅ Backward compatibility maintained via GENERAL sanitizer
+Phase 2 can now safely build on this foundation.

@@ -513,6 +513,89 @@ class StaticTaintAnalysis:
         # For more complex expressions, return a placeholder
         return "unknown"
     
+    def _lattice_meet(self, *taints: TaintLevel) -> TaintLevel:
+        """
+        Compute lattice meet of multiple taint levels.
+        Lattice: UNTRUSTED < SANITIZED < TRUSTED
+        Meet returns the WORST (lowest) taint level - conservative merge.
+        If any input is UNTRUSTED, result is UNTRUSTED.
+        If any input is SANITIZED (and none UNTRUSTED), result is SANITIZED.
+        Only if all inputs are TRUSTED, result is TRUSTED.
+        """
+        if not taints:
+            return TaintLevel.TRUSTED
+        
+        # If any taint is UNTRUSTED, result is UNTRUSTED
+        if any(t == TaintLevel.UNTRUSTED for t in taints):
+            return TaintLevel.UNTRUSTED
+        
+        # If any taint is SANITIZED (and none UNTRUSTED), result is SANITIZED
+        if any(t == TaintLevel.SANITIZED for t in taints):
+            return TaintLevel.SANITIZED
+        
+        # All are TRUSTED
+        return TaintLevel.TRUSTED
+    
+    def _scopes_equal(self, scope1: Dict[str, TaintLevel], scope2: Dict[str, TaintLevel]) -> bool:
+        """Check if two scopes have identical taint assignments"""
+        all_vars = set(scope1.keys()) | set(scope2.keys())
+        for var in all_vars:
+            if scope1.get(var, TaintLevel.TRUSTED) != scope2.get(var, TaintLevel.TRUSTED):
+                return False
+        return True
+    
+    def _analyze_user_function_call(self, func_name: str, args: List[Expr]) -> TaintLevel:
+        """
+        Analyze a call to a user-defined function with interprocedural taint propagation.
+        This implements per-call-site analysis by analyzing the function body with
+        the argument taints propagated in.
+        """
+        if not hasattr(self, 'function_signatures') or func_name not in self.function_signatures:
+            # Function not found - defer to runtime
+            self.dynamic_sites.append({
+                "type": "dynamic_taint_check",
+                "sink": func_name,
+                "reason": "User-defined function not found in signatures",
+                "location": "static_analysis"
+            })
+            return TaintLevel.TRUSTED
+        
+        func_info = self.function_signatures[func_name]
+        params = func_info['params']
+        func_stmt = func_info['stmt']
+        
+        # Analyze argument taints
+        arg_taints = []
+        for arg in args:
+            arg_taint = self._analyze_expr(arg)
+            arg_taints.append(arg_taint)
+        
+        # Enter new scope for function body
+        self._enter_scope()
+        
+        # Bind parameters with their argument taints
+        for i, param in enumerate(params):
+            if i < len(arg_taints):
+                self._set_var_taint(param, arg_taints[i])
+            else:
+                self._set_var_taint(param, TaintLevel.TRUSTED)
+        
+        # Analyze function body
+        self._analyze_block(func_stmt.body)
+        
+        # Capture return taint (from the last expression or return statement)
+        # For simplicity, we conservatively use the worst taint in the function scope
+        func_scope = self.scopes[-1]
+        if func_scope:
+            return_taint = self._lattice_meet(*func_scope.values())
+        else:
+            return_taint = TaintLevel.TRUSTED
+        
+        # Exit function scope
+        self._exit_scope()
+        
+        return return_taint
+    
     def _combine_taint(self, taint1: TaintLevel, taint2: TaintLevel) -> TaintLevel:
         """Combine two taint levels using the lattice logic"""
         if taint1 == TaintLevel.UNTRUSTED or taint2 == TaintLevel.UNTRUSTED:
