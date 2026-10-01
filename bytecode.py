@@ -532,9 +532,9 @@ class BytecodeInterpreter:
         elif opcode == OpCode.LOAD_VAR:
             slot = instr.operand
             value = self.locals[slot] if slot < len(self.locals) else None
+            taint = self.local_taints[slot] if slot < len(self.local_taints) else TaintTag(level=TaintLevel.TRUSTED, provenance="variable")
             self.stack.append(value)
-            # Preserve taint from slot (simplified - would need separate taint array)
-            self.taint_tags.append(TaintTag(level=TaintLevel.TRUSTED, provenance="variable"))
+            self.taint_tags.append(taint)
 
         elif opcode == OpCode.STORE_VAR:
             slot = instr.operand
@@ -543,7 +543,9 @@ class BytecodeInterpreter:
             # Ensure locals array is large enough
             while len(self.locals) <= slot:
                 self.locals.append(None)
+                self.local_taints.append(TaintTag(level=TaintLevel.TRUSTED, provenance="variable"))
             self.locals[slot] = value
+            self.local_taints[slot] = taint
 
         elif opcode == OpCode.POP:
             self.stack.pop()
