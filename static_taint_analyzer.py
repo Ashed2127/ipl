@@ -168,18 +168,21 @@ class StaticTaintAnalysis:
             self.untrusted_sources.add(stmt.name)
     
     def _analyze_function_def(self, stmt: FunctionDef):
-        """Analyze a function definition"""
-        self._enter_scope()
+        """
+        Analyze a function definition.
+        Store the function signature for later interprocedural analysis.
+        """
+        # Store function signature for interprocedural analysis
+        if not hasattr(self, 'function_signatures'):
+            self.function_signatures = {}
         
-        # Mark parameters as TRUSTED (assume caller handles sanitization)
-        for param in stmt.params:
-            self._set_var_taint(param, TaintLevel.TRUSTED)
+        self.function_signatures[stmt.name] = {
+            'params': stmt.params,
+            'stmt': stmt
+        }
         
-        # Analyze function body
-        for body_stmt in stmt.body.statements:
-            self._analyze_statement(body_stmt)
-        
-        self._exit_scope()
+        # We don't analyze the body here because we need to know the taint of arguments
+        # when the function is called. We'll analyze it on-demand during call analysis.
     
     def _analyze_if(self, stmt: IfStatement):
         """Analyze an if statement (both branches)"""
