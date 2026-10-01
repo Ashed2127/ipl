@@ -299,13 +299,57 @@ class StaticTaintAnalysis:
                     self.scopes[-1][var] = TaintLevel.UNTRUSTED
     
     def _analyze_for(self, stmt: ForStatement):
-        """Analyze a for statement"""
-        # Mark loop variable as TRUSTED (iteration over trusted data)
-        # In a more sophisticated analysis, we'd analyze the iterable
+        """
+        Analyze a for statement with fixpoint iteration.
+        Similar to while loop, iterate until taint state stabilizes.
+        """
         self._enter_scope()
+        
+        # Initialize loop variable (taint depends on iterable)
+        # For now, conservatively mark as TRUSTED
         self._set_var_taint(stmt.variable, TaintLevel.TRUSTED)
-        for body_stmt in stmt.body.statements:
-            self._analyze_statement(body_stmt)
+        
+        # Fixpoint iteration for loop body
+        max_iterations = 10
+        iteration = 0
+        prev_scope = dict(self.scopes[-1])
+        
+        while iteration < max_iterations:
+            iteration += 1
+            
+            # Save scope before analyzing body
+            pre_body_scope = dict(self.scopes[-1])
+            
+            # Analyze loop body
+            for body_stmt in stmt.body.statements:
+                self._analyze_statement(body_stmt)
+            
+            # Get scope after body
+            post_body_scope = dict(self.scopes[-1])
+            
+            # Check if taint state has changed
+            if self._scopes_equal(pre_body_scope, post_body_scope):
+                # Fixpoint reached
+                break
+            
+            # Merge post-body state into entry state for next iteration
+            merged_scope = {}
+            all_vars = set(pre_body_scope.keys()) | set(post_body_scope.keys())
+            
+            for var in all_vars:
+                pre_taint = pre_body_scope.get(var, TaintLevel.TRUSTED)
+                post_taint = post_body_scope.get(var, TaintLevel.TRUSTED)
+                merged_taint = self._lattice_meet(pre_taint, post_taint)
+                merged_scope[var] = merged_taint
+            
+            self.scopes[-1] = merged_scope
+        
+        # If we hit the cap, conservatively mark any changed variables as UNTRUSTED
+        if iteration >= max_iterations:
+            for var in self.scopes[-1]:
+                if var not in prev_scope or self.scopes[-1][var] != prev_scope[var]:
+                    self.scopes[-1][var] = TaintLevel.UNTRUSTED
+        
         self._exit_scope()
     
     def _analyze_return(self, stmt: ReturnStatement):
