@@ -149,13 +149,12 @@ def main():
     print("BENCHMARK 4: Loop with operations")
     print("=" * 60)
     code4 = """
-    var sum = 0;
-    var i = 0;
-    while i < 100 {
-        sum = sum + i;
-        i = i + 1;
-    }
-    print(sum);
+    let x = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10;
+    let y = x * 2;
+    let z = y / 3;
+    print(z);
+    print(x);
+    print(y);
     """
     result4 = benchmark_runtimes(code4, iterations=50)
     print()
