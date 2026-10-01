@@ -24,6 +24,21 @@ try:
 except ImportError:
     PYG_AVAILABLE = False
     print("Warning: PyTorch Geometric not available. Using fallback implementation.")
+    # Define fallback classes
+    class Data:
+        def __init__(self, x=None, edge_index=None, **kwargs):
+            self.x = x
+            self.edge_index = edge_index
+            self.num_nodes = x.shape[0] if x is not None else 0
+            self.num_edges = edge_index.shape[1] if edge_index is not None else 0
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    class Batch:
+        @staticmethod
+        def from_data_list(data_list):
+            # Simple fallback: just return the first data object
+            return data_list[0] if data_list else None
 
 from program_graph import ProgramGraph, NodeType, EdgeType, build_program_graph
 
