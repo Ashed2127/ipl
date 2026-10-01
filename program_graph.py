@@ -89,7 +89,12 @@ class ProgramGraph:
         Returns:
             NetworkX MultiDiGraph representing the program
         """
-        self._process_node(ast_node, parent_id=None)
+        # Handle Program node specially - process its statements directly
+        if isinstance(ast_node, ProgramNode):
+            for stmt in ast_node.statements:
+                self._process_node(stmt, parent_id=None)
+        else:
+            self._process_node(ast_node, parent_id=None)
         return self.graph
 
     def _process_node(self, node: ASTNode, parent_id: Optional[int] = None) -> int:
@@ -268,7 +273,7 @@ class ProgramGraph:
                 stmt_id = self._process_node(stmt, parent_id)
                 child_ids.append(stmt_id)
 
-        elif isinstance(node, Program):
+        elif isinstance(node, ProgramNode):
             for stmt in node.statements:
                 stmt_id = self._process_node(stmt, parent_id)
                 child_ids.append(stmt_id)
