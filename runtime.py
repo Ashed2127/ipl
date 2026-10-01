@@ -25,7 +25,7 @@ try:
     from .semantic_engine import SemanticEngine
     from .formatter import IntelligentFormatter
     from .security_engine import SecurityEngine
-    from .taint import TaintLevel, TaintTag, TaintViolationError
+    from .taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
     from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
     from .static_taint_analyzer import analyze_program_taint
 except (ImportError, ValueError):
