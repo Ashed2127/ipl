@@ -161,7 +161,11 @@ class ProgramGraph:
 
         # Extract function name
         if isinstance(node, FunctionCall):
-            features['function_name'] = node.function_name
+            # Handle both callee and function_name attributes
+            if hasattr(node, 'callee'):
+                features['function_name'] = node.callee.name if hasattr(node.callee, 'name') else str(node.callee)
+            elif hasattr(node, 'function_name'):
+                features['function_name'] = node.function_name
 
         return features
 
