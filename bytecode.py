@@ -550,6 +550,7 @@ class BytecodeInterpreter:
             slot = instr.operand
             value = self.stack.pop()
             taint = self.taint_tags.pop()
+            print(f"[DEBUG] STORE_VAR: slot={slot}, value={value}, taint_level={taint.level}")
             # Ensure locals array is large enough
             while len(self.locals) <= slot:
                 self.locals.append(None)
