@@ -146,15 +146,15 @@ class ProgramGraph:
             features['semantic_type'] = node.semantic_type
 
         # Extract value for literals
-        if isinstance(node, LiteralNode):
+        if isinstance(node, Literal):
             features['value'] = str(node.value)
 
         # Extract variable name
-        if isinstance(node, VariableNode):
+        if isinstance(node, Identifier):
             features['variable_name'] = node.name
 
         # Extract function name
-        if isinstance(node, FunctionCallNode):
+        if isinstance(node, FunctionCall):
             features['function_name'] = node.function_name
 
         return features
