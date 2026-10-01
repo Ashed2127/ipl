@@ -675,7 +675,6 @@ class BytecodeInterpreter:
             table = self.stack.pop()
             record = self.stack.pop()
             self.taint_tags.pop()
-            print(f"[DB_WRITE_SAFE] Committed to table '{table}' (statically safe)")
 
         elif opcode == OpCode.FILE_WRITE:
             path = self.stack.pop()
@@ -688,13 +687,11 @@ class BytecodeInterpreter:
                     sink_name=f"file_write('{path}')",
                     taint_level=data_taint.level
                 )
-            print(f"[FILE_WRITE] Wrote to '{path}'")
 
         elif opcode == OpCode.FILE_WRITE_SAFE:
             path = self.stack.pop()
             data = self.stack.pop()
             self.taint_tags.pop()
-            print(f"[FILE_WRITE_SAFE] Wrote to '{path}' (statically safe)")
 
         elif opcode == OpCode.HTML_RENDER:
             html = self.stack.pop()
@@ -706,12 +703,10 @@ class BytecodeInterpreter:
                     sink_name="html_render",
                     taint_level=html_taint.level
                 )
-            print(f"[HTML_RENDER] Rendered HTML")
 
         elif opcode == OpCode.HTML_RENDER_SAFE:
             html = self.stack.pop()
             self.taint_tags.pop()
-            print(f"[HTML_RENDER_SAFE] Rendered HTML (statically safe)")
 
         elif opcode == OpCode.SHELL_EXEC:
             cmd = self.stack.pop()
@@ -723,12 +718,10 @@ class BytecodeInterpreter:
                     sink_name="shell_exec",
                     taint_level=cmd_taint.level
                 )
-            print(f"[SHELL_EXEC] Executed shell command")
 
         elif opcode == OpCode.SHELL_EXEC_SAFE:
             cmd = self.stack.pop()
             self.taint_tags.pop()
-            print(f"[SHELL_EXEC_SAFE] Executed shell command (statically safe)")
 
         # Sanitization functions
         elif opcode == OpCode.SANITIZE_FOR_SQL:
