@@ -1,5 +1,0 @@
-// Commands to test in IPL REPL
-let age: Int = intent "extract user_age 30 from document" as Int
-print age
-print taint_of(age)
-print ai_stats()
