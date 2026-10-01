@@ -766,9 +766,9 @@ class BytecodeInterpreter:
 
         # Source functions
         elif opcode == OpCode.SET_UNTRUSTED:
-            value = self.stack.pop()
-            self.stack.append(value)
-            self.taint_tags.append(TaintTag(level=TaintLevel.UNTRUSTED, provenance="set_untrusted"))
+            # Mark the top of stack as UNTRUSTED (don't pop, just replace taint tag)
+            if self.taint_tags:
+                self.taint_tags[-1] = TaintTag(level=TaintLevel.UNTRUSTED, provenance="set_untrusted")
 
         elif opcode == OpCode.USER_INPUT:
             self.stack.append("<user_input>")
