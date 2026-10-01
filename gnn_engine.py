@@ -149,12 +149,16 @@ class GNNModel(nn.Module):
 
         # GNN layers
         for i, (conv, bn) in enumerate(zip(self.convs, self.batch_norms)):
-            x = conv(x, edge_index)
+            if PYG_AVAILABLE:
+                x = conv(x, edge_index)
 
-            # Handle GAT output (concat heads)
-            if self.model_type in [GNNModelType.GAT, GNNModelType.GCN_GAT]:
-                if isinstance(conv, GATConv):
-                    x = x.view(-1, self.hidden_dim)
+                # Handle GAT output (concat heads)
+                if self.model_type in [GNNModelType.GAT, GNNModelType.GCN_GAT]:
+                    if isinstance(conv, GATConv):
+                        x = x.view(-1, self.hidden_dim)
+            else:
+                # Fallback: simple linear transformation
+                x = conv(x)
 
             x = bn(x)
             x = F.relu(x)
@@ -165,7 +169,11 @@ class GNNModel(nn.Module):
 
         # Graph-level pooling if batch provided
         if batch is not None:
-            x = global_mean_pool(x, batch)
+            if PYG_AVAILABLE:
+                x = global_mean_pool(x, batch)
+            else:
+                # Fallback: simple mean
+                x = x.mean(dim=0, keepdim=True)
 
         return x
 
