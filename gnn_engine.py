@@ -34,6 +34,14 @@ except ImportError:
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
+        def to(self, device):
+            # Fallback: convert tensors to device
+            if self.x is not None:
+                self.x = self.x.to(device)
+            if self.edge_index is not None:
+                self.edge_index = self.edge_index.to(device)
+            return self
+
     class Batch:
         @staticmethod
         def from_data_list(data_list):
