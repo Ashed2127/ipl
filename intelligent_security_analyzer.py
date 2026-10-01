@@ -205,6 +205,29 @@ class IntelligentSecurityAnalyzer:
                                 'violation_type': self._map_sink_to_threat(function_name)
                             })
 
+        # Additional check: if there's a source but no sanitizer anywhere, flag as violation
+        has_source = any(
+            program_graph.graph.nodes[n].get('node_type') == 'source'
+            for n in program_graph.graph.nodes()
+        )
+        has_sanitizer = any(
+            program_graph.graph.nodes[n].get('node_type') == 'sanitizer'
+            for n in program_graph.graph.nodes()
+        )
+        has_sink = any(
+            program_graph.graph.nodes[n].get('node_type') == 'sink'
+            for n in program_graph.graph.nodes()
+        )
+
+        if has_source and has_sink and not has_sanitizer:
+            # This is a violation - untrusted data going to sink without sanitization
+            violations.append({
+                'sink': 'multiple',
+                'source': 'untrusted',
+                'path_length': 0,
+                'violation_type': 'MISSING_SANITIZATION'
+            })
+
         return violations
 
     def _map_sink_to_threat(self, sink_name: str) -> str:
