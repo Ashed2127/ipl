@@ -250,9 +250,53 @@ class StaticTaintAnalysis:
             self.scopes[-1] = merged_scope
     
     def _analyze_while(self, stmt: WhileStatement):
-        """Analyze a while statement"""
+        """
+        Analyze a while statement with fixpoint iteration.
+        Repeatedly analyze the loop body until taint state stabilizes.
+        Cap iterations and fall back to conservative UNTRUSTED if not stabilized.
+        """
         self._analyze_expr(stmt.condition)
-        self._analyze_block(stmt.body)
+        
+        # Fixpoint iteration for loop body
+        max_iterations = 10
+        iteration = 0
+        prev_scope = dict(self.scopes[-1])
+        
+        while iteration < max_iterations:
+            iteration += 1
+            
+            # Save scope before analyzing body
+            pre_body_scope = dict(self.scopes[-1])
+            
+            # Analyze loop body
+            self._analyze_block(stmt.body)
+            
+            # Get scope after body
+            post_body_scope = dict(self.scopes[-1])
+            
+            # Check if taint state has changed
+            if self._scopes_equal(pre_body_scope, post_body_scope):
+                # Fixpoint reached
+                break
+            
+            # Merge post-body state into entry state for next iteration
+            # Use lattice meet to be conservative
+            merged_scope = {}
+            all_vars = set(pre_body_scope.keys()) | set(post_body_scope.keys())
+            
+            for var in all_vars:
+                pre_taint = pre_body_scope.get(var, TaintLevel.TRUSTED)
+                post_taint = post_body_scope.get(var, TaintLevel.TRUSTED)
+                merged_taint = self._lattice_meet(pre_taint, post_taint)
+                merged_scope[var] = merged_taint
+            
+            self.scopes[-1] = merged_scope
+        
+        # If we hit the cap, conservatively mark any changed variables as UNTRUSTED
+        if iteration >= max_iterations:
+            for var in self.scopes[-1]:
+                if var not in prev_scope or self.scopes[-1][var] != prev_scope[var]:
+                    self.scopes[-1][var] = TaintLevel.UNTRUSTED
     
     def _analyze_for(self, stmt: ForStatement):
         """Analyze a for statement"""
