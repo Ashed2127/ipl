@@ -174,15 +174,7 @@ class BytecodeCompiler:
 
     def _emit(self, opcode: OpCode, operand: Any = None, line: int = 0) -> int:
         """Emit an instruction and return its index"""
-        # Handle case where line is passed as a keyword argument
-        if isinstance(operand, int) and opcode in [OpCode.ADD, OpCode.SUB, OpCode.MUL, OpCode.DIV,
-                                                    OpCode.MOD, OpCode.EQ, OpCode.NEQ, OpCode.LT,
-                                                    OpCode.LTE, OpCode.GT, OpCode.GTE, OpCode.AND,
-                                                    OpCode.OR, OpCode.NEG, OpCode.NOT]:
-            # operand is actually the line number for these opcodes
-            instr = Instruction(opcode, None, operand)
-        else:
-            instr = Instruction(opcode, operand, line)
+        instr = Instruction(opcode, operand, line)
         self.program.instructions.append(instr)
         idx = self.instruction_index
         self.instruction_index += 1
