@@ -217,7 +217,9 @@ class ProgramGraph:
             child_ids.append(operand_id)
 
         elif isinstance(node, FunctionCall):
-            for arg in node.arguments:
+            # Handle both args and arguments attributes
+            args = node.args if hasattr(node, 'args') else (node.arguments if hasattr(node, 'arguments') else [])
+            for arg in args:
                 arg_id = self._process_node(arg, parent_id)
                 child_ids.append(arg_id)
                 self._add_edge(parent_id, arg_id, EdgeType.PARAMETER)
