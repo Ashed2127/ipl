@@ -130,6 +130,11 @@ class TestGNNEngine(unittest.TestCase):
 
     def test_embedding_generation(self):
         """Test program embedding generation"""
+        # Skip this test if PyTorch Geometric is not available
+        import gnn_engine
+        if not gnn_engine.PYG_AVAILABLE:
+            self.skipTest("PyTorch Geometric not available")
+
         self.engine.initialize_embedding_model(input_dim=20, hidden_dim=64, output_dim=32)
 
         code = "let x = 5;"
