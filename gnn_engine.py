@@ -105,17 +105,21 @@ class GNNModel(nn.Module):
         self.batch_norms = nn.ModuleList()
 
         for i in range(num_layers):
-            if model_type == GNNModelType.GCN:
-                self.convs.append(GCNConv(hidden_dim, hidden_dim))
-            elif model_type == GNNModelType.GAT:
-                self.convs.append(GATConv(hidden_dim, hidden_dim // num_heads,
-                                         heads=num_heads, dropout=dropout))
-            elif model_type == GNNModelType.GCN_GAT:
-                if i % 2 == 0:
+            if PYG_AVAILABLE:
+                if model_type == GNNModelType.GCN:
                     self.convs.append(GCNConv(hidden_dim, hidden_dim))
-                else:
+                elif model_type == GNNModelType.GAT:
                     self.convs.append(GATConv(hidden_dim, hidden_dim // num_heads,
                                              heads=num_heads, dropout=dropout))
+                elif model_type == GNNModelType.GCN_GAT:
+                    if i % 2 == 0:
+                        self.convs.append(GCNConv(hidden_dim, hidden_dim))
+                    else:
+                        self.convs.append(GATConv(hidden_dim, hidden_dim // num_heads,
+                                                 heads=num_heads, dropout=dropout))
+            else:
+                # Fallback: use simple linear layers
+                self.convs.append(nn.Linear(hidden_dim, hidden_dim))
 
             self.batch_norms.append(nn.BatchNorm1d(hidden_dim))
 
