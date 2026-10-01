@@ -107,6 +107,8 @@ class TestAdversarialBytecodeSafety(unittest.TestCase):
         """
         Unsainted untrusted data passed to sink should raise error even in bytecode VM.
         This confirms the VM is not faster because it's less safe.
+        Note: When there's a static violation, the compiler conservatively requires
+        runtime checks for all calls to that sink (safe or not).
         """
         code = """
         let untrusted = set_untrusted("admin'; DROP TABLE users; --");
@@ -128,6 +130,10 @@ class TestAdversarialBytecodeSafety(unittest.TestCase):
         # Compile to bytecode (should still work even with violations)
         compiler = BytecodeCompiler(static_result)
         bytecode = compiler.compile(program)
+
+        # Because there's a violation, it should NOT be classified as static_safe
+        self.assertEqual(len(bytecode.static_safe_sites), 0,
+                        "Program with violations should not have static_safe_sites")
 
         # Execute and verify it's rejected
         vm = BytecodeInterpreter()
