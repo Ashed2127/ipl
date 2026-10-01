@@ -240,7 +240,7 @@ class IntelligentSecurityAnalyzer:
             Tuple of (decision, threat_type, severity, reasoning)
         """
         # Check for critical static violations
-        critical_violations = [v for v in static_violations if v['violation_type'] in ['SQL_INJECTION', 'COMMAND_INJECTION']]
+        critical_violations = [v for v in static_violations if v['violation_type'] in ['SQL_INJECTION', 'COMMAND_INJECTION', 'MISSING_SANITIZATION']]
         if critical_violations:
             threat_type = critical_violations[0]['violation_type']
             return (
