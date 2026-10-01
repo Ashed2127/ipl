@@ -488,6 +488,7 @@ class BytecodeInterpreter:
         self.console = console
         self.stack: List[Any] = []
         self.locals: List[Any] = []  # Slot-indexed local variables
+        self.local_taints: List[Any] = []  # Parallel taint tags for locals
         self.program: Optional[BytecodeProgram] = None
         self.pc: int = 0  # Program counter
         self.running: bool = False
@@ -498,6 +499,7 @@ class BytecodeInterpreter:
         self.program = program
         self.stack = []
         self.locals = [None] * (max(program.global_slots.values(), default=0) + 1)
+        self.local_taints = [None] * (max(program.global_slots.values(), default=0) + 1)
         self.taint_tags = []
         self.pc = 0
         self.running = True
