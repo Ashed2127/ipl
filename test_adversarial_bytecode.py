@@ -127,6 +127,10 @@ class TestAdversarialBytecodeSafety(unittest.TestCase):
         self.assertGreater(len(static_result['violations']), 0,
                           "Unsanitized untrusted data should be static violation")
 
+        # Debug: print what the static analysis found
+        print(f"Violations: {static_result['violations']}")
+        print(f"Static safe sites: {static_result['static_safe_sites']}")
+
         # Compile to bytecode (should still work even with violations)
         compiler = BytecodeCompiler(static_result)
         bytecode = compiler.compile(program)
