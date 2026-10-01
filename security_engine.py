@@ -1,8 +1,9 @@
 """
 Security Engine for IPL (Intelligent Programming Language / Aether).
-Built-in malicious code and data detection without external libraries.
+Built-in malicious code and data detection with optional neural analysis via Ollama.
 """
 import re
+import subprocess
 from typing import Dict, List, Optional, Tuple, Any
 
 
@@ -527,10 +528,80 @@ class SecurityEngine:
         return data
     
     @classmethod
-    def check_execution_safety(cls, code: str) -> Tuple[bool, List[str]]:
+    def neural_security_check(cls, code: str, model: str = "CyberCrew/notmythos-8b:mini") -> Optional[str]:
+        """
+        Perform neural security analysis using local Ollama model.
+        
+        Args:
+            code: The code to analyze
+            model: Ollama model to use (default: CyberCrew/notmythos-8b:mini)
+            
+        Returns:
+            Security analysis text or None if analysis fails
+        """
+        prompt = f"Security check: {code}"
+        
+        try:
+            result = subprocess.run(
+                ["ollama", "run", model, prompt],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if result.returncode == 0:
+                return result.stdout.strip()
+            else:
+                return None
+                
+        except subprocess.TimeoutExpired:
+            return None
+        except Exception:
+            return None
+    
+    @classmethod
+    def neural_vulnerability_detection(cls, code: str, model: str = "CyberCrew/notmythos-8b:mini") -> Dict[str, bool]:
+        """
+        Use neural model to detect various vulnerability types.
+        
+        Args:
+            code: The code to analyze
+            model: Ollama model to use
+            
+        Returns:
+            Dictionary with vulnerability detection results
+        """
+        analysis = cls.neural_security_check(code, model)
+        
+        if not analysis:
+            return {
+                "sql_injection": False,
+                "xss": False,
+                "command_injection": False,
+                "path_traversal": False,
+                "neural_analysis_available": False
+            }
+        
+        analysis_lower = analysis.lower()
+        
+        return {
+            "sql_injection": any(kw in analysis_lower for kw in ["sql injection", "sql", "database", "unauthorized"]),
+            "xss": any(kw in analysis_lower for kw in ["xss", "cross-site", "script", "html", "javascript"]),
+            "command_injection": any(kw in analysis_lower for kw in ["command", "shell", "exec", "system", "injection"]),
+            "path_traversal": any(kw in analysis_lower for kw in ["path", "traversal", "directory", "file"]),
+            "neural_analysis_available": True,
+            "analysis_text": analysis
+        }
+    
+    @classmethod
+    def check_execution_safety(cls, code: str, use_neural: bool = False) -> Tuple[bool, List[str]]:
         """
         Quick safety check before code execution.
         Returns (is_safe, warning_messages).
+        
+        Args:
+            code: Code to check
+            use_neural: If True, also use neural analysis via Ollama
         """
         warnings = []
         
@@ -544,6 +615,19 @@ class SecurityEngine:
         # Check for file operations
         if re.search(r'open\s*\([^)]*[\'"]w[\'"]', code):
             warnings.append("WARNING: File write operation detected")
+        
+        # Optional neural analysis
+        if use_neural:
+            neural_results = cls.neural_vulnerability_detection(code)
+            if neural_results["neural_analysis_available"]:
+                if neural_results["sql_injection"]:
+                    warnings.append("NEURAL WARNING: Potential SQL injection detected")
+                if neural_results["xss"]:
+                    warnings.append("NEURAL WARNING: Potential XSS detected")
+                if neural_results["command_injection"]:
+                    warnings.append("NEURAL WARNING: Potential command injection detected")
+                if neural_results["path_traversal"]:
+                    warnings.append("NEURAL WARNING: Potential path traversal detected")
         
         # Check for system commands
         if re.search(r'os\.system\s*\(', code):
