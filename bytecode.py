@@ -654,6 +654,9 @@ class BytecodeInterpreter:
             record = self.stack.pop()
             record_taint = self.taint_tags.pop()
 
+            # Debug
+            print(f"[DEBUG] DB_WRITE: record={record}, taint_level={record_taint.level}, safe_for_sql={record_taint.is_safe_for_sink(SinkKind.SQL)}")
+
             if not record_taint.is_safe_for_sink(SinkKind.SQL):
                 raise TaintViolationError(
                     variable_name=str(record),
