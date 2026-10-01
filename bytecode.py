@@ -214,14 +214,23 @@ class BytecodeCompiler:
         slot = self._allocate_slot(stmt.name)
 
         if stmt.value_expr:
-            self._compile_expr(stmt.value_expr)
-
-            # Track if this is a source function
+            # Check if this is a source function call
+            is_source = False
             if isinstance(stmt.value_expr, FunctionCall):
                 func_name = self._get_function_name(stmt.value_expr.callee)
                 if func_name in ["set_untrusted", "user_input"]:
-                    # Mark the value on stack as untrusted
+                    is_source = True
+                    # Compile the argument (the value to mark as untrusted)
+                    for arg in stmt.value_expr.args:
+                        self._compile_expr(arg)
+                    # Emit the source instruction
                     self._emit(OpCode.SET_UNTRUSTED if func_name == "set_untrusted" else OpCode.USER_INPUT)
+                else:
+                    # Normal function call
+                    self._compile_expr(stmt.value_expr)
+            else:
+                # Normal expression
+                self._compile_expr(stmt.value_expr)
 
             self._emit(OpCode.STORE_VAR, slot)
 
