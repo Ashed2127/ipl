@@ -542,6 +542,7 @@ class BytecodeInterpreter:
             slot = instr.operand
             value = self.locals[slot] if slot < len(self.locals) else None
             taint = self.local_taints[slot] if slot < len(self.local_taints) else TaintTag(level=TaintLevel.TRUSTED, provenance="variable")
+            print(f"[DEBUG] LOAD_VAR: slot={slot}, value={value}, taint_level={taint.level}")
             self.stack.append(value)
             self.taint_tags.append(taint)
 
