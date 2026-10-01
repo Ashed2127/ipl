@@ -456,15 +456,25 @@ class BytecodeCompiler:
         """
         Check if a sink call site is statically safe according to static analysis.
         Returns True if we can skip the runtime taint check.
+
+        Conservative approach: only mark as safe if there are NO violations for this sink
+        and there IS at least one static_safe_site for this sink.
         """
         if not self.static_analysis:
             return False
 
-        # Check if this sink call is in static_safe_sites
+        # Check if there are any violations for this sink
+        for violation in self.static_analysis.get('violations', []):
+            if violation.get('sink') == sink_name:
+                # If there's any violation, be conservative and don't skip checks
+                return False
+
+        # Check if this sink has any static_safe_sites
         for site in self.static_analysis.get('static_safe_sites', []):
             if site.get('sink') == sink_name:
-                # For simplicity, assume all static_safe_sites for this sink are safe
-                # In a real implementation, we'd need to track which specific call site
+                # If there are no violations and there's a safe site, we can skip checks
+                # Note: This is still per-sink-name, not per-call-site
+                # A production implementation would track specific call sites
                 return True
 
         return False
