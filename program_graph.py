@@ -18,7 +18,8 @@ from ast_nodes import (
     ASTNode, Expr, Literal, Identifier, BinaryOp, UnaryOp, ListLiteral, DictLiteral,
     MemberAccess, IndexAccess, FunctionCall, Block, Program, IfStatement, ForStatement, WhileStatement,
     BreakStatement, ContinueStatement, FunctionDef, ReturnStatement, LetStatement,
-    AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
+    AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement,
+    SanitizationNode as SanitizationNodeExpr
 )
 
 
@@ -212,6 +213,13 @@ class ProgramGraph:
             # Track variable definition
             if isinstance(node.target, Identifier):
                 self.variable_definitions[node.target.name] = parent_id
+
+        elif isinstance(node, LetStatement):
+            value_id = self._process_node(node.value_expr, parent_id)
+            child_ids.append(value_id)
+
+            # Track variable definition
+            self.variable_definitions[node.name] = parent_id
 
         elif isinstance(node, IfStatement):
             condition_id = self._process_node(node.condition, parent_id)
