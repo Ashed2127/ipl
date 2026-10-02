@@ -2,11 +2,13 @@
 Autonomous Decision Engine for IPL
 The core intelligence that decides what's good or bad by itself.
 
-This module implements truly autonomous decision-making:
+This module implements truly autonomous decision-making using advanced ML:
+- Graph Neural Networks for program representation learning
+- Continual Learning for adaptation without catastrophic forgetting
+- ML-based heuristic generation for compiler decisions
+- Dynamic optimization with runtime profiling
 - Self-learning security patterns (no hardcoded whitelists/blacklists)
 - Auto-configuring thresholds based on runtime behavior
-- Autonomous safety/optimization decisions
-- Continuous adaptation to new situations
 """
 
 import numpy as np
@@ -17,6 +19,17 @@ from collections import deque
 import time
 import hashlib
 import json
+
+# Import existing ML components for true intelligence
+try:
+    from gnn_engine import GNNEngine, SecurityPattern
+    from continual_learning import ContinualLearner, ContinualLearningMethod
+    from ml_heuristic_generator import MLHeuristicGenerator, HeuristicType, MLModelType
+    from dynamic_optimizer import DynamicOptimizer, FeedbackOptimizer
+    INTELLIGENT_COMPONENTS_AVAILABLE = True
+except ImportError:
+    INTELLIGENT_COMPONENTS_AVAILABLE = False
+    print("Warning: Intelligent ML components not available. Using fallback mode.")
 
 
 class DecisionType(Enum):
