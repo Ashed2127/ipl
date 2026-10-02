@@ -20,11 +20,16 @@ ipl = "cli:main"
 [tool.setuptools]
 py-modules = [
     "ast_nodes",
+    "autonomous_decision_engine",
     "cli",
     "compiler",
+    "continual_learning",
+    "dynamic_optimizer",
     "formatter",
     "gateway",
+    "gnn_engine",
     "lexer",
+    "ml_heuristic_generator",
     "parser",
     "runtime",
     "security_engine",
