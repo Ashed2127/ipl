@@ -1,11 +1,17 @@
 # IPL Architecture Design
 
+## IPL - The Autonomous Programming Language
+
+**IPL decides any situation by itself whether the decision is good or bad.**
+
+This is the future of programming languages - truly autonomous decision-making with no manual configuration or hardcoded parameters.
+
 ## Current IPL System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                        IPL PROGRAMMING LANGUAGE ARCHITECTURE                        │
-│                    Symbolic Compiler & Deterministic Runtime                        │
+│                   Autonomous Decision Engine & Deterministic Runtime                │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
@@ -55,21 +61,31 @@
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │  4. NEURO-SYMBOLIC COMPILER (compiler.py)                                            │
 │     • System 1: Semantic Engine (pattern-based parsing)                            │
-│     • System 2: Mathematical Firewall Verification                                   │
+│     • System 2: Autonomous Decision Engine (Self-learning security)                │
 │     • Self-Correction Loop for type mismatches                                      │
 │     • Audit Trail Generation (SHA-256 signed)                                       │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    SECURITY LAYER                                                    │
+│                    AUTONOMOUS SECURITY LAYER                                          │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  MATHEMATICAL FIREWALL (compiler.py)                                                │
-│     • Safe Primitives Whitelist (SAFE_PRIMITIVES)                                   │
-│     • Forbidden Operations Rejection (FORBIDDEN_OPERATIONS)                         │
-│     • Adversarial Prompt Neutralization                                             │
-│     • AST Schema Validation                                                         │
+│  AUTONOMOUS DECISION ENGINE (autonomous_decision_engine.py)                          │
+│     • Self-learning security patterns (NO hardcoded rules)                         │
+│     • Q-learning for decision improvement                                            │
+│     • Auto-configuring thresholds based on runtime behavior                        │
+│     • Autonomous safety/optimization decisions                                       │
+│     • Continuous adaptation to new situations                                       │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│  AUTONOMOUS FIREWALL (compiler.py)                                                  │
+│     • Uses Decision Engine to judge safety autonomously                             │
+│     • NO whitelists, NO blacklists, NO manual configuration                        │
+│     • Learns from experience what's dangerous                                       │
+│     • Context-aware decision making                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
