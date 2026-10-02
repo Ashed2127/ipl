@@ -45,6 +45,7 @@ except (ImportError, ValueError):
     from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
     from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
     from static_taint_analyzer import analyze_program_taint
+    from load_aware_runtime import LoadAwareController, ServerState
 
 
 class BreakException(Exception):
