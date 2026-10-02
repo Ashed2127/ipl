@@ -673,50 +673,40 @@ class AutonomousDecisionEngine:
 
     def _learn_with_ml_components(self, decision: Decision, outcome: DecisionOutcome, reward: float):
         """
-        Learn using ML components (GNN, continual learning, ML heuristics).
+        Learn using ML components (Neural Networks, Continual Learning, ML heuristics).
         This is true intelligent learning, not simple Q-learning.
         """
-        # Add experience to continual learner
+        # Extract features
         features = self._extract_context_features(decision.context)
         label = 1 if outcome == DecisionOutcome.GOOD else 0
 
-        # Update neural network weights using simple gradient descent
-        if decision.decision_type == DecisionType.SECURITY:
-            # Forward pass
-            output = self.security_model.forward(features)
-            target = 1.0 if decision.action else 0.0
+        # Accumulate training data
+        self.training_X.append(features)
+        self.training_y.append(label)
+        if not self.feature_names:
+            self.feature_names = list(decision.context.keys())
 
-            # Simple gradient descent
-            error = output[0] - target
-            # Update weights (simplified backprop)
-            grad_hidden = error * self.security_model.weights2.T
-            self.security_model.weights2 -= self.learning_rate * np.outer(self.security_model.hidden, error)
-            self.security_model.weights1 -= self.learning_rate * np.outer(features, grad_hidden.sum(axis=1))
+        # Train neural network if enough data
+        if len(self.training_X) >= 10:
+            X_batch = np.array(self.training_X[-10:])
+            y_batch = np.array([[1, 0] if label == 1 else [0, 1] for label in self.training_y[-10:]])
 
-        # Record feedback for dynamic optimizer
-        if decision.decision_type == DecisionType.OPTIMIZATION:
-            self.feedback_optimizer.record_feedback(
-                node_id=hash(decision.decision_id) % 10000,
-                optimization_level=0,  # Simplified
-                performance_gain=reward
-            )
+            if decision.decision_type == DecisionType.SECURITY:
+                # Train with continual learning (EWC)
+                self.security_nn.train_with_ewc(X_batch, y_batch, epochs=5)
 
-        # Train ML heuristic generator if enough data
-        if len(self.experience_buffer) >= 10:
-            training_data = []
-            labels = []
-            for exp in list(self.experience_buffer)[-10:]:
-                training_data.append(exp.context)
-                labels.append(1 if exp.outcome == DecisionOutcome.GOOD else 0)
+                # Compute Fisher information for next task
+                self.security_nn.compute_fisher_information(X_batch, y_batch)
 
-            try:
-                self.heuristic_generator.learn_security_check_heuristic(
-                    training_data,
-                    labels,
-                    MLModelType.RANDOM_FOREST
-                )
-            except Exception as e:
-                pass  # ML training might fail without proper data
+            elif decision.decision_type == DecisionType.OPTIMIZATION:
+                # Train optimization network
+                self.optimization_nn.train(X_batch, y_batch, epochs=5)
+
+        # Train heuristic learner if enough data
+        if len(self.training_X) >= 20:
+            X_batch = np.array(self.training_X[-20:])
+            y_batch = np.array(self.training_y[-20:])
+            self.heuristic_learner.train(X_batch, y_batch, self.feature_names)
 
     def _learn_from_experience(self):
         """Fallback: Learn from experience using simple Q-learning"""
