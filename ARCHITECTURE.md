@@ -158,13 +158,14 @@ Source Code → Lexer → Parser → AST → Semantic Analysis →
 │                          KEY ARCHITECTURAL PRINCIPLES                                 │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
-1. SYMBOLIC COMPILATION: Pattern-based semantic extraction with deterministic behavior
-2. ZERO-TRUST SECURITY: All data starts untrusted, must be explicitly sanitized
-3. FAIL-CLOSED DESIGN: Security violations block execution rather than risking compromise
-4. DETERMINISTIC RUNTIME: Same input always produces same output (mathematical guarantees)
-5. CRYPTOGRAPHIC AUDIT: Every operation signed with SHA-256 for compliance
-6. SOUND TAINT LATTICE: Three-level security lattice with correct combine() semantics
-7. PATTERN-BASED SEMANTICS: No neural dependencies for core functionality
+1. AUTONOMOUS DECISION-MAKING: IPL decides what's good or bad by itself - NO hardcoded rules
+2. SYMBOLIC COMPILATION: Pattern-based semantic extraction with deterministic behavior
+3. ZERO-TRUST SECURITY: All data starts untrusted, must be explicitly sanitized
+4. FAIL-CLOSED DESIGN: Security violations block execution rather than risking compromise
+5. DETERMINISTIC RUNTIME: Same input always produces same output (mathematical guarantees)
+6. CRYPTOGRAPHIC AUDIT: Every operation signed with SHA-256 for compliance
+7. SOUND TAINT LATTICE: Three-level security lattice with correct combine() semantics
+8. PATTERN-BASED SEMANTICS: No neural dependencies for core functionality
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                          MODULE DEPENDENCIES                                          │
