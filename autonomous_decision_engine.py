@@ -618,7 +618,8 @@ class AutonomousDecisionEngine:
         if self.use_intelligent_components:
             taint_threshold = self.security_nn.learnable_thresholds['taint_propagation_threshold']
         else:
-            taint_threshold = 10
+            # Fallback: use learned threshold from history or initialize randomly
+            taint_threshold = self.learned_thresholds.get('taint_propagation_threshold', np.random.uniform(5, 15))
 
         if context.get('taint_propagation_steps', 0) > taint_threshold:
             reasons.append(f"extensive taint propagation (>{taint_threshold:.1f} steps)")
