@@ -590,7 +590,7 @@ class AutonomousDecisionEngine:
         return min(1.0, base_threat)
 
     def _generate_safety_reasoning(self, context: Dict[str, Any], is_safe: bool, threat_level: float) -> str:
-        """Generate human-readable reasoning for safety judgment"""
+        """Generate human-readable reasoning for safety judgment using LEARNED thresholds"""
         reasons = []
 
         if context.get('has_untrusted_data', 0):
@@ -599,13 +599,28 @@ class AutonomousDecisionEngine:
             else:
                 reasons.append("untrusted data without sanitization")
 
-        if threat_level > 0.7:
-            reasons.append("high threat level detected")
-        elif threat_level < 0.3:
-            reasons.append("low threat level detected")
+        # Use LEARNED thresholds for threat level classification
+        if self.use_intelligent_components:
+            thresholds = self.security_nn.learnable_thresholds
+            high_threshold = thresholds['high_threat_threshold']
+            low_threshold = thresholds['low_threat_threshold']
+        else:
+            high_threshold = 0.7
+            low_threshold = 0.3
 
-        if context.get('taint_propagation_steps', 0) > 10:
-            reasons.append("extensive taint propagation")
+        if threat_level > high_threshold:
+            reasons.append(f"high threat level detected (>{high_threshold:.2f})")
+        elif threat_level < low_threshold:
+            reasons.append(f"low threat level detected (<{low_threshold:.2f})")
+
+        # Use LEARNED threshold for taint propagation
+        if self.use_intelligent_components:
+            taint_threshold = self.security_nn.learnable_thresholds['taint_propagation_threshold']
+        else:
+            taint_threshold = 10
+
+        if context.get('taint_propagation_steps', 0) > taint_threshold:
+            reasons.append(f"extensive taint propagation (>{taint_threshold:.1f} steps)")
 
         if not reasons:
             reasons.append("no specific threat indicators")
