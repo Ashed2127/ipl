@@ -753,7 +753,18 @@ class AutonomousDecisionEngine:
         """Auto-configure thresholds based on experience"""
         if self.total_decisions > 0:
             self.learned_thresholds['historical_safety_rate'] = self.good_decisions / self.total_decisions
-            self.learned_thresholds['historical_optimization_success'] = 0.8  # Placeholder, learned from optimization outcomes
+
+            # Calculate optimization success rate from optimization decisions
+            opt_decisions = [d for d in self.decision_history if d.decision_type == DecisionType.OPTIMIZATION]
+            if opt_decisions:
+                opt_good = sum(1 for d in opt_decisions if d.outcome == DecisionOutcome.GOOD)
+                self.learned_thresholds['historical_optimization_success'] = opt_good / len(opt_decisions)
+            else:
+                # Initialize with learned threshold from NN if available
+                if self.use_intelligent_components:
+                    self.learned_thresholds['historical_optimization_success'] = 0.5  # Start neutral
+                else:
+                    self.learned_thresholds['historical_optimization_success'] = 0.5
 
     def _learn_with_ml_components(self, decision: Decision, outcome: DecisionOutcome, reward: float):
         """
