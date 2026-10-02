@@ -30,7 +30,7 @@ try:
     INTELLIGENT_COMPONENTS_AVAILABLE = True
 except ImportError as e:
     INTELLIGENT_COMPONENTS_AVAILABLE = False
-    print(f"Warning: Intelligent ML components not available ({e}). Using fallback mode.")
+    # Don't print warning, we'll implement intelligent components from scratch
 
 
 class DecisionType(Enum):
