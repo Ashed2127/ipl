@@ -158,18 +158,25 @@ class AutonomousFirewall:
 
         return len(violations) == 0, violations
 
-    @classmethod
-    def verify_tree(cls, root: ASTNode) -> Tuple[bool, List[str]]:
+    def verify_tree(self, root: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
         """
-        Recursively checks the entire AST tree against the mathematical firewall schema.
+        Recursively checks the entire AST tree using autonomous decision engine.
         Returns (is_valid, list_of_violations).
         """
+        if context is None:
+            context = {}
+
         all_violations: List[str] = []
 
-        def walk(n: Any):
+        def walk(n: Any, depth: int = 0):
             if not isinstance(n, ASTNode):
                 return
-            ok, viols = cls.verify_ast_node(n)
+
+            # Update context with tree structure info
+            context['num_nodes'] = depth + 1
+            context['num_edges'] = depth
+
+            ok, viols = self.verify_ast_node(n, context)
             if not ok:
                 all_violations.extend(viols)
 
