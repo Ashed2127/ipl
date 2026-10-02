@@ -695,6 +695,7 @@ class Interpreter:
             "audit_trace": _audit_trace,
             "keys": _keys,
             "values": _values,
+            "has_key": _has_key,
             "min": _min,
             "max": _max,
             "abs": _abs,
