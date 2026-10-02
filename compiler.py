@@ -227,10 +227,9 @@ class AutonomousFirewall:
             elif isinstance(n, IndexAccess):
                 walk(n.target, depth + 1)
                 walk(n.index, depth + 1)
-                walk(n.index)
             elif isinstance(n, ListLiteral):
                 for el in n.elements:
-                    walk(el)
+                    walk(el, depth + 1)
             elif isinstance(n, DictLiteral):
                 for k, v in n.pairs:
                     walk(k)
