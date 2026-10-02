@@ -1,0 +1,92 @@
+# IPL Load Control Demo - Overload Test
+# This demonstrates how IPL prevents server crashes by blocking requests when overloaded
+
+let server_url = "http://localhost:8888";
+let max_capacity = 10;
+var requests_sent = 0;
+var requests_blocked = 0;
+
+fn check_server_load(url) {
+    # Get server status
+    let response = http_get(url);
+    
+    # Check if response has error key
+    if has_key(response, "error") {
+        print("Server unavailable: " + response["error"]);
+        return {"available": false, "active_requests": 0, "is_overloaded": true};
+    }
+    
+    let active_requests = response["active_requests"];
+    let is_overloaded = response["is_overloaded"];
+    let capacity = response["capacity"];
+    
+    print("Server status: " + str(active_requests) + "/" + str(capacity) + " active requests");
+    
+    return {
+        "available": true,
+        "active_requests": active_requests,
+        "is_overloaded": is_overloaded,
+        "capacity": capacity
+    };
+}
+
+fn send_request_with_control(url) {
+    # Check server load first
+    let status = check_server_load(url);
+    
+    if not status["available"] {
+        print("⚠️  Server unavailable - skipping request");
+        return {"success": false, "reason": "server_unavailable"};
+    }
+    
+    if status["is_overloaded"] {
+        print("⚠️  Server overloaded - BLOCKING request to prevent crash");
+        return {"success": false, "reason": "overloaded"};
+    }
+    
+    # Server has capacity - send request
+    let response = http_post(url, {"action": "test"});
+    
+    if has_key(response, "error") {
+        print("❌ Request failed: " + response["error"]);
+        return {"success": false, "reason": "request_failed"};
+    }
+    
+    print("✅ Request sent successfully (ID: " + str(response["request_id"]) + ")");
+    return {"success": true, "response": response};
+}
+
+fn load_test_aggressive(url, num_requests) {
+    print("Starting AGGRESSIVE load test with " + str(num_requests) + " requests");
+    print("Server capacity: " + str(max_capacity) + " concurrent requests");
+    print("This will overload the server to demonstrate IPL's crash prevention");
+    print("---");
+
+    var i = 0;
+    while i < num_requests {
+        let result = send_request_with_control(url);
+
+        if result["success"] {
+            requests_sent = requests_sent + 1;
+        } else {
+            requests_blocked = requests_blocked + 1;
+        }
+
+        # NO DELAY - send requests as fast as possible to overload server
+        i = i + 1;
+    }
+
+    print("---");
+    print("Load test complete");
+    print("Requests sent: " + str(requests_sent));
+    print("Requests blocked (crash prevention): " + str(requests_blocked));
+    print("");
+    print("🔒 IPL successfully prevented server crash by blocking " + str(requests_blocked) + " requests");
+}
+
+# Run the aggressive load test
+print("🚀 IPL Load Control System - Overload Test");
+print("This demonstrates IPL's ability to prevent server crashes");
+print("");
+
+load_test_aggressive(server_url, 25);

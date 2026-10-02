@@ -7,15 +7,16 @@ import http.server
 import socketserver
 import json
 import time
-from threading import Lock
+from threading import Lock, Thread
+import random
 
 # Server state tracking
 request_count = 0
-max_capacity = 10  # Server can handle 10 concurrent requests
+max_capacity = 5  # Server can handle 5 concurrent requests
 active_requests = 0
 lock = Lock()
 
-class LoadAwareHandler(http.server.SimpleHTTPRequestHandler):
+class LoadAwareHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         global request_count, active_requests
         
@@ -25,8 +26,9 @@ class LoadAwareHandler(http.server.SimpleHTTPRequestHandler):
             current_load = active_requests
             total_requests = request_count
         
-        # Simulate processing time
-        time.sleep(0.5)
+        # Simulate variable processing time (0.1 to 0.5 seconds)
+        processing_time = random.uniform(0.1, 0.5)
+        time.sleep(processing_time)
         
         with lock:
             active_requests -= 1
@@ -39,7 +41,8 @@ class LoadAwareHandler(http.server.SimpleHTTPRequestHandler):
             "active_requests": current_load,
             "is_overloaded": is_overloaded,
             "capacity": max_capacity,
-            "status": "OK" if not is_overloaded else "OVERLOADED"
+            "status": "OK" if not is_overloaded else "OVERLOADED",
+            "processing_time": processing_time
         }
         
         self.send_response(200 if not is_overloaded else 503)
@@ -50,10 +53,15 @@ class LoadAwareHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         # Handle POST requests (for load testing)
         self.do_GET()
+    
+    def log_message(self, format, *args):
+        # Suppress default logging
+        pass
 
 def run_server(port=8888):
     """Start the server"""
     with socketserver.ThreadingTCPServer(("", port), LoadAwareHandler) as httpd:
+        httpd.allow_reuse_address = True
         print(f"Server running on port {port}")
         print(f"Max capacity: {max_capacity} concurrent requests")
         httpd.serve_forever()
