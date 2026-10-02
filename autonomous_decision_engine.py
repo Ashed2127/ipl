@@ -787,7 +787,8 @@ class AutonomousDecisionEngine:
         if self.use_intelligent_components:
             training_threshold = self.security_nn.learnable_thresholds['training_data_threshold']
         else:
-            training_threshold = 10
+            # Fallback: use learned threshold from history or initialize randomly
+            training_threshold = self.learned_thresholds.get('training_data_threshold', np.random.uniform(5, 15))
 
         if len(self.training_X) >= training_threshold:
             X_batch = np.array(self.training_X[-int(training_threshold):])
