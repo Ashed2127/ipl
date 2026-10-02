@@ -598,11 +598,21 @@ class AutonomousDecisionEngine:
             taint_threshold = self.learned_thresholds.get('taint_propagation_threshold', np.random.uniform(5, 15))
 
         # Check context features using LEARNED thresholds
-        if context.get('has_untrusted_data', 0) and not context.get('has_sanitization', 0):
-            base_threat = max(base_threat, untrusted_threat)
+        # CRITICAL: Sanitization significantly reduces threat
+        if context.get('has_untrusted_data', 0):
+            if context.get('has_sanitization', 0):
+                # Sanitized data has much lower threat
+                base_threat = max(base_threat, untrusted_threat * 0.1)  # 90% reduction
+            else:
+                # Unsanitized data has full threat
+                base_threat = max(base_threat, untrusted_threat)
 
         if context.get('taint_propagation_steps', 0) > taint_threshold:
-            base_threat = max(base_threat, 0.6)  # This 0.6 could also be learned
+            # But if sanitization is present, reduce the threat from taint propagation
+            if context.get('has_sanitization', 0):
+                base_threat = max(base_threat, 0.3)  # Low threat even with high propagation if sanitized
+            else:
+                base_threat = max(base_threat, 0.6)  # This 0.6 could also be learned
 
         return min(1.0, base_threat)
 
