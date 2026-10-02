@@ -169,6 +169,54 @@ class ContinualLearningNN:
             # Update weights
             self.nn.update(gradients)
 
+    def update_thresholds(self, context: Dict[str, Any], outcome: float, learning_rate: float = 0.01):
+        """
+        Update learnable thresholds based on outcomes using gradient descent.
+
+        Args:
+            context: The context features
+            outcome: The reward signal (positive for good, negative for bad)
+            learning_rate: How fast to adjust thresholds
+        """
+        # Update untrusted_no_sanitization_threat
+        if context.get('has_untrusted_data', 0) and not context.get('has_sanitization', 0):
+            # If this led to bad outcome, increase threat threshold
+            if outcome < 0:
+                self.learnable_thresholds['untrusted_no_sanitization_threat'] += learning_rate * abs(outcome)
+            else:
+                self.learnable_thresholds['untrusted_no_sanitization_threat'] -= learning_rate * outcome * 0.1
+
+        # Update taint_propagation_threshold
+        taint_steps = context.get('taint_propagation_steps', 0)
+        if taint_steps > 0:
+            current_threshold = self.learnable_thresholds['taint_propagation_threshold']
+            # If high taint steps led to bad outcome, lower threshold (make it stricter)
+            if outcome < 0 and taint_steps > current_threshold:
+                self.learnable_thresholds['taint_propagation_threshold'] -= learning_rate * abs(outcome)
+            # If high taint steps led to good outcome, raise threshold (make it more lenient)
+            elif outcome > 0 and taint_steps > current_threshold:
+                self.learnable_thresholds['taint_propagation_threshold'] += learning_rate * outcome * 0.1
+
+        # Clamp thresholds to reasonable ranges
+        self.learnable_thresholds['untrusted_no_sanitization_threat'] = np.clip(
+            self.learnable_thresholds['untrusted_no_sanitization_threat'], 0.1, 1.0
+        )
+        self.learnable_thresholds['taint_propagation_threshold'] = np.clip(
+            self.learnable_thresholds['taint_propagation_threshold'], 1, 50
+        )
+        self.learnable_thresholds['high_threat_threshold'] = np.clip(
+            self.learnable_thresholds['high_threat_threshold'], 0.1, 1.0
+        )
+        self.learnable_thresholds['low_threat_threshold'] = np.clip(
+            self.learnable_thresholds['low_threat_threshold'], 0.0, 0.5
+        )
+        self.learnable_thresholds['training_data_threshold'] = np.clip(
+            self.learnable_thresholds['training_data_threshold'], 2, 50
+        )
+        self.learnable_thresholds['heuristic_data_threshold'] = np.clip(
+            self.learnable_thresholds['heuristic_data_threshold'], 5, 100
+        )
+
 
 class HeuristicLearner:
     """
