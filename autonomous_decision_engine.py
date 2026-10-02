@@ -770,10 +770,15 @@ class AutonomousDecisionEngine:
         if not self.feature_names:
             self.feature_names = list(decision.context.keys())
 
-        # Train neural network if enough data
-        if len(self.training_X) >= 10:
-            X_batch = np.array(self.training_X[-10:])
-            y_batch = np.array([[1, 0] if label == 1 else [0, 1] for label in self.training_y[-10:]])
+        # Train neural network if enough data (using LEARNED threshold)
+        if self.use_intelligent_components:
+            training_threshold = self.security_nn.learnable_thresholds['training_data_threshold']
+        else:
+            training_threshold = 10
+
+        if len(self.training_X) >= training_threshold:
+            X_batch = np.array(self.training_X[-int(training_threshold):])
+            y_batch = np.array([[1, 0] if label == 1 else [0, 1] for label in self.training_y[-int(training_threshold):]])
 
             if decision.decision_type == DecisionType.SECURITY:
                 # Train with continual learning (EWC)
@@ -782,14 +787,22 @@ class AutonomousDecisionEngine:
                 # Compute Fisher information for next task
                 self.security_nn.compute_fisher_information(X_batch, y_batch)
 
+                # UPDATE LEARNABLE THRESHASES based on outcome
+                self.security_nn.update_thresholds(decision.context, reward, self.learning_rate)
+
             elif decision.decision_type == DecisionType.OPTIMIZATION:
                 # Train optimization network
                 self.optimization_nn.train(X_batch, y_batch, epochs=5)
 
-        # Train heuristic learner if enough data
-        if len(self.training_X) >= 20:
-            X_batch = np.array(self.training_X[-20:])
-            y_batch = np.array(self.training_y[-20:])
+        # Train heuristic learner if enough data (using LEARNED threshold)
+        if self.use_intelligent_components:
+            heuristic_threshold = self.security_nn.learnable_thresholds['heuristic_data_threshold']
+        else:
+            heuristic_threshold = 20
+
+        if len(self.training_X) >= heuristic_threshold:
+            X_batch = np.array(self.training_X[-int(heuristic_threshold):])
+            y_batch = np.array(self.training_y[-int(heuristic_threshold):])
             self.heuristic_learner.train(X_batch, y_batch, self.feature_names)
 
     def _learn_from_experience(self):
