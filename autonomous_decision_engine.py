@@ -320,7 +320,7 @@ class AutonomousDecisionEngine:
 
     def __init__(self,
                  experience_buffer_size: int = 10000,
-                 learning_rate: float = 0.1,
+                 learning_rate: float = 0.01,
                  exploration_rate: float = 0.1,
                  use_intelligent_components: bool = True):
         """
@@ -328,14 +328,14 @@ class AutonomousDecisionEngine:
 
         Args:
             experience_buffer_size: Size of experience replay buffer
-            learning_rate: Learning rate for ML models
+            learning_rate: Learning rate for neural networks
             exploration_rate: Rate of exploration vs exploitation
-            use_intelligent_components: Whether to use GNN, continual learning, etc.
+            use_intelligent_components: Whether to use neural networks and continual learning
         """
         self.experience_buffer_size = experience_buffer_size
         self.learning_rate = learning_rate
         self.exploration_rate = exploration_rate
-        self.use_intelligent_components = use_intelligent_components and INTELLIGENT_COMPONENTS_AVAILABLE
+        self.use_intelligent_components = use_intelligent_components
 
         # Experience replay (learn from past decisions)
         self.experience_buffer: deque = deque(maxlen=experience_buffer_size)
@@ -343,46 +343,31 @@ class AutonomousDecisionEngine:
         # Decision history
         self.decision_history: List[Decision] = []
 
-        # INTELLIGENT COMPONENTS (if available)
+        # INTELLIGENT COMPONENTS (Pure Numpy Implementation)
         if self.use_intelligent_components:
-            # GNN Engine for program representation learning
-            self.gnn_engine = GNNEngine(device='cpu')
-            self.gnn_engine.initialize_security_classifier(
+            # Neural Network for security decisions
+            self.security_nn = ContinualLearningNN(
                 input_dim=64,
                 hidden_dim=128,
-                num_classes=5  # Security patterns
+                output_dim=2,
+                ewc_lambda=1000.0
             )
 
-            # Continual Learning for adaptation
-            # Create a simple neural network for continual learning
-            class SimpleNN:
-                def __init__(self, input_dim=64, hidden_dim=128, output_dim=2):
-                    self.weights1 = np.random.randn(input_dim, hidden_dim) * 0.01
-                    self.weights2 = np.random.randn(hidden_dim, output_dim) * 0.01
-
-                def forward(self, x):
-                    self.hidden = np.maximum(0, np.dot(x, self.weights1))  # ReLU
-                    self.output = np.dot(self.hidden, self.weights2)
-                    return self.output
-
-            self.security_model = SimpleNN()
-            self.continual_learner = ContinualLearner(
-                model=None,  # Will use custom implementation
-                method=ContinualLearningMethod.EXPERIENCE_REPLAY,
-                replay_buffer_size=1000
+            # Neural Network for optimization decisions
+            self.optimization_nn = NeuralNetwork(
+                input_dim=64,
+                hidden_dim=64,
+                output_dim=2,
+                learning_rate=learning_rate
             )
 
-            # ML Heuristic Generator
-            self.heuristic_generator = MLHeuristicGenerator()
+            # Heuristic Learner for rule extraction
+            self.heuristic_learner = HeuristicLearner()
 
-            # Dynamic Optimizer
-            self.dynamic_optimizer = DynamicOptimizer(
-                hot_path_threshold=100,
-                time_threshold_ms=1.0,
-                enable_jit=True
-            )
-
-            self.feedback_optimizer = FeedbackOptimizer(window_size=100)
+            # Training data accumulation
+            self.training_X = []
+            self.training_y = []
+            self.feature_names = []
 
         # Fallback: Q-learning tables for simple mode
         self.security_q_table: Dict[str, np.ndarray] = {}  # state -> [safe_q, dangerous_q]
