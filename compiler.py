@@ -95,51 +95,66 @@ class VerifiedAuditTrace:
         c.print(table)
 
 
-class MathematicalFirewall:
+class AutonomousFirewall:
     """
-    Symbolic Mathematical Firewall:
-    Validates candidate AST nodes against a hardcoded schema of safe primitives
-    and strict contracts before any memory allocation or code execution.
+    Autonomous Firewall:
+    Uses the Autonomous Decision Engine to decide what's safe or dangerous.
+    NO hardcoded rules - learns from experience.
     """
-    SAFE_PRIMITIVES: Set[str] = {
-        "Program", "Literal", "Identifier", "BinaryOp", "UnaryOp", "ListLiteral", "DictLiteral",
-        "MemberAccess", "IndexAccess", "FunctionCall", "Block", "IfStatement",
-        "ForStatement", "WhileStatement", "BreakStatement", "ContinueStatement",
-        "FunctionDef", "ReturnStatement", "LetStatement", "AssignStatement",
-        "PrintStatement", "SanitizationNode", "IntentExpr", "ImportStatement"
-    }
+    def __init__(self):
+        """Initialize autonomous firewall with decision engine"""
+        self.decision_engine = AutonomousDecisionEngine(
+            experience_buffer_size=10000,
+            learning_rate=0.1,
+            exploration_rate=0.15
+        )
 
-    FORBIDDEN_OPERATIONS: Set[str] = {
-        "eval", "exec", "system", "os.system", "subprocess", "rm -rf", "format c:",
-        "__import__", "fork", "drop database", "delete from", "truncate"
-    }
+    def verify_ast_node(self, node: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
+        """
+        Autonomous validation of AST nodes using the decision engine.
+        The engine decides if this is safe - no hardcoded rules.
+        """
+        if context is None:
+            context = {}
 
-    @classmethod
-    def verify_ast_node(cls, node: ASTNode, context: str = "") -> Tuple[bool, List[str]]:
-        """
-        Validates that AST structure contains strictly approved primitives
-        and contains no injection vectors.
-        """
         violations = []
         node_type = type(node).__name__
 
-        if node_type not in cls.SAFE_PRIMITIVES:
-            violations.append(f"Disallowed AST Primitive '{node_type}'. Violates deterministic schema.")
+        # Build context for the autonomous decision engine
+        security_context = {
+            'node_type': node_type,
+            'num_nodes': context.get('num_nodes', 1),
+            'num_edges': context.get('num_edges', 0),
+            'avg_degree': context.get('avg_degree', 0),
+            'has_untrusted_data': 1 if context.get('has_untrusted_data', False) else 0,
+            'has_sanitization': 1 if context.get('has_sanitization', False) else 0,
+            'taint_propagation_steps': context.get('taint_propagation_steps', 0),
+        }
 
-        # Check for command injection in identifiers or literals
-        if isinstance(node, Identifier):
-            if node.name.lower() in cls.FORBIDDEN_OPERATIONS:
-                violations.append(f"Attempted execution of forbidden operation '{node.name}'. Blocked by firewall.")
+        # Let the autonomous engine decide
+        judgment = self.decision_engine.judge_safety(security_context)
 
-        if isinstance(node, FunctionCall):
-            if isinstance(node.callee, Identifier):
-                if node.callee.name.lower() in cls.FORBIDDEN_OPERATIONS:
-                    violations.append(f"Forbidden call to sensitive system primitive '{node.callee.name}'.")
+        # If the engine says it's not safe, record as violation
+        if not judgment.is_safe and judgment.confidence > 0.6:
+            violations.append(
+                f"Autonomous decision: {node_type} flagged as potentially unsafe. "
+                f"Reasoning: {judgment.reasoning}. "
+                f"Threat level: {judgment.threat_level:.2f}. "
+                f"Learned from: {', '.join(judgment.learned_from)}"
+            )
 
-        if isinstance(node, Literal) and isinstance(node.value, str):
-            for bad_op in cls.FORBIDDEN_OPERATIONS:
-                if bad_op in node.value.lower() and ("ignore previous instructions" in node.value.lower() or "shell" in node.value.lower()):
-                    violations.append(f"Adversarial prompt injection pattern detected in literal: '{bad_op}'. Sandboxed.")
+        # Record the decision for learning
+        decision_id = f"{node_type}_{int(time.time() * 1000)}"
+        from autonomous_decision_engine import Decision
+        decision = Decision(
+            decision_id=decision_id,
+            decision_type=DecisionType.SECURITY,
+            context=security_context,
+            action=judgment.is_safe,
+            confidence=judgment.confidence,
+            timestamp=time.time()
+        )
+        self.decision_engine.decision_history.append(decision)
 
         return len(violations) == 0, violations
 
