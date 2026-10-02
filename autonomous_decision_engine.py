@@ -864,6 +864,8 @@ class AutonomousDecisionEngine:
         if self.use_intelligent_components:
             stats['training_samples_collected'] = len(self.training_X)
             stats['heuristic_learner_fitted'] = self.heuristic_learner.is_fitted
+            # Include the LEARNED thresholds from the neural network
+            stats['learnable_thresholds'] = self.security_nn.learnable_thresholds.copy()
 
         return stats
 
