@@ -429,7 +429,7 @@ class NeuroSymbolicCompiler:
     Neuro-Symbolic Compiler Architecture for IPL.
     Coordinates:
     - System 1: Semantic Engine (pattern-based parsing)
-    - System 2: Mathematical Firewall & Symbolic Contracts
+    - System 2: Autonomous Decision Engine (Self-learning security)
     - Resilience: The Self-Correction Loop
     - Zero-Trust: Data Taint Tracking
     - Auditing: VerifiedAuditTrace
@@ -437,7 +437,7 @@ class NeuroSymbolicCompiler:
     def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
         self.console = console or Console()
         self.system1 = LocalInferenceRuntime(model_name=model_name)
-        self.firewall = MathematicalFirewall()
+        self.firewall = AutonomousFirewall()  # Changed from MathematicalFirewall to AutonomousFirewall
         self.audit_trace = VerifiedAuditTrace()
 
     def compile_intent_node(
