@@ -576,9 +576,9 @@ class AutonomousDecisionEngine:
             untrusted_threat = thresholds['untrusted_no_sanitization_threat']
             taint_threshold = thresholds['taint_propagation_threshold']
         else:
-            # Fallback to initial learned values
-            untrusted_threat = 0.7
-            taint_threshold = 10
+            # Fallback: use learned thresholds from history or initialize randomly
+            untrusted_threat = self.learned_thresholds.get('untrusted_no_sanitization_threat', np.random.uniform(0.5, 0.9))
+            taint_threshold = self.learned_thresholds.get('taint_propagation_threshold', np.random.uniform(5, 15))
 
         # Check context features using LEARNED thresholds
         if context.get('has_untrusted_data', 0) and not context.get('has_sanitization', 0):
