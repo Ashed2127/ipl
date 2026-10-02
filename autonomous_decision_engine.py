@@ -399,7 +399,7 @@ class AutonomousDecisionEngine:
         """
         Record the outcome of a decision for learning.
 
-        This is how the engine learns what's good or bad.
+        This is how the engine learns what's good or bad using ML components.
         """
         decision.outcome = outcome
         decision.reward = reward
@@ -420,8 +420,12 @@ class AutonomousDecisionEngine:
         # Update learned thresholds
         self._update_learned_thresholds()
 
-        # Learn from experience (reinforcement learning)
-        self._learn_from_experience()
+        # INTELLIGENT LEARNING: Use ML components
+        if self.use_intelligent_components:
+            self._learn_with_ml_components(decision, outcome, reward)
+        else:
+            # Fallback: Simple Q-learning
+            self._learn_from_experience()
 
     def _update_learned_patterns(self, decision: Decision, outcome: DecisionOutcome, reward: float):
         """Update learned dangerous/safe patterns based on outcomes"""
