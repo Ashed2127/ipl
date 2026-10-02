@@ -232,8 +232,8 @@ class AutonomousFirewall:
                     walk(el, depth + 1)
             elif isinstance(n, DictLiteral):
                 for k, v in n.pairs:
-                    walk(k)
-                    walk(v)
+                    walk(k, depth + 1)
+                    walk(v, depth + 1)
 
         walk(root)
         return len(all_violations) == 0, all_violations
