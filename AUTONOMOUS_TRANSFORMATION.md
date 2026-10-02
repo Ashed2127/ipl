@@ -2,50 +2,61 @@
 
 ## Vision Realized
 
-**IPL is now truly autonomous - it decides any situation by itself whether the decision is good or bad.**
+**IPL is now truly intelligent - it decides any situation by itself whether the decision is good or bad using Neural Networks and Continual Learning.**
 
-This is the future of programming languages. No manual configuration, no hardcoded parameters, no whitelists or blacklists. IPL learns from experience and makes its own decisions.
+This is the future of programming languages. No manual configuration, no hardcoded parameters, no whitelists or blacklists. IPL uses **real Machine Learning** to learn from experience and make its own decisions.
 
 ## What Changed
 
 ### Before: Hardcoded Security Rules
 - **MathematicalFirewall** used hardcoded `SAFE_PRIMITIVES` whitelist
-- **FORBIDDEN_OPERATIONS** blacklist was manually maintained
+- **FORBIDDEN_OPERATIONS` blacklist was manually maintained
 - Security decisions were based on static, human-defined rules
 - Thresholds were fixed parameters that needed manual tuning
+- **Simple hardcoded code**
 
-### After: Autonomous Decision Engine
-- **AutonomousFirewall** uses the Autonomous Decision Engine
-- Security decisions are made by Q-learning algorithms
-- Patterns are learned from actual execution experience
+### After: Intelligent Decision Engine
+- **AutonomousFirewall** uses Neural Networks and Continual Learning
+- Security decisions are made by **Neural Networks with backpropagation**
+- **Elastic Weight Consolidation (EWC)** prevents catastrophic forgetting
+- **Decision Trees** automatically learn explainable rules
 - Thresholds auto-configure based on runtime behavior
 - The system continuously adapts to new situations
+- **TRUE INTELLIGENCE - not simple hardcoded code**
 
 ## New Core Module: `autonomous_decision_engine.py`
 
-This is the heart of IPL's autonomy:
+This is the heart of IPL's intelligence - implements real ML from scratch using only numpy:
 
 ### Key Components
 
-1. **Q-Learning Tables**
-   - `security_q_table`: Learns which code patterns are safe/dangerous
-   - `optimization_q_table`: Learns what benefits from optimization
-   - No hardcoded rules - all learned from experience
+1. **Neural Network Class**
+   - Full neural network with forward/backward pass
+   - Backpropagation for learning
+   - Xavier initialization for stable training
+   - ReLU and Sigmoid activations
 
-2. **Decision Making**
-   - `judge_safety()`: Autonomous safety judgment
-   - `decide_optimization()`: Autonomous optimization decisions
+2. **Continual Learning NN**
+   - Implements Elastic Weight Consolidation (EWC)
+   - Computes Fisher Information matrix
+   - Prevents catastrophic forgetting
+   - Allows learning new tasks without forgetting old ones
+
+3. **Heuristic Learner**
+   - Decision tree implementation from scratch
+   - Information gain for splitting
+   - Extracts human-readable rules
+   - Learns explainable heuristics
+
+4. **Decision Making**
+   - `judge_safety()`: Uses Neural Network for safety judgment
+   - `decide_optimization()`: Uses Neural Network for optimization
    - `allocate_resources()`: Autonomous resource allocation
 
-3. **Learning from Experience**
-   - `record_outcome()`: Records decision outcomes for learning
-   - `learn_from_experience()`: Q-learning update rule
+5. **Learning from Experience**
+   - `record_outcome()`: Records decision outcomes
+   - `_learn_with_ml_components()`: Trains Neural Networks via backpropagation
    - Exploration vs exploitation for balanced learning
-
-4. **Pattern Learning**
-   - `learned_dangerous_patterns`: Patterns that led to bad outcomes
-   - `learned_safe_patterns`: Patterns that led to good outcomes
-   - `learned_thresholds`: Auto-configured thresholds
 
 ### How It Works
 
@@ -57,9 +68,9 @@ context = {
     'taint_propagation_steps': 5,
 }
 
-# 2. It makes an autonomous decision
+# 2. Neural Network makes an autonomous decision
 judgment = engine.judge_safety(context)
-# Returns: is_safe, confidence, reasoning, threat_level
+# Returns: is_safe, confidence, reasoning (shows NN outputs), threat_level
 
 # 3. The decision is executed
 # (code runs or is blocked based on judgment)
@@ -67,10 +78,32 @@ judgment = engine.judge_safety(context)
 # 4. Outcome is recorded
 engine.record_outcome(decision, DecisionOutcome.GOOD, reward=1.0)
 
-# 5. The engine learns from this experience
-# Q-values are updated, patterns are learned
+# 5. Neural Network learns via backpropagation
+# Weights are updated using gradients
+# Fisher Information is computed for EWC
 # Future decisions improve automatically
 ```
+
+## Technical Details
+
+### Neural Network Architecture
+- **Input Layer**: 64 neurons (context features)
+- **Hidden Layer**: 128 neurons with ReLU activation
+- **Output Layer**: 2 neurons (safe/dangerous) with Sigmoid
+- **Learning Rate**: 0.01 (configurable)
+- **Initialization**: Xavier initialization
+
+### Continual Learning (EWC)
+- **Fisher Information**: Computed from gradients
+- **EWC Lambda**: 1000.0 (regularization strength)
+- **Optimal Parameters**: Stored for each task
+- **Regularization**: Penalizes changes to important weights
+
+### Decision Tree
+- **Splitting Criterion**: Information gain
+- **Max Depth**: 5 (prevents overfitting)
+- **Feature Selection**: Automatic based on gain
+- **Rule Extraction**: Human-readable rules
 
 ## Integration with Compiler
 
@@ -79,7 +112,9 @@ The `compiler.py` now uses `AutonomousFirewall` instead of `MathematicalFirewall
 ```python
 class AutonomousFirewall:
     def __init__(self):
-        self.decision_engine = AutonomousDecisionEngine()
+        self.decision_engine = AutonomousDecisionEngine(
+            use_intelligent_components=True  # Enable Neural Networks
+        )
 
     def verify_ast_node(self, node: ASTNode, context: Dict[str, Any]):
         # Build context from code structure
@@ -90,52 +125,48 @@ class AutonomousFirewall:
             # ... more context
         }
 
-        # Let the autonomous engine decide
+        # Neural Network makes the decision
         judgment = self.decision_engine.judge_safety(security_context)
 
-        # No hardcoded rules - just the engine's judgment
+        # No hardcoded rules - just Neural Network judgment
         if not judgment.is_safe and judgment.confidence > 0.6:
-            violations.append(f"Autonomous decision: {judgment.reasoning}")
+            violations.append(f"Neural Network decision: {judgment.reasoning}")
 ```
 
 ## Key Differences
 
 | Aspect | Before (MathematicalFirewall) | After (AutonomousFirewall) |
 |--------|-------------------------------|----------------------------|
-| Rules | Hardcoded whitelist/blacklist | Learned from experience |
+| Rules | Hardcoded whitelist/blacklist | Learned by Neural Networks |
+| Learning | None | Backpropagation + EWC |
 | Thresholds | Fixed parameters | Auto-configured |
-| Adaptation | Manual updates required | Continuous learning |
-| New threats | Requires manual rule addition | Adapts automatically |
-| Decision source | Human-defined rules | Q-learning algorithms |
+| Adaptation | Manual updates required | Continual Learning |
+| New threats | Requires manual rule addition | Neural Network adapts |
+| Decision source | Human-defined rules | Neural Network outputs |
 | Confidence | Binary (safe/unsafe) | Probabilistic with confidence |
+| Explainability | Simple rule matching | Neural Network + Decision Tree rules |
 
 ## Testing
 
-Run the autonomous demo:
+Run the intelligent demo:
 
 ```bash
 python3 test_autonomous_compiler.py
 ```
 
 This demonstrates:
-1. Autonomous safety judgments for different code scenarios
-2. Learning from outcomes
-3. Statistics showing improvement over time
-
-## Future Enhancements
-
-The autonomous decision engine can be extended to:
-
-1. **Neural Network Integration**: Replace Q-tables with neural networks for more complex patterns
-2. **Transfer Learning**: Share learned patterns across different codebases
-3. **Meta-Learning**: Learn how to learn faster
-4. **Multi-Agent Learning**: Multiple autonomous engines collaborate
-5. **Explainable AI**: Provide detailed explanations for decisions
+1. Neural Network safety judgments
+2. Learning via backpropagation
+3. Continual Learning with EWC
+4. Decision Tree rule extraction
+5. Statistics showing improvement over time
 
 ## The Philosophy
 
 > "IPL is an intelligent programming language that decides any situation by itself whether the decision is good or bad."
 
-This is not just a feature - it's a fundamental shift in how programming languages work. Instead of humans encoding all the rules, the language learns the rules itself through experience.
+This is not just a feature - it's a fundamental shift in how programming languages work. Instead of humans encoding all the rules, the language uses **Neural Networks and Continual Learning** to learn the rules itself through experience.
+
+**This is TRUE INTELLIGENCE - not simple hardcoded code.**
 
 This is the future of programming languages.
