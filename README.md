@@ -103,6 +103,52 @@ print(f"SQL injection: {result['sql_injection']}")
 print(f"XSS: {result['xss']}")
 ```
 
+## Autonomous Decision Engine
+
+The core innovation of IPL - it decides what's good or bad by itself:
+
+```python
+from autonomous_decision_engine import AutonomousDecisionEngine
+
+# Initialize the autonomous engine
+engine = AutonomousDecisionEngine()
+
+# The engine autonomously judges safety
+context = {
+    'has_untrusted_data': True,
+    'has_sanitization': False,
+    'taint_propagation_steps': 5,
+}
+
+judgment = engine.judge_safety(context)
+print(f"Is Safe: {judgment.is_safe}")
+print(f"Confidence: {judgment.confidence}")
+print(f"Reasoning: {judgment.reasoning}")
+print(f"Threat Level: {judgment.threat_level}")
+
+# Record outcome for learning
+from autonomous_decision_engine import Decision, DecisionType, DecisionOutcome
+decision = Decision(
+    decision_id="dec_1",
+    decision_type=DecisionType.SECURITY,
+    context=context,
+    action=judgment.is_safe,
+    confidence=judgment.confidence,
+    timestamp=time.time()
+)
+engine.record_outcome(decision, DecisionOutcome.GOOD, reward=1.0)
+
+# The engine learns from experience - no manual configuration needed!
+stats = engine.get_statistics()
+print(f"Success Rate: {stats['success_rate']:.2%}")
+```
+
+**Key capabilities:**
+- **No hardcoded rules**: Unlike traditional compilers with fixed whitelists/blacklists, IPL learns what's safe
+- **Q-learning**: Uses reinforcement learning to improve decisions over time
+- **Auto-configuration**: Thresholds and heuristics are learned from runtime behavior
+- **Continuous adaptation**: Adapts to new situations without human intervention
+
 ## Architecture
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for complete documentation.
