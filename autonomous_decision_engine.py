@@ -562,19 +562,30 @@ class AutonomousDecisionEngine:
         return is_safe, confidence, reasoning
 
     def _calculate_threat_level(self, context: Dict[str, Any], state: str) -> float:
-        """Calculate threat level based on learned patterns and context"""
+        """Calculate threat level based on learned patterns and context using LEARNED thresholds"""
         base_threat = 0.0
 
         # Check learned dangerous patterns
         if state in self.learned_dangerous_patterns:
             base_threat = max(base_threat, self.learned_dangerous_patterns[state])
 
-        # Check context features
-        if context.get('has_untrusted_data', 0) and not context.get('has_sanitization', 0):
-            base_threat = max(base_threat, 0.7)
+        # Use LEARNED thresholds instead of hardcoded values
+        if self.use_intelligent_components:
+            # Get thresholds from the continual learning system
+            thresholds = self.security_nn.learnable_thresholds
+            untrusted_threat = thresholds['untrusted_no_sanitization_threat']
+            taint_threshold = thresholds['taint_propagation_threshold']
+        else:
+            # Fallback to initial learned values
+            untrusted_threat = 0.7
+            taint_threshold = 10
 
-        if context.get('taint_propagation_steps', 0) > 10:
-            base_threat = max(base_threat, 0.6)
+        # Check context features using LEARNED thresholds
+        if context.get('has_untrusted_data', 0) and not context.get('has_sanitization', 0):
+            base_threat = max(base_threat, untrusted_threat)
+
+        if context.get('taint_propagation_steps', 0) > taint_threshold:
+            base_threat = max(base_threat, 0.6)  # This 0.6 could also be learned
 
         return min(1.0, base_threat)
 
