@@ -11,7 +11,8 @@ fn check_server_load(url) {
     # Get server status
     let response = http_get(url);
     
-    if response["error"] {
+    # Check if response has error key
+    if keys(response) contains "error" {
         print("Server unavailable: " + response["error"]);
         return {"available": false, "active_requests": 0, "is_overloaded": true};
     }
