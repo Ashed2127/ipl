@@ -186,6 +186,17 @@ class ContinualLearningNN:
             else:
                 self.learnable_thresholds['untrusted_no_sanitization_threat'] -= learning_rate * outcome * 0.1
 
+        # CRITICAL: Learn that sanitization reduces threat significantly
+        if context.get('has_untrusted_data', 0) and context.get('has_sanitization', 0):
+            # If sanitized code was incorrectly blocked (bad outcome), reduce threat contribution
+            if outcome < 0:
+                # This means we blocked something that should have been allowed
+                # Reduce the threat from untrusted data when sanitized
+                self.learnable_thresholds['untrusted_no_sanitization_threat'] -= learning_rate * abs(outcome) * 0.5
+            else:
+                # Correctly allowed sanitized code
+                self.learnable_thresholds['untrusted_no_sanitization_threat'] -= learning_rate * outcome * 0.2
+
         # Update taint_propagation_threshold
         taint_steps = context.get('taint_propagation_steps', 0)
         if taint_steps > 0:
@@ -196,6 +207,12 @@ class ContinualLearningNN:
             # If high taint steps led to good outcome, raise threshold (make it more lenient)
             elif outcome > 0 and taint_steps > current_threshold:
                 self.learnable_thresholds['taint_propagation_threshold'] += learning_rate * outcome * 0.1
+
+            # Learn that sanitization reduces effective taint propagation
+            if context.get('has_sanitization', 0):
+                # Sanitization should allow higher taint propagation without triggering
+                if outcome > 0:
+                    self.learnable_thresholds['taint_propagation_threshold'] += learning_rate * outcome * 0.3
 
         # Clamp thresholds to reasonable ranges
         self.learnable_thresholds['untrusted_no_sanitization_threat'] = np.clip(
