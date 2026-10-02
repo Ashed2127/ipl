@@ -2,7 +2,7 @@
 Neuro-Symbolic Compiler Architecture for IPL (Intelligent Programming Language / Aether).
 Implements:
 1. System 1: Embedded Local Inference (Semantic Intent Parser producing sandboxed AST candidate data)
-2. System 2: Symbolic Verification & Zero-Trust Mathematical Firewall (Strict contracts, whitelist schema)
+2. System 2: Autonomous Decision Engine (Self-learning security, no hardcoded rules)
 3. Data Taint Tracking: Untrusted neural data -> Deterministic SanitizationNode -> Trusted execution
 4. The Self-Correction Loop: Concrete error feedback repairing candidate AST nodes prior to memory allocation
 5. Per-Step Verified Audit Trace: Cryptographic-grade per-step deterministic trace for complete compliance
@@ -29,6 +29,7 @@ try:
         AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from .semantic_engine import SemanticEngine
+    from .autonomous_decision_engine import AutonomousDecisionEngine, DecisionType, DecisionOutcome
 except (ImportError, ValueError):
     from taint import TaintLevel, TaintTag, TaintViolationError
     from ast_nodes import (
@@ -38,6 +39,7 @@ except (ImportError, ValueError):
         AssignStatement, PrintStatement, SanitizationNode, IntentExpr, TypeAnnotation, ImportStatement
     )
     from semantic_engine import SemanticEngine
+    from autonomous_decision_engine import AutonomousDecisionEngine, DecisionType, DecisionOutcome
 
 
 class SecurityError(Exception):
