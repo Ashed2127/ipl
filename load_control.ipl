@@ -1,0 +1,96 @@
+# IPL Load Control Demo
+# This program controls request rate to prevent server crashes
+# by checking server capacity before sending requests
+
+let server_url = "http://localhost:8888";
+let max_capacity = 10;
+let requests_sent = 0;
+let requests_blocked = 0;
+
+fn check_server_load(url) {
+    # Get server status
+    let response = http_get(url);
+    
+    if response["error"] {
+        print("Server unavailable: " + response["error"]);
+        return {"available": false, "active_requests": 0, "is_overloaded": true};
+    }
+    
+    let active_requests = response["active_requests"];
+    let is_overloaded = response["is_overloaded"];
+    let capacity = response["capacity"];
+    
+    print("Server status: " + str(active_requests) + "/" + str(capacity) + " active requests");
+    
+    return {
+        "available": true,
+        "active_requests": active_requests,
+        "is_overloaded": is_overloaded,
+        "capacity": capacity
+    };
+}
+
+fn send_request_with_control(url) {
+    # Check server load first
+    let status = check_server_load(url);
+    
+    if not status["available"] {
+        print("⚠️  Server unavailable - skipping request");
+        return {"success": false, "reason": "server_unavailable"};
+    }
+    
+    if status["is_overloaded"] {
+        print("⚠️  Server overloaded - waiting before sending request");
+        sleep(1.0);  # Wait 1 second before retry
+        return {"success": false, "reason": "overloaded"};
+    }
+    
+    # Server has capacity - send request
+    let response = http_post(url, {"action": "test"});
+    
+    if response["error"] {
+        print("❌ Request failed: " + response["error"]);
+        return {"success": false, "reason": "request_failed"};
+    }
+    
+    print("✅ Request sent successfully (ID: " + str(response["request_id"]) + ")");
+    return {"success": true, "response": response};
+}
+
+fn load_test(url, num_requests) {
+    print("Starting load test with " + str(num_requests) + " requests");
+    print("Server capacity: " + str(max_capacity) + " concurrent requests");
+    print("---");
+    
+    let i = 0;
+    while i < num_requests {
+        let result = send_request_with_control(url);
+        
+        if result["success"] {
+            requests_sent = requests_sent + 1;
+        } else {
+            requests_blocked = requests_blocked + 1;
+            
+            # If overloaded, wait longer
+            if result["reason"] == "overloaded" {
+                sleep(0.5);
+            }
+        }
+        
+        # Small delay between requests to be respectful
+        sleep(0.1);
+        i = i + 1;
+    }
+    
+    print("---");
+    print("Load test complete");
+    print("Requests sent: " + str(requests_sent));
+    print("Requests blocked (load control): " + str(requests_blocked));
+}
+
+# Run the load test
+print("🚀 IPL Load Control System");
+print("This system prevents server crashes by checking capacity before sending requests");
+print("");
+
+load_test(server_url, 20);

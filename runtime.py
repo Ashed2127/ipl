@@ -529,6 +529,42 @@ class Interpreter:
             new_taint = TaintTag(level=TaintLevel.UNTRUSTED, provenance="set_untrusted")
             return IValue(arg_val.raw_value, arg_val.type_name, confidence=arg_val.confidence, taint=new_taint)
 
+        def _http_get(url_val: IValue) -> IValue:
+            """Make HTTP GET request and return response as dictionary."""
+            import urllib.request
+            import json
+            
+            url = str(url_val.raw_value)
+            try:
+                with urllib.request.urlopen(url, timeout=5) as response:
+                    data = json.loads(response.read().decode())
+                    return IValue(data, "Dict", confidence=1.0)
+            except Exception as e:
+                return IValue({"error": str(e)}, "Dict", confidence=1.0)
+
+        def _http_post(url_val: IValue, data_val: IValue) -> IValue:
+            """Make HTTP POST request with JSON data."""
+            import urllib.request
+            import json
+            
+            url = str(url_val.raw_value)
+            data = json.dumps(data_val.raw_value).encode('utf-8')
+            
+            try:
+                req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    response_data = json.loads(response.read().decode())
+                    return IValue(response_data, "Dict", confidence=1.0)
+            except Exception as e:
+                return IValue({"error": str(e)}, "Dict", confidence=1.0)
+
+        def _sleep(seconds_val: IValue) -> IValue:
+            """Sleep for specified seconds (for rate limiting)."""
+            import time
+            seconds = float(seconds_val.get_numeric())
+            time.sleep(seconds)
+            return IValue(True, "Bool", confidence=1.0)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
@@ -670,6 +706,9 @@ class Interpreter:
             "now": _now,
             "user_input": _user_input,
             "set_untrusted": _set_untrusted,
+            "http_get": _http_get,
+            "http_post": _http_post,
+            "sleep": _sleep,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))

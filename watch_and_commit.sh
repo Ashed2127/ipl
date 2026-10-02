@@ -18,7 +18,7 @@ while true; do
     sleep 5
 
     # Check if there are uncommitted changes
-    if ! git diff --quiet && ! git diff --cached --quiet; then
+    if ! git diff --quiet || ! git diff --cached --quiet; then
         echo "📝 Changes detected"
 
         # Commit and push
