@@ -742,7 +742,7 @@ class AutonomousDecisionEngine:
 
     def get_statistics(self) -> Dict[str, Any]:
         """Get statistics about the autonomous engine"""
-        return {
+        stats = {
             'total_decisions': self.total_decisions,
             'good_decisions': self.good_decisions,
             'bad_decisions': self.bad_decisions,
@@ -752,6 +752,12 @@ class AutonomousDecisionEngine:
             'learned_thresholds': self.learned_thresholds,
             'exploration_rate': self.exploration_rate,
         }
+
+        if self.use_intelligent_components:
+            stats['training_samples_collected'] = len(self.training_X)
+            stats['heuristic_learner_fitted'] = self.heuristic_learner.is_fitted
+
+        return stats
 
     def save_state(self, path: str):
         """Save the autonomous engine state"""
