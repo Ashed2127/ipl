@@ -240,6 +240,7 @@ class Interpreter:
         self.security_engine = SecurityEngine()
         self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
         self.loaded_modules: Set[str] = set()
+        self.load_controller = LoadAwareController()  # ML-based load controller
         self._init_builtins()
 
     def _init_builtins(self):
