@@ -608,6 +608,9 @@ class Interpreter:
                             timestamp=time.time()
                         )
                         
+                        # Record this state for learning
+                        self.load_controller.record_state(current_state)
+                        
                         # Use ML to predict
                         prediction = self.load_controller.predict_load(current_state)
                         

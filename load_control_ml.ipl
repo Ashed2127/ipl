@@ -1,0 +1,61 @@
+# IPL ML-Based Load Control
+# This uses IPL's built-in ML to automatically control request rate
+# NO manual if/else rules - the ML learns optimal patterns
+
+let server_url = "http://localhost:8888";
+var requests_sent = 0;
+var requests_blocked = 0;
+
+fn send_request_with_ml(url) {
+    # Use ML to predict if we should send request
+    let prediction = predict_request(url);
+    
+    # ML decides - no manual rules
+    if prediction["should_send"] {
+        # ML says send - do it
+        let response = http_post(url, {"action": "test"});
+        
+        if has_key(response, "error") {
+            print("❌ Request failed");
+            return false;
+        }
+        
+        print("✅ ML approved request (confidence: " + str(prediction["confidence"]) + ", load: " + str(prediction["predicted_load"]) + ")");
+        requests_sent = requests_sent + 1;
+        return true;
+    } else {
+        # ML says don't send - respect the decision
+        print("⚠️  ML blocked request (confidence: " + str(prediction["confidence"]) + ", reason: " + prediction["reason"] + ")");
+        requests_blocked = requests_blocked + 1;
+        
+        # Use ML-recommended delay
+        sleep(prediction["recommended_delay"]);
+        return false;
+    }
+}
+
+print("🤖 IPL ML-Based Load Control");
+print("Using machine learning to automatically control request rate");
+print("No manual rules - ML learns optimal patterns from server behavior");
+print("---");
+
+# Send 20 requests
+var i = 0;
+while i < 20 {
+    send_request_with_ml(server_url);
+    i = i + 1;
+}
+
+print("---");
+print("Results:");
+print("  Requests sent: " + str(requests_sent));
+print("  Requests blocked by ML: " + str(requests_blocked));
+
+# Show ML metrics
+let metrics = get_load_metrics();
+print("");
+print("📊 ML Controller Metrics:");
+print("  Total predictions: " + str(metrics["total_predictions"]));
+print("  Success rate: " + str(metrics["success_rate"]));
+print("  Learned threshold: " + str(metrics["optimal_threshold"]));
+print("  History size: " + str(metrics["history_size"]));
