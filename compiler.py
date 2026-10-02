@@ -182,46 +182,46 @@ class AutonomousFirewall:
 
             if isinstance(n, (Block, Program)):
                 for s in n.statements:
-                    walk(s)
+                    walk(s, depth + 1)
             elif isinstance(n, IfStatement):
-                walk(n.condition)
-                walk(n.then_branch)
+                walk(n.condition, depth + 1)
+                walk(n.then_branch, depth + 1)
                 for cond, blk in n.elif_branches:
-                    walk(cond)
-                    walk(blk)
+                    walk(cond, depth + 1)
+                    walk(blk, depth + 1)
                 if n.else_branch:
-                    walk(n.else_branch)
+                    walk(n.else_branch, depth + 1)
             elif isinstance(n, ForStatement):
-                walk(n.iterable)
-                walk(n.body)
+                walk(n.iterable, depth + 1)
+                walk(n.body, depth + 1)
             elif isinstance(n, WhileStatement):
-                walk(n.condition)
-                walk(n.body)
+                walk(n.condition, depth + 1)
+                walk(n.body, depth + 1)
             elif isinstance(n, FunctionDef):
-                walk(n.body)
+                walk(n.body, depth + 1)
             elif isinstance(n, ReturnStatement):
                 if n.value_expr:
-                    walk(n.value_expr)
+                    walk(n.value_expr, depth + 1)
             elif isinstance(n, LetStatement):
-                walk(n.value_expr)
+                walk(n.value_expr, depth + 1)
                 if n.refinement_expr:
-                    walk(n.refinement_expr)
+                    walk(n.refinement_expr, depth + 1)
             elif isinstance(n, AssignStatement):
-                walk(n.value_expr)
+                walk(n.value_expr, depth + 1)
             elif isinstance(n, PrintStatement):
                 for e in n.exprs:
-                    walk(e)
+                    walk(e, depth + 1)
             elif isinstance(n, SanitizationNode):
-                walk(n.target)
+                walk(n.target, depth + 1)
             elif isinstance(n, BinaryOp):
-                walk(n.left)
-                walk(n.right)
+                walk(n.left, depth + 1)
+                walk(n.right, depth + 1)
             elif isinstance(n, UnaryOp):
-                walk(n.operand)
+                walk(n.operand, depth + 1)
             elif isinstance(n, FunctionCall):
-                walk(n.callee)
+                walk(n.callee, depth + 1)
                 for a in n.args:
-                    walk(a)
+                    walk(a, depth + 1)
             elif isinstance(n, MemberAccess):
                 walk(n.target)
             elif isinstance(n, IndexAccess):
