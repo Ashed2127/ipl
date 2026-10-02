@@ -2,7 +2,7 @@
 # This demonstrates how IPL prevents server crashes by blocking requests when overloaded
 
 let server_url = "http://localhost:8888";
-let max_capacity = 10;
+let max_capacity = 5;
 var requests_sent = 0;
 var requests_blocked = 0;
 
