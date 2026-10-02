@@ -177,9 +177,16 @@ Core Modules:
 • parser.py - AST generation
 • ast_nodes.py - AST node definitions
 
+Autonomous Intelligence:
+• autonomous_decision_engine.py - Core autonomous decision-making (Q-learning, self-learning)
+• continual_learning.py - Continual learning for model updates
+• dynamic_optimizer.py - Runtime profiling and hot path detection
+• gnn_engine.py - Graph Neural Network for program analysis
+• ml_heuristic_generator.py - ML-based heuristic generation
+
 Compilation:
 • semantic_engine.py - Pattern-based natural language extraction
-• compiler.py - Neuro-symbolic compiler with firewall
+• compiler.py - Neuro-symbolic compiler with autonomous firewall
 
 Security:
 • taint.py - Zero-trust data tracking with sound lattice
@@ -196,9 +203,11 @@ Interfaces:
 
 Testing:
 • test_adversarial_attacks.py - Adversarial attack tests
+• test_autonomous_compiler.py - Autonomous decision engine tests
 
 Examples:
 • examples/authorization_demo.ipl - Authorization demo using taint pipeline
+• autonomous_demo.ipl - Autonomous decision engine demo
 
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
                           EXECUTION CHARACTERISTICS
