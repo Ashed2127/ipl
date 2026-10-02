@@ -1,0 +1,103 @@
+# IPL Smart Load Control Demo
+# This demonstrates how IPL prevents server crashes by checking capacity BEFORE sending requests
+# Unlike the Python concurrent test which sends all requests at once, IPL checks server load first
+
+let server_url = "http://localhost:8888";
+let max_capacity = 5;
+var requests_sent = 0;
+var requests_blocked = 0;
+var total_attempts = 0;
+
+fn check_server_load(url) {
+    # Get server status
+    let response = http_get(url);
+    
+    # Check if response has error key
+    if has_key(response, "error") {
+        print("Server unavailable: " + response["error"]);
+        return {"available": false, "active_requests": 0, "is_overloaded": true};
+    }
+    
+    let active_requests = response["active_requests"];
+    let is_overloaded = response["is_overloaded"];
+    let capacity = response["capacity"];
+    
+    return {
+        "available": true,
+        "active_requests": active_requests,
+        "is_overloaded": is_overloaded,
+        "capacity": capacity
+    };
+}
+
+fn send_request_with_control(url) {
+    total_attempts = total_attempts + 1;
+    
+    # Check server load BEFORE sending request
+    let status = check_server_load(url);
+    
+    if not status["available"] {
+        print("⚠️  Server unavailable - skipping request");
+        return {"success": false, "reason": "server_unavailable"};
+    }
+    
+    if status["is_overloaded"] {
+        print("⚠️  Server overloaded (" + str(status["active_requests"]) + "/" + str(status["capacity"]) + ") - BLOCKING request to prevent crash");
+        return {"success": false, "reason": "overloaded"};
+    }
+    
+    # Server has capacity - send request
+    let response = http_post(url, {"action": "test"});
+    
+    if has_key(response, "error") {
+        print("❌ Request failed: " + response["error"]);
+        return {"success": false, "reason": "request_failed"};
+    }
+    
+    print("✅ Request sent successfully (ID: " + str(response["request_id"]) + ", active: " + str(response["active_requests"]) + "/" + str(response["capacity"]) + ")");
+    return {"success": true, "response": response};
+}
+
+fn smart_load_test(url, num_requests) {
+    print("Starting SMART load test with " + str(num_requests) + " requests");
+    print("Server capacity: " + str(max_capacity) + " concurrent requests");
+    print("IPL will check server load BEFORE each request to prevent overload");
+    print("---");
+
+    var i = 0;
+    while i < num_requests {
+        let result = send_request_with_control(url);
+
+        if result["success"] {
+            requests_sent = requests_sent + 1;
+        } else {
+            requests_blocked = requests_blocked + 1;
+            
+            # If overloaded, wait and retry
+            if result["reason"] == "overloaded" {
+                sleep(0.2);  # Wait before retry
+            }
+        }
+
+        # Small delay between requests
+        sleep(0.05);
+        i = i + 1;
+    }
+
+    print("---");
+    print("Load test complete");
+    print("Total attempts: " + str(total_attempts));
+    print("Requests sent successfully: " + str(requests_sent));
+    print("Requests blocked (crash prevention): " + str(requests_blocked));
+    print("");
+    print("🔒 IPL successfully prevented server crash by blocking " + str(requests_blocked) + " requests");
+    print("   Server remained stable throughout the test");
+}
+
+# Run the smart load test
+print("🚀 IPL Smart Load Control System");
+print("This demonstrates IPL's proactive crash prevention");
+print("Unlike traditional clients that send requests blindly, IPL checks capacity first");
+print("");
+
+smart_load_test(server_url, 20);

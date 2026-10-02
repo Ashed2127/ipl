@@ -26,8 +26,8 @@ class LoadAwareHandler(http.server.BaseHTTPRequestHandler):
             current_load = active_requests
             total_requests = request_count
         
-        # Simulate variable processing time (0.1 to 0.5 seconds)
-        processing_time = random.uniform(0.1, 0.5)
+        # Simulate variable processing time (1.0 to 2.0 seconds to allow concurrent accumulation)
+        processing_time = random.uniform(1.0, 2.0)
         time.sleep(processing_time)
         
         with lock:
