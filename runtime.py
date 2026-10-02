@@ -587,6 +587,52 @@ class Interpreter:
             time.sleep(seconds)
             return IValue(True, "Bool", confidence=1.0)
 
+        def _predict_request(url_val: IValue) -> IValue:
+            """Use ML to predict if request should be sent based on server load."""
+            import urllib.request
+            import json
+            
+            url = str(url_val.raw_value)
+            
+            # Get current server state
+            try:
+                with urllib.request.urlopen(url, timeout=5) as response:
+                    data = json.loads(response.read().decode())
+                    
+                    if "active_requests" in data and "capacity" in data:
+                        current_state = ServerState(
+                            active_requests=data["active_requests"],
+                            capacity=data["capacity"],
+                            is_overloaded=data.get("is_overloaded", False),
+                            response_time=data.get("processing_time", 0.0),
+                            timestamp=time.time()
+                        )
+                        
+                        # Use ML to predict
+                        prediction = self.load_controller.predict_load(current_state)
+                        
+                        return IValue({
+                            "should_send": prediction.should_send,
+                            "confidence": prediction.confidence,
+                            "predicted_load": prediction.predicted_load,
+                            "recommended_delay": prediction.recommended_delay,
+                            "reason": prediction.reason
+                        }, "Dict", confidence=1.0)
+            except Exception as e:
+                # On error, be conservative
+                return IValue({
+                    "should_send": False,
+                    "confidence": 0.0,
+                    "predicted_load": 1.0,
+                    "recommended_delay": 1.0,
+                    "reason": "error_getting_state"
+                }, "Dict", confidence=1.0)
+
+        def _get_load_metrics() -> IValue:
+            """Get ML controller metrics."""
+            metrics = self.load_controller.get_metrics()
+            return IValue(metrics, "Dict", confidence=1.0)
+
         def _audit_trace() -> IValue:
             self.compiler.audit_trace.render_table(self.console)
             return IValue(len(self.compiler.audit_trace.steps), "Int")
