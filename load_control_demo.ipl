@@ -1,0 +1,60 @@
+# IPL Load Control Demo - Simplified
+# This demonstrates how IPL prevents server crashes by checking capacity BEFORE sending requests
+
+let server_url = "http://localhost:8888";
+var requests_sent = 0;
+var requests_blocked = 0;
+
+fn check_server_load(url) {
+    let response = http_get(url);
+    
+    if has_key(response, "error") {
+        return {"available": false, "is_overloaded": true};
+    }
+    
+    return {
+        "available": true,
+        "is_overloaded": response["is_overloaded"],
+        "active": response["active_requests"],
+        "capacity": response["capacity"]
+    };
+}
+
+fn send_request_smart(url) {
+    let status = check_server_load(url);
+    
+    if not status["available"] or status["is_overloaded"] {
+        print("⚠️  Server overloaded (" + str(status["active"]) + "/" + str(status["capacity"]) + ") - BLOCKING request");
+        requests_blocked = requests_blocked + 1;
+        return false;
+    }
+    
+    # Send request
+    let response = http_post(url, {"action": "test"});
+    
+    if has_key(response, "error") {
+        print("❌ Request failed");
+        return false;
+    }
+    
+    print("✅ Request OK (active: " + str(response["active_requests"]) + "/" + str(response["capacity"]) + ")");
+    requests_sent = requests_sent + 1;
+    return true;
+}
+
+print("🚀 IPL Load Control Demo");
+print("Checking server capacity before each request...");
+print("---");
+
+# Try to send 10 requests rapidly
+var i = 0;
+while i < 10 {
+    send_request_smart(server_url);
+    sleep(0.1);  # Small delay
+    i = i + 1;
+}
+
+print("---");
+print("Results:");
+print("  Sent: " + str(requests_sent));
+print("  Blocked (crash prevention): " + str(requests_blocked));
