@@ -4,8 +4,8 @@
 
 let server_url = "http://localhost:8888";
 let max_capacity = 10;
-let requests_sent = 0;
-let requests_blocked = 0;
+var requests_sent = 0;
+var requests_blocked = 0;
 
 fn check_server_load(url) {
     # Get server status
