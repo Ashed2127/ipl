@@ -21,6 +21,257 @@ import hashlib
 import json
 
 
+# ============================================================================
+# INTELLIGENT COMPONENTS (Pure Numpy Implementation)
+# ============================================================================
+
+class NeuralNetwork:
+    """
+    Simple neural network for pattern recognition.
+    Implements backpropagation for learning from experience.
+    """
+
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, learning_rate: float = 0.01):
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.learning_rate = learning_rate
+
+        # Initialize weights with Xavier initialization
+        self.W1 = np.random.randn(input_dim, hidden_dim) * np.sqrt(2.0 / input_dim)
+        self.b1 = np.zeros(hidden_dim)
+        self.W2 = np.random.randn(hidden_dim, output_dim) * np.sqrt(2.0 / hidden_dim)
+        self.b2 = np.zeros(output_dim)
+
+        # Cache for backpropagation
+        self.cache = {}
+
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        """Forward pass through the network"""
+        self.cache['X'] = X
+        self.cache['Z1'] = np.dot(X, self.W1) + self.b1
+        self.cache['A1'] = np.maximum(0, self.cache['Z1'])  # ReLU
+        self.cache['Z2'] = np.dot(self.cache['A1'], self.W2) + self.b2
+        self.cache['A2'] = 1.0 / (1.0 + np.exp(-self.cache['Z2']))  # Sigmoid
+        return self.cache['A2']
+
+    def backward(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, np.ndarray]:
+        """Backward pass - compute gradients"""
+        m = y_true.shape[0]
+
+        # Output layer gradients
+        dZ2 = y_pred - y_true
+        dW2 = (1.0 / m) * np.dot(self.cache['A1'].T, dZ2)
+        db2 = (1.0 / m) * np.sum(dZ2, axis=0)
+
+        # Hidden layer gradients
+        dA1 = np.dot(dZ2, self.W2.T)
+        dZ1 = dA1 * (self.cache['Z1'] > 0)  # ReLU derivative
+        dW1 = (1.0 / m) * np.dot(self.cache['X'].T, dZ1)
+        db1 = (1.0 / m) * np.sum(dZ1, axis=0)
+
+        return {'dW1': dW1, 'db1': db1, 'dW2': dW2, 'db2': db2}
+
+    def update(self, gradients: Dict[str, np.ndarray]):
+        """Update weights using gradients"""
+        self.W1 -= self.learning_rate * gradients['dW1']
+        self.b1 -= self.learning_rate * gradients['db1']
+        self.W2 -= self.learning_rate * gradients['dW2']
+        self.b2 -= self.learning_rate * gradients['db2']
+
+    def train(self, X: np.ndarray, y: np.ndarray, epochs: int = 100):
+        """Train the network on data"""
+        for epoch in range(epochs):
+            # Forward pass
+            y_pred = self.forward(X)
+
+            # Backward pass
+            gradients = self.backward(y, y_pred)
+
+            # Update weights
+            self.update(gradients)
+
+            # Compute loss
+            loss = -np.mean(y * np.log(y_pred + 1e-10) + (1 - y) * np.log(1 - y_pred + 1e-10))
+
+            if epoch % 10 == 0:
+                pass  # Could log loss here
+
+
+class ContinualLearningNN:
+    """
+    Neural network with continual learning capabilities.
+    Implements Elastic Weight Consolidation (EWC) to prevent catastrophic forgetting.
+    """
+
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, ewc_lambda: float = 1000.0):
+        self.nn = NeuralNetwork(input_dim, hidden_dim, output_dim)
+        self.ewc_lambda = ewc_lambda
+        self.fisher_information = None
+        self.optimal_params = None
+
+    def compute_fisher_information(self, X: np.ndarray, y: np.ndarray):
+        """Compute Fisher information matrix for EWC"""
+        # Forward pass
+        y_pred = self.nn.forward(X)
+
+        # Compute gradients
+        gradients = self.nn.backward(y, y_pred)
+
+        # Fisher information is square of gradients
+        if self.fisher_information is None:
+            self.fisher_information = {
+                'W1': gradients['dW1'] ** 2,
+                'b1': gradients['db1'] ** 2,
+                'W2': gradients['dW2'] ** 2,
+                'b2': gradients['db2'] ** 2
+            }
+        else:
+            self.fisher_information['W1'] += gradients['dW1'] ** 2
+            self.fisher_information['b1'] += gradients['db1'] ** 2
+            self.fisher_information['W2'] += gradients['dW2'] ** 2
+            self.fisher_information['b2'] += gradients['db2'] ** 2
+
+        # Store optimal parameters
+        self.optimal_params = {
+            'W1': self.nn.W1.copy(),
+            'b1': self.nn.b1.copy(),
+            'W2': self.nn.W2.copy(),
+            'b2': self.nn.b2.copy()
+        }
+
+    def train_with_ewc(self, X: np.ndarray, y: np.ndarray, epochs: int = 100):
+        """Train with EWC regularization"""
+        for epoch in range(epochs):
+            # Forward pass
+            y_pred = self.nn.forward(X)
+
+            # Backward pass
+            gradients = self.nn.backward(y, y_pred)
+
+            # Add EWC penalty to gradients
+            if self.fisher_information is not None and self.optimal_params is not None:
+                gradients['dW1'] += self.ewc_lambda * self.fisher_information['W1'] * (self.nn.W1 - self.optimal_params['W1'])
+                gradients['db1'] += self.ewc_lambda * self.fisher_information['b1'] * (self.nn.b1 - self.optimal_params['b1'])
+                gradients['dW2'] += self.ewc_lambda * self.fisher_information['W2'] * (self.nn.W2 - self.optimal_params['W2'])
+                gradients['db2'] += self.ewc_lambda * self.fisher_information['b2'] * (self.nn.b2 - self.optimal_params['b2'])
+
+            # Update weights
+            self.nn.update(gradients)
+
+
+class HeuristicLearner:
+    """
+    ML-based heuristic learner using decision trees (simplified).
+    Learns rules for making decisions automatically.
+    """
+
+    def __init__(self):
+        self.tree = None
+        self.feature_names = []
+        self.is_fitted = False
+
+    def train(self, X: np.ndarray, y: np.ndarray, feature_names: List[str]):
+        """Train a simple decision tree using information gain"""
+        self.feature_names = feature_names
+        self.tree = self._build_tree(X, y, depth=0, max_depth=5)
+        self.is_fitted = True
+
+    def _build_tree(self, X: np.ndarray, y: np.ndarray, depth: int, max_depth: int) -> Dict:
+        """Build a decision tree recursively"""
+        # Stopping conditions
+        if depth >= max_depth or len(np.unique(y)) == 1 or len(y) < 2:
+            return {'leaf': True, 'prediction': np.mean(y)}
+
+        # Find best split using information gain
+        best_feature, best_threshold, best_gain = self._find_best_split(X, y)
+
+        if best_gain == 0:
+            return {'leaf': True, 'prediction': np.mean(y)}
+
+        # Split data
+        left_mask = X[:, best_feature] <= best_threshold
+        right_mask = ~left_mask
+
+        # Recursively build subtrees
+        left_tree = self._build_tree(X[left_mask], y[left_mask], depth + 1, max_depth)
+        right_tree = self._build_tree(X[right_mask], y[right_mask], depth + 1, max_depth)
+
+        return {
+            'leaf': False,
+            'feature': best_feature,
+            'threshold': best_threshold,
+            'left': left_tree,
+            'right': right_tree
+        }
+
+    def _find_best_split(self, X: np.ndarray, y: np.ndarray) -> Tuple[int, float, float]:
+        """Find the best feature and threshold to split on"""
+        best_gain = 0
+        best_feature = 0
+        best_threshold = 0
+
+        # Current entropy
+        current_entropy = self._entropy(y)
+
+        for feature in range(X.shape[1]):
+            thresholds = np.unique(X[:, feature])
+            for threshold in thresholds:
+                left_mask = X[:, feature] <= threshold
+                right_mask = ~left_mask
+
+                if len(y[left_mask]) == 0 or len(y[right_mask]) == 0:
+                    continue
+
+                # Calculate information gain
+                left_entropy = self._entropy(y[left_mask])
+                right_entropy = self._entropy(y[right_mask])
+                weighted_entropy = (len(y[left_mask]) / len(y)) * left_entropy + (len(y[right_mask]) / len(y)) * right_entropy
+                gain = current_entropy - weighted_entropy
+
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = feature
+                    best_threshold = threshold
+
+        return best_feature, best_threshold, best_gain
+
+    def _entropy(self, y: np.ndarray) -> float:
+        """Calculate entropy"""
+        if len(y) == 0:
+            return 0
+        p = np.mean(y)
+        if p == 0 or p == 1:
+            return 0
+        return -p * np.log2(p) - (1 - p) * np.log2(1 - p)
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Make predictions using the tree"""
+        predictions = []
+        for x in X:
+            predictions.append(self._predict_single(x, self.tree))
+        return np.array(predictions)
+
+    def _predict_single(self, x: np.ndarray, tree: Dict) -> float:
+        """Predict a single sample"""
+        if tree['leaf']:
+            return tree['prediction']
+        if x[tree['feature']] <= tree['threshold']:
+            return self._predict_single(x, tree['left'])
+        else:
+            return self._predict_single(x, tree['right'])
+
+    def get_rule(self, tree: Dict, depth: int = 0) -> str:
+        """Extract human-readable rule from tree"""
+        if tree['leaf']:
+            return f"then predict {tree['prediction']:.2f}"
+        rule = f"if {self.feature_names[tree['feature']]} <= {tree['threshold']:.2f}\n"
+        rule += "  " * (depth + 1) + self._get_rule(tree['left'], depth + 1) + "\n"
+        rule += "  " * depth + f"else\n"
+        rule += "  " * (depth + 1) + self._get_rule(tree['right'], depth + 1)
+        return rule
+
+
 class DecisionType(Enum):
     """Types of autonomous decisions"""
     SECURITY = "security"  # Is this code safe or dangerous?
