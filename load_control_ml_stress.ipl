@@ -1,0 +1,60 @@
+# IPL ML-Based Load Control - Stress Test
+# This sends requests rapidly to force the ML to learn and block when overloaded
+
+let server_url = "http://localhost:8888";
+var requests_sent = 0;
+var requests_blocked = 0;
+
+fn send_request_with_ml(url) {
+    # Use ML to predict if we should send request
+    let prediction = predict_request(url);
+    
+    # ML decides - no manual rules
+    if prediction["should_send"] {
+        # ML says send - do it
+        let response = http_post(url, {"action": "test"});
+        
+        if has_key(response, "error") {
+            print("❌ Request failed");
+            return false;
+        }
+        
+        print("✅ ML approved (conf: " + str(int(prediction["confidence"] * 100)) + "%, load: " + str(int(prediction["predicted_load"] * 100)) + "%)");
+        requests_sent = requests_sent + 1;
+        return true;
+    } else {
+        # ML says don't send - respect the decision
+        print("⚠️  ML blocked (conf: " + str(int(prediction["confidence"] * 100)) + "%, reason: " + prediction["reason"] + ")");
+        requests_blocked = requests_blocked + 1;
+        
+        # Use ML-recommended delay
+        sleep(prediction["recommended_delay"]);
+        return false;
+    }
+}
+
+print("🤖 IPL ML Stress Test");
+print("Sending requests rapidly to force ML learning");
+print("---");
+
+# Send 30 requests with minimal delay
+var i = 0;
+while i < 30 {
+    send_request_with_ml(server_url);
+    sleep(0.05);  # Very small delay to stress the system
+    i = i + 1;
+}
+
+print("---");
+print("Results:");
+print("  Requests sent: " + str(requests_sent));
+print("  Requests blocked by ML: " + str(requests_blocked));
+
+# Show ML metrics
+let metrics = get_load_metrics();
+print("");
+print("📊 ML Controller Metrics:");
+print("  Total predictions: " + str(metrics["total_predictions"]));
+print("  Success rate: " + str(int(metrics["success_rate"] * 100)) + "%");
+print("  Learned threshold: " + str(int(metrics["optimal_threshold"] * 100)) + "%");
+print("  History size: " + str(metrics["history_size"]));
