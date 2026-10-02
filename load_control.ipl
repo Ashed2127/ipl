@@ -62,27 +62,27 @@ fn load_test(url, num_requests) {
     print("Starting load test with " + str(num_requests) + " requests");
     print("Server capacity: " + str(max_capacity) + " concurrent requests");
     print("---");
-    
-    let i = 0;
+
+    var i = 0;
     while i < num_requests {
         let result = send_request_with_control(url);
-        
+
         if result["success"] {
             requests_sent = requests_sent + 1;
         } else {
             requests_blocked = requests_blocked + 1;
-            
+
             # If overloaded, wait longer
             if result["reason"] == "overloaded" {
                 sleep(0.5);
             }
         }
-        
+
         # Small delay between requests to be respectful
         sleep(0.1);
         i = i + 1;
     }
-    
+
     print("---");
     print("Load test complete");
     print("Requests sent: " + str(requests_sent));
