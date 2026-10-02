@@ -605,8 +605,9 @@ class AutonomousDecisionEngine:
             high_threshold = thresholds['high_threat_threshold']
             low_threshold = thresholds['low_threat_threshold']
         else:
-            high_threshold = 0.7
-            low_threshold = 0.3
+            # Fallback: use learned thresholds from history or initialize randomly
+            high_threshold = self.learned_thresholds.get('high_threat_threshold', np.random.uniform(0.6, 0.8))
+            low_threshold = self.learned_thresholds.get('low_threat_threshold', np.random.uniform(0.2, 0.4))
 
         if threat_level > high_threshold:
             reasons.append(f"high threat level detected (>{high_threshold:.2f})")
