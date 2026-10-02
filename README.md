@@ -2,14 +2,16 @@
 
 **IPL is an intelligent programming language that decides any situation by itself whether the decision is good or bad.**
 
-This is the future of programming languages - truly autonomous decision-making with no manual configuration or hardcoded parameters.
+This is the future of programming languages - truly autonomous decision-making using **Neural Networks, Continual Learning, and ML Heuristics** - NO hardcoded rules.
 
 ## Key Features
 
-- **🧠 Autonomous Decision Engine**: IPL decides what's safe or dangerous by itself - NO hardcoded rules, whitelists, or blacklists
-- **🔄 Self-Learning Security**: Learns from experience using Q-learning and reinforcement learning
+- **🧠 Neural Network Intelligence**: Uses real neural networks with backpropagation for pattern recognition
+- **🔄 Continual Learning**: Implements Elastic Weight Consolidation (EWC) to learn without catastrophic forgetting
+- **🌳 ML Heuristic Generation**: Decision trees automatically learn rules from experience
+- **🎯 Autonomous Decision Engine**: IPL decides what's safe or dangerous by itself - NO hardcoded rules
 - **📊 Auto-Configuring Thresholds**: Automatically learns optimal thresholds based on runtime behavior
-- **🎯 Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
+- **🔒 Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
 - **🔒 Sound Taint Tracking**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED)
 - **🧬 Neural Security Analysis**: Local LLM integration via Ollama for intelligent vulnerability detection
 - **⚡ Deterministic Runtime**: Same input always produces same output
