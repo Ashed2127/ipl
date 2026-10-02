@@ -422,7 +422,7 @@ class AutonomousDecisionEngine:
         Autonomous judgment about whether code is safe or dangerous.
 
         This is the CORE intelligence - it decides by itself, no manual rules.
-        Uses GNN, ML heuristics, and continual learning for true intelligence.
+        Uses Neural Networks, Continual Learning, and ML heuristics for true intelligence.
         """
         # Get state representation
         state = self._hash_context(context)
@@ -430,31 +430,32 @@ class AutonomousDecisionEngine:
         # Extract features for ML models
         features = self._extract_context_features(context)
 
-        # INTELLIGENT MODE: Use GNN and ML components
+        # INTELLIGENT MODE: Use Neural Networks and ML components
         if self.use_intelligent_components:
-            # Use GNN for security pattern detection
-            # (In real implementation, would convert AST to graph and use GNN)
-            # For now, use ML heuristic generator
             try:
-                # Use ML heuristic generator if it has learned patterns
-                if self.heuristic_generator.is_fitted:
-                    decision = self.heuristic_generator.apply_heuristic(
-                        "security_check_random_forest",
-                        context
-                    )
-                    is_safe = not decision.decision  # Invert: if check needed, not safe
-                    confidence = decision.confidence
-                    reasoning = f"ML heuristic: {decision.reasoning}"
+                # Use neural network for prediction
+                features_batch = features.reshape(1, -1)
+                output = self.security_nn.nn.forward(features_batch)
+                safe_prob = output[0, 0]
+                dangerous_prob = output[0, 1]
+
+                # Explore vs exploit
+                if np.random.random() < self.exploration_rate:
+                    is_safe = np.random.choice([True, False])
+                    confidence = 0.3
+                    reasoning = "Neural network exploration"
                 else:
-                    # Fallback to neural network prediction
-                    output = self.security_model.forward(features)
-                    safe_prob = 1.0 / (1.0 + np.exp(-output[0]))  # Sigmoid
-                    dangerous_prob = 1.0 - safe_prob
                     is_safe = safe_prob > dangerous_prob
                     confidence = max(safe_prob, dangerous_prob)
-                    reasoning = "Neural network prediction"
+                    reasoning = f"Neural network: safe={safe_prob:.3f}, dangerous={dangerous_prob:.3f}"
+
+                # Add heuristic reasoning if available
+                if self.heuristic_learner.is_fitted:
+                    prediction = self.heuristic_learner.predict(features_batch)[0]
+                    reasoning += f" | Heuristic prediction: {prediction:.2f}"
+
             except Exception as e:
-                # Fallback to Q-learning if ML fails
+                # Fallback to Q-learning if neural network fails
                 is_safe, confidence, reasoning = self._q_learning_decision(state, context)
         else:
             # SIMPLE MODE: Q-learning only
@@ -465,7 +466,7 @@ class AutonomousDecisionEngine:
 
         # Generate detailed reasoning
         if self.use_intelligent_components:
-            reasoning += f" | GNN analysis enabled | Continual learning active"
+            reasoning += f" | Continual Learning active | Neural Network mode"
         else:
             reasoning += f" | Q-learning mode"
 
