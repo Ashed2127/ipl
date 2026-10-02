@@ -812,7 +812,8 @@ class AutonomousDecisionEngine:
         if self.use_intelligent_components:
             heuristic_threshold = self.security_nn.learnable_thresholds['heuristic_data_threshold']
         else:
-            heuristic_threshold = 20
+            # Fallback: use learned threshold from history or initialize randomly
+            heuristic_threshold = self.learned_thresholds.get('heuristic_data_threshold', np.random.uniform(10, 30))
 
         if len(self.training_X) >= heuristic_threshold:
             X_batch = np.array(self.training_X[-int(heuristic_threshold):])
