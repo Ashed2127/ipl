@@ -1,16 +1,21 @@
 # IPL (Intelligent Programming Language)
 
-A security-focused programming language with zero-trust taint tracking, symbolic compilation, and neural security analysis via Ollama.
+**IPL is an intelligent programming language that decides any situation by itself whether the decision is good or bad.**
+
+This is the future of programming languages - truly autonomous decision-making with no manual configuration or hardcoded parameters.
 
 ## Key Features
 
-- **Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
-- **Sound Taint Tracking**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED)
-- **Neural Security Analysis**: Local LLM integration via Ollama for intelligent vulnerability detection
-- **Deterministic Runtime**: Same input always produces same output
-- **Fail-Closed Design**: Security violations block execution
-- **Cryptographic Auditing**: SHA-256 signed execution traces
-- **Pattern-Based Semantics**: Currency, Sentiment, Quantity, Date parsing
+- **🧠 Autonomous Decision Engine**: IPL decides what's safe or dangerous by itself - NO hardcoded rules, whitelists, or blacklists
+- **🔄 Self-Learning Security**: Learns from experience using Q-learning and reinforcement learning
+- **📊 Auto-Configuring Thresholds**: Automatically learns optimal thresholds based on runtime behavior
+- **🎯 Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
+- **🔒 Sound Taint Tracking**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED)
+- **🧬 Neural Security Analysis**: Local LLM integration via Ollama for intelligent vulnerability detection
+- **⚡ Deterministic Runtime**: Same input always produces same output
+- **🛡️ Fail-Closed Design**: Security violations block execution
+- **📝 Cryptographic Auditing**: SHA-256 signed execution traces
+- **🔤 Pattern-Based Semantics**: Currency, Sentiment, Quantity, Date parsing
 
 ## Installation
 

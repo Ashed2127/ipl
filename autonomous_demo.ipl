@@ -1,0 +1,28 @@
+// Autonomous Decision Engine Demo for IPL
+// This demonstrates IPL's ability to decide what's good or bad by itself
+// NO hardcoded rules - the engine learns from experience
+
+// Example 1: Code with untrusted data
+let user_input = set_untrusted("hello world");
+print(user_input);
+
+// Example 2: Code with sanitization
+let sanitized_input = sanitize(user_input);
+print(sanitized_input);
+
+// Example 3: Complex computation
+let result = 0;
+for i in range(1, 10) {
+    result = result + i;
+}
+print(result);
+
+// Example 4: Function with potential security implications
+function process_data(data) {
+    let processed = data;
+    return processed;
+}
+
+let safe_data = "safe string";
+let output = process_data(safe_data);
+print(output);
