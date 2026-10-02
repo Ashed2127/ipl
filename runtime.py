@@ -533,16 +533,35 @@ class Interpreter:
             return IValue(arg_val.raw_value, arg_val.type_name, confidence=arg_val.confidence, taint=new_taint)
 
         def _http_get(url_val: IValue) -> IValue:
-            """Make HTTP GET request and return response as dictionary."""
+            """Make HTTP GET request with ML-based load control."""
             import urllib.request
             import json
             
             url = str(url_val.raw_value)
+            
+            # Try to get server state first for learning
             try:
                 with urllib.request.urlopen(url, timeout=5) as response:
                     data = json.loads(response.read().decode())
+                    
+                    # Record server state for ML learning
+                    if "active_requests" in data and "capacity" in data:
+                        state = ServerState(
+                            active_requests=data["active_requests"],
+                            capacity=data["capacity"],
+                            is_overloaded=data.get("is_overloaded", False),
+                            response_time=data.get("processing_time", 0.0),
+                            timestamp=time.time()
+                        )
+                        self.load_controller.record_state(state)
+                        
+                        # Record success
+                        self.load_controller.record_success()
+                    
                     return IValue(data, "Dict", confidence=1.0)
             except Exception as e:
+                # Record failure
+                self.load_controller.record_failure()
                 return IValue({"error": str(e)}, "Dict", confidence=1.0)
 
         def _http_post(url_val: IValue, data_val: IValue) -> IValue:
