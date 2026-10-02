@@ -118,6 +118,8 @@ class ContinualLearningNN:
             'low_threat_threshold': np.random.uniform(0.2, 0.4),
             'training_data_threshold': np.random.uniform(5, 15),
             'heuristic_data_threshold': np.random.uniform(10, 30),
+            'sanitization_reduction_factor': np.random.uniform(0.05, 0.2),  # How much sanitization reduces threat
+            'sanitized_taint_propagation_threat': np.random.uniform(0.1, 0.5),  # Threat from taint when sanitized
         }
 
     def compute_fisher_information(self, X: np.ndarray, y: np.ndarray):
