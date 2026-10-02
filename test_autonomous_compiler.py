@@ -147,6 +147,11 @@ def test_intelligent_learning():
     console.print(f"  Learned safe patterns: {stats['learned_safe_patterns']}")
     console.print(f"  Training samples collected: {len(engine.training_X)}")
 
+    if 'learnable_thresholds' in stats:
+        console.print("\n[bold yellow]LEARNED Thresholds (Not Hardcoded!)[/bold yellow]")
+        for key, value in stats['learnable_thresholds'].items():
+            console.print(f"  {key}: {value:.4f}")
+
     console.print("\n" + "="*60)
     console.print("[bold green]Intelligent Learning Demo Complete![/bold green]")
     console.print("[dim]IPL uses Neural Networks and Continual Learning - TRUE INTELLIGENCE![/dim]")
