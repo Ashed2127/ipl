@@ -15,7 +15,7 @@ bash auto_commit.sh
 ```
 
 ### 3. watch_and_commit.sh
-Continuously monitor the repository for changes and auto-commit/push them every 30 seconds.
+Continuously monitor the repository for changes and auto-commit/push them every 5 seconds.
 
 ```bash
 # Start watching (runs in foreground)
@@ -57,7 +57,7 @@ git commit -m "Your message"
 
 ## Configuration
 
-- **Polling Interval**: 30 seconds (edit watch_and_commit.sh to change)
+- **Polling Interval**: 5 seconds (edit watch_and_commit.sh to change)
 - **Commit Message**: Auto-generated with timestamp
 - **Branch**: Automatically pushes to current branch
 
