@@ -579,6 +579,13 @@ class Interpreter:
                 return IValue(list(arg_val.raw_value.values()), "List", confidence=arg_val.confidence)
             raise TypeError("values() requires a dictionary")
 
+        def _has_key(dict_val: IValue, key_val: IValue) -> IValue:
+            """Check if dictionary has a key."""
+            if isinstance(dict_val.raw_value, dict):
+                key = str(key_val.raw_value)
+                return IValue(key in dict_val.raw_value, "Bool", confidence=1.0)
+            raise TypeError("has_key() requires a dictionary as first argument")
+
         def _min(*args: IValue) -> IValue:
             if len(args) == 1 and isinstance(args[0].raw_value, list):
                 if not args[0].raw_value:
