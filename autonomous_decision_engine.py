@@ -110,6 +110,16 @@ class ContinualLearningNN:
         self.fisher_information = None
         self.optimal_params = None
 
+        # Learnable thresholds (initialized randomly, learned from experience)
+        self.learnable_thresholds = {
+            'untrusted_no_sanitization_threat': np.random.uniform(0.5, 0.9),
+            'taint_propagation_threshold': np.random.uniform(5, 15),
+            'high_threat_threshold': np.random.uniform(0.6, 0.8),
+            'low_threat_threshold': np.random.uniform(0.2, 0.4),
+            'training_data_threshold': np.random.uniform(5, 15),
+            'heuristic_data_threshold': np.random.uniform(10, 30),
+        }
+
     def compute_fisher_information(self, X: np.ndarray, y: np.ndarray):
         """Compute Fisher information matrix for EWC"""
         # Forward pass
