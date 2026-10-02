@@ -785,6 +785,8 @@ class Interpreter:
             "http_get": _http_get,
             "http_post": _http_post,
             "sleep": _sleep,
+            "predict_request": _predict_request,
+            "get_load_metrics": _get_load_metrics,
         }
         for name, fn in builtins.items():
             self.global_env.set(name, IValue(raw_value=fn, type_name="BuiltinFunction"))
