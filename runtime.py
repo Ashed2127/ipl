@@ -1344,7 +1344,8 @@ class Interpreter:
 
             if isinstance(raw_target, dict):
                 if raw_idx not in raw_target:
-                    raise KeyError(f"Key '{raw_idx}' not found in dictionary")
+                    # Return null instead of raising error for missing keys
+                    return IValue(raw_value=None, type_name="Null", confidence=1.0)
                 val = raw_target[raw_idx]
                 val_type = type(val).__name__.capitalize()
                 return IValue(raw_value=val, type_name=val_type, confidence=target_val.confidence)
