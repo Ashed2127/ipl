@@ -7,7 +7,7 @@ set -e
 REPO_DIR="/home/ashed/Downloads/ipl_lang"
 cd "$REPO_DIR"
 
-echo "👀 Watching for file changes in $REPO_DIR (polling every 30 seconds)"
+echo "👀 Watching for file changes in $REPO_DIR (polling every 5 seconds)"
 echo "Press Ctrl+C to stop"
 echo ""
 
@@ -15,7 +15,7 @@ echo ""
 LAST_COMMIT=$(git rev-parse HEAD)
 
 while true; do
-    sleep 30
+    sleep 5
 
     # Check if there are uncommitted changes
     if ! git diff --quiet && ! git diff --cached --quiet; then
