@@ -21,15 +21,16 @@ import hashlib
 import json
 
 # Import existing ML components for true intelligence
+INTELLIGENT_COMPONENTS_AVAILABLE = False
 try:
     from gnn_engine import GNNEngine, SecurityPattern
     from continual_learning import ContinualLearner, ContinualLearningMethod
     from ml_heuristic_generator import MLHeuristicGenerator, HeuristicType, MLModelType
     from dynamic_optimizer import DynamicOptimizer, FeedbackOptimizer
     INTELLIGENT_COMPONENTS_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     INTELLIGENT_COMPONENTS_AVAILABLE = False
-    print("Warning: Intelligent ML components not available. Using fallback mode.")
+    print(f"Warning: Intelligent ML components not available ({e}). Using fallback mode.")
 
 
 class DecisionType(Enum):
