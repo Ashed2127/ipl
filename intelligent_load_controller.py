@@ -51,7 +51,7 @@ class IntelligentLoadController:
     IPL decides what's "good" or "bad" - no manual configuration needed.
     """
     
-    def __init__(self):
+    def __init__(self, persistence_path: str = ".ipl_data/load_controller_state.json"):
         # Experience buffer for learning
         self.experience_buffer: List[Dict] = []
         self.max_experience = 1000
@@ -69,6 +69,12 @@ class IntelligentLoadController:
 
         # Thread safety
         self.lock = threading.Lock()
+
+        # Persistence
+        self.persistence_path = persistence_path
+
+        # Auto-load persistent state
+        self._load_persistent_state()
     
     def record_experience(self, state: ServerState, action: bool, outcome: bool):
         """
@@ -105,6 +111,9 @@ class IntelligentLoadController:
             # Retrain if we have enough data
             if len(self.experience_buffer) >= 50 and not self.is_trained:
                 self._train_ml_model()
+
+            # Auto-save persistent state
+            self.save_persistent_state()
     
     def make_intelligent_decision(self, current_state: ServerState) -> IntelligentDecision:
         """
@@ -257,3 +266,62 @@ class IntelligentLoadController:
                 "experience_size": len(self.experience_buffer),
                 "ml_available": ML_AVAILABLE
             }
+
+    def _load_persistent_state(self):
+        """Load persistent state if available"""
+        import os
+        try:
+            if not os.path.exists(self.persistence_path):
+                return
+
+            with open(self.persistence_path, 'r') as f:
+                state = json.load(f)
+
+            # Restore ML model
+            if 'model_weights' in state:
+                self.model_weights = np.array(state['model_weights'])
+                self.model_bias = state['model_bias']
+                self.is_trained = state['is_trained']
+
+            # Restore experience buffer
+            if 'experience_buffer' in state:
+                self.experience_buffer = state['experience_buffer']
+
+            # Restore metrics
+            if 'metrics' in state:
+                self.decisions_made = state['metrics']['total_decisions']
+                self.ml_decisions = state['metrics']['ml_decisions']
+                self.rule_based_decisions = state['metrics']['rule_based_decisions']
+
+            print(f"✓ Loaded load controller state from {self.persistence_path}")
+            print(f"  Total decisions: {self.decisions_made}")
+            print(f"  ML trained: {self.is_trained}")
+
+        except Exception as e:
+            print(f"⚠ Could not load persistent state: {e}")
+
+    def save_persistent_state(self):
+        """Save current state to persistent storage"""
+        import os
+        try:
+            os.makedirs(os.path.dirname(self.persistence_path) if os.path.dirname(self.persistence_path) else '.', exist_ok=True)
+
+            state = {
+                'model_weights': self.model_weights.tolist() if self.model_weights is not None else None,
+                'model_bias': self.model_bias,
+                'is_trained': self.is_trained,
+                'experience_buffer': self.experience_buffer,
+                'metrics': {
+                    'total_decisions': self.decisions_made,
+                    'ml_decisions': self.ml_decisions,
+                    'rule_based_decisions': self.rule_based_decisions,
+                }
+            }
+
+            with open(self.persistence_path, 'w') as f:
+                json.dump(state, f, indent=2)
+
+            print(f"✓ Saved load controller state to {self.persistence_path}")
+
+        except Exception as e:
+            print(f"⚠ Could not save persistent state: {e}")

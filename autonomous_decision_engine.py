@@ -467,6 +467,23 @@ class AutonomousDecisionEngine:
         self.good_decisions = 0
         self.bad_decisions = 0
 
+        # Auto-load persistent state after initialization
+        self._load_persistent_state()
+
+    def _load_persistent_state(self):
+        """Load persistent state if available"""
+        try:
+            self.load_state(self.persistence_path)
+        except Exception as e:
+            print(f"⚠ Could not load persistent state: {e}")
+
+    def save_persistent_state(self):
+        """Save current state to persistent storage"""
+        try:
+            self.save_state(self.persistence_path)
+        except Exception as e:
+            print(f"⚠ Could not save persistent state: {e}")
+
     def _extract_context_features(self, context: Dict[str, Any]) -> np.ndarray:
         """
         Extract numerical features from context for neural network input.
@@ -772,6 +789,9 @@ class AutonomousDecisionEngine:
         else:
             # Fallback: Simple Q-learning
             self._learn_from_experience()
+
+        # Auto-save persistent state after learning
+        self.save_persistent_state()
 
     def _update_learned_patterns(self, decision: Decision, outcome: DecisionOutcome, reward: float):
         """Update learned dangerous/safe patterns based on outcomes"""
