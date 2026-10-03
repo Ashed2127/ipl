@@ -245,7 +245,6 @@ graph LR
     subgraph "Runtime"
         SEM[semantic_engine.py]
         RUN[runtime.py]
-        BYT[bytecode.py]
         FMT[formatter.py]
     end
 
@@ -259,15 +258,19 @@ graph LR
     subgraph "Intelligence"
         ADE[autonomous_decision_engine.py]
         CON[continual_learning.py]
-        GNN[gnn_engine.py]
         MLH[ml_heuristic_generator.py]
         ILC[intelligent_load_controller.py]
     end
 
     subgraph "Compiler"
         COM[compiler.py]
-        DYN[dynamic_optimizer.py]
         LAR[load_aware_runtime.py]
+    end
+
+    subgraph "Experimental"
+        BYT[bytecode.py]
+        DYN[dynamic_optimizer.py]
+        GNN[gnn_engine.py]
     end
 
     subgraph "Infrastructure"
@@ -291,11 +294,9 @@ graph LR
 
     ADE --> COM
     CON --> ADE
-    GNN --> COM
     MLH --> COM
     ILC --> LAR
 
-    DYN --> RUN
     LAR --> RUN
 
     COM --> RUN
@@ -305,7 +306,13 @@ graph LR
     STA --> COM
     OLL --> SEC
 
-    BYT --> RUN
+    BYT -.-> RUN
+    DYN -.-> RUN
+    GNN -.-> COM
+
+    style BYT fill:#f0f0f0,stroke-dasharray: 5 5
+    style DYN fill:#f0f0f0,stroke-dasharray: 5 5
+    style GNN fill:#f0f0f0,stroke-dasharray: 5 5
 ```
 
 ### Key Components
