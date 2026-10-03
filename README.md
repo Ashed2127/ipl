@@ -317,37 +317,40 @@ graph LR
 
 ### Key Components
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Lexer** | `lexer.py` | Tokenizes source code into tokens |
-| **Parser** | `parser.py` | Builds Abstract Syntax Tree (AST) from tokens |
-| **Semantic Engine** | `semantic_engine.py` | NLP processing, intent extraction, confidence scoring |
-| **Taint Tracking** | `taint.py` | Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED) |
-| **Static Analyzer** | `static_taint_analyzer.py` | Static taint flow analysis |
-| **Security Engine** | `security_engine.py` | Pattern-based vulnerability detection |
-| **Autonomous Decision Engine** | `autonomous_decision_engine.py` | Neural networks + continual learning for autonomous decisions |
-| **Continual Learning** | `continual_learning.py` | EWC implementation to prevent catastrophic forgetting |
-| **GNN Engine** | `gnn_engine.py` | Graph neural networks for program analysis |
-| **ML Heuristic Generator** | `ml_heuristic_generator.py` | ML-based compiler heuristic generation |
-| **Dynamic Optimizer** | `dynamic_optimizer.py` | JIT compilation and hot path detection |
-| **Load Controller** | `intelligent_load_controller.py` | ML-based load balancing |
-| **Compiler** | `compiler.py` | Neuro-symbolic compiler with mathematical firewall |
-| **Bytecode VM** | `bytecode.py` | Stack-based virtual machine |
-| **Runtime** | `runtime.py` | Interpreter with IValue representation |
-| **Formatter** | `formatter.py` | Intelligent output formatting |
-| **CLI** | `cli.py` | Command-line interface |
-| **Gateway** | `gateway.py` | REST API microservice |
+| Component | File | Purpose | Status |
+|-----------|------|---------|--------|
+| **Lexer** | `lexer.py` | Tokenizes source code into tokens | ✅ Active |
+| **Parser** | `parser.py` | Builds Abstract Syntax Tree (AST) from tokens | ✅ Active |
+| **Semantic Engine** | `semantic_engine.py` | NLP processing, intent extraction, confidence scoring | ✅ Active |
+| **Taint Tracking** | `taint.py` | Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED) | ✅ Active |
+| **Static Analyzer** | `static_taint_analyzer.py` | Static taint flow analysis | ✅ Active |
+| **Security Engine** | `security_engine.py` | Pattern-based vulnerability detection | ✅ Active |
+| **Autonomous Decision Engine** | `autonomous_decision_engine.py` | Neural networks + continual learning for autonomous decisions | ✅ Active |
+| **Continual Learning** | `continual_learning.py` | EWC implementation to prevent catastrophic forgetting | ✅ Active |
+| **ML Heuristic Generator** | `ml_heuristic_generator.py` | ML-based compiler heuristic generation | ✅ Active |
+| **Load Controller** | `intelligent_load_controller.py` | ML-based load balancing | ✅ Active |
+| **Compiler** | `compiler.py` | Neuro-symbolic compiler with mathematical firewall | ✅ Active |
+| **Runtime** | `runtime.py` | Interpreter with IValue representation (AST-based) | ✅ Active |
+| **Formatter** | `formatter.py` | Intelligent output formatting | ✅ Active |
+| **CLI** | `cli.py` | Command-line interface | ✅ Active |
+| **Gateway** | `gateway.py` | REST API microservice | ✅ Active |
+| **Bytecode VM** | `bytecode.py` | Stack-based virtual machine | 🔬 Experimental |
+| **Dynamic Optimizer** | `dynamic_optimizer.py` | JIT compilation and hot path detection | 🔬 Experimental |
+| **GNN Engine** | `gnn_engine.py` | Graph neural networks for program analysis | 🔬 Experimental |
 
 ### Data Flow
 
 1. **Source Code** → **Lexer** → **Tokens**
 2. **Tokens** → **Parser** → **AST**
 3. **AST** → **Static Taint Analyzer** → **Taint Labels**
-4. **AST + Taint** → **Autonomous Decision Engine** → **Security Decision**
-5. **AST + Decision** → **Neuro-Symbolic Compiler** → **Bytecode**
-6. **Bytecode** → **Bytecode VM** → **Execution**
-7. **Execution** → **Dynamic Optimizer** → **JIT Compilation**
-8. **Results** → **Intelligent Formatter** → **Output**
+4. **AST + Taint** → **Neuro-Symbolic Compiler** → **Security Decisions**
+5. **Compiler** → **Autonomous Firewall** → **Autonomous Decision Engine**
+6. **Decision Engine** → **Neural Networks / Q-Learning** → **Safety Judgment**
+7. **Verified AST** → **Runtime Interpreter** → **Direct AST Execution**
+8. **Execution** → **Security Checks** → **Taint Violation Detection**
+9. **Results** → **Intelligent Formatter** → **Output**
+
+**Note**: The Runtime Interpreter executes AST nodes directly (not bytecode). Bytecode VM, Dynamic Optimizer, and GNN Engine are experimental components available for future integration.
 
 ### Persistence Layer
 
