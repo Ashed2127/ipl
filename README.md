@@ -195,41 +195,40 @@ graph TB
 
     subgraph "Compiler Layer"
         L --> Q[Neuro-Symbolic Compiler]
-        Q --> R[Security Engine]
+        Q --> R[Autonomous Firewall]
         R --> S[Mathematical Firewall]
         S --> T[Verified Audit Trace]
     end
 
     subgraph "Execution Layer"
-        T --> U[Bytecode Compiler]
-        U --> V[Bytecode VM]
-        V --> W[Dynamic Optimizer]
-        W --> X[Runtime Interpreter]
+        T --> X[Runtime Interpreter]
+        X --> Y{Security Checks}
+        Y -->|Taint Violation| Z[Block Execution]
+        Y -->|Safe| AA[Execute AST]
+        AA --> BB[Intelligent Formatter]
     end
 
     subgraph "Output Layer"
-        X --> Y[Intelligent Formatter]
-        Y --> Z[Output]
+        BB --> CC[Output]
     end
 
     subgraph "ML Components"
-        AA[GNN Engine]
-        AB[ML Heuristic Generator]
-        AC[Continual Learning]
-        AD[Intelligent Load Controller]
+        DD[ML Heuristic Generator]
+        EE[Continual Learning]
+        FF[Intelligent Load Controller]
     end
 
-    L --> AA
-    L --> AB
-    N --> AC
-    X --> AD
+    L --> DD
+    N --> EE
+    X --> FF
 
     style A fill:#e1f5ff
-    style Z fill:#e1f5ff
+    style CC fill:#e1f5ff
     style L fill:#fff4e1
     style N fill:#fff4e1
     style G fill:#ffe1e1
     style T fill:#e1ffe1
+    style Z fill:#ffcccc
 ```
 
 ### Module Dependency Graph
