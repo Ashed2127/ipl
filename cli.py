@@ -17,14 +17,14 @@ try:
     from .lexer import Lexer, LexerError
     from .parser import Parser, ParserError
     from .runtime import Interpreter
-    from .compiler import NeuroSymbolicCompiler
+    from .compiler import NeuroSymbolicCompiler, AutonomousFirewall
     from .ast_nodes import FunctionDef, IntentExpr, SanitizationNode
     from .static_taint_analyzer import analyze_program_taint
 except (ImportError, ValueError):
     from lexer import Lexer, LexerError
     from parser import Parser, ParserError
     from runtime import Interpreter
-    from compiler import NeuroSymbolicCompiler
+    from compiler import NeuroSymbolicCompiler, AutonomousFirewall
     from ast_nodes import FunctionDef, IntentExpr, SanitizationNode
     from static_taint_analyzer import analyze_program_taint
 
