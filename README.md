@@ -159,4 +159,198 @@ print(f"Training samples: {stats['training_samples_collected']}")
 
 ## Architecture
 
+### System Workflow
+
+```mermaid
+graph TB
+    subgraph "Input Layer"
+        A[Source Code] --> B[Lexer]
+        B --> C[Parser]
+    end
+
+    subgraph "AST Layer"
+        C --> D[AST Nodes]
+        D --> E[Semantic Engine]
+    end
+
+    subgraph "Security Layer"
+        E --> F[Static Taint Analyzer]
+        F --> G[Taint Tracking System]
+        G --> H{Is Tainted?}
+        H -->|Yes| I[Sanitization Required]
+        H -->|No| J[Proceed]
+        I --> K[Sanitization Node]
+        K --> J
+    end
+
+    subgraph "Intelligence Layer"
+        J --> L[Autonomous Decision Engine]
+        L --> M{Decision}
+        M -->|Neural Network| N[Continual Learning NN]
+        M -->|Q-Learning| O[Q-Table]
+        N --> P[Record Outcome]
+        O --> P
+        P --> L
+    end
+
+    subgraph "Compiler Layer"
+        L --> Q[Neuro-Symbolic Compiler]
+        Q --> R[Security Engine]
+        R --> S[Mathematical Firewall]
+        S --> T[Verified Audit Trace]
+    end
+
+    subgraph "Execution Layer"
+        T --> U[Bytecode Compiler]
+        U --> V[Bytecode VM]
+        V --> W[Dynamic Optimizer]
+        W --> X[Runtime Interpreter]
+    end
+
+    subgraph "Output Layer"
+        X --> Y[Intelligent Formatter]
+        Y --> Z[Output]
+    end
+
+    subgraph "ML Components"
+        AA[GNN Engine]
+        AB[ML Heuristic Generator]
+        AC[Continual Learning]
+        AD[Intelligent Load Controller]
+    end
+
+    L --> AA
+    L --> AB
+    N --> AC
+    X --> AD
+
+    style A fill:#e1f5ff
+    style Z fill:#e1f5ff
+    style L fill:#fff4e1
+    style N fill:#fff4e1
+    style G fill:#ffe1e1
+    style T fill:#e1ffe1
+```
+
+### Module Dependency Graph
+
+```mermaid
+graph LR
+    subgraph "Core Language"
+        LEX[lexer.py]
+        TOK[tokens.py]
+        PAR[parser.py]
+        AST[ast_nodes.py]
+    end
+
+    subgraph "Runtime"
+        SEM[semantic_engine.py]
+        RUN[runtime.py]
+        BYT[bytecode.py]
+        FMT[formatter.py]
+    end
+
+    subgraph "Security"
+        TAI[taint.py]
+        STA[static_taint_analyzer.py]
+        SEC[security_engine.py]
+        OLL[ollama_security.py]
+    end
+
+    subgraph "Intelligence"
+        ADE[autonomous_decision_engine.py]
+        CON[continual_learning.py]
+        GNN[gnn_engine.py]
+        MLH[ml_heuristic_generator.py]
+        ILC[intelligent_load_controller.py]
+    end
+
+    subgraph "Compiler"
+        COM[compiler.py]
+        DYN[dynamic_optimizer.py]
+        LAR[load_aware_runtime.py]
+    end
+
+    subgraph "Infrastructure"
+        CLI[cli.py]
+        GTW[gateway.py]
+        SRV[simple_server.py]
+    end
+
+    TOK --> LEX
+    AST --> PAR
+    AST --> RUN
+    AST --> COM
+    AST --> STA
+
+    LEX --> CLI
+    PAR --> CLI
+    SEM --> RUN
+    TAI --> RUN
+    SEC --> COM
+    FMT --> RUN
+
+    ADE --> COM
+    CON --> ADE
+    GNN --> COM
+    MLH --> COM
+    ILC --> LAR
+
+    DYN --> RUN
+    LAR --> RUN
+
+    COM --> RUN
+    RUN --> CLI
+    COM --> GTW
+
+    STA --> COM
+    OLL --> SEC
+
+    BYT --> RUN
+```
+
+### Key Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| **Lexer** | `lexer.py` | Tokenizes source code into tokens |
+| **Parser** | `parser.py` | Builds Abstract Syntax Tree (AST) from tokens |
+| **Semantic Engine** | `semantic_engine.py` | NLP processing, intent extraction, confidence scoring |
+| **Taint Tracking** | `taint.py` | Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED) |
+| **Static Analyzer** | `static_taint_analyzer.py` | Static taint flow analysis |
+| **Security Engine** | `security_engine.py` | Pattern-based vulnerability detection |
+| **Autonomous Decision Engine** | `autonomous_decision_engine.py` | Neural networks + continual learning for autonomous decisions |
+| **Continual Learning** | `continual_learning.py` | EWC implementation to prevent catastrophic forgetting |
+| **GNN Engine** | `gnn_engine.py` | Graph neural networks for program analysis |
+| **ML Heuristic Generator** | `ml_heuristic_generator.py` | ML-based compiler heuristic generation |
+| **Dynamic Optimizer** | `dynamic_optimizer.py` | JIT compilation and hot path detection |
+| **Load Controller** | `intelligent_load_controller.py` | ML-based load balancing |
+| **Compiler** | `compiler.py` | Neuro-symbolic compiler with mathematical firewall |
+| **Bytecode VM** | `bytecode.py` | Stack-based virtual machine |
+| **Runtime** | `runtime.py` | Interpreter with IValue representation |
+| **Formatter** | `formatter.py` | Intelligent output formatting |
+| **CLI** | `cli.py` | Command-line interface |
+| **Gateway** | `gateway.py` | REST API microservice |
+
+### Data Flow
+
+1. **Source Code** → **Lexer** → **Tokens**
+2. **Tokens** → **Parser** → **AST**
+3. **AST** → **Static Taint Analyzer** → **Taint Labels**
+4. **AST + Taint** → **Autonomous Decision Engine** → **Security Decision**
+5. **AST + Decision** → **Neuro-Symbolic Compiler** → **Bytecode**
+6. **Bytecode** → **Bytecode VM** → **Execution**
+7. **Execution** → **Dynamic Optimizer** → **JIT Compilation**
+8. **Results** → **Intelligent Formatter** → **Output**
+
+### Persistence Layer
+
+All learned state is persisted to `.ipl_data/` directory:
+- `autonomous_engine_state.json` - Neural network weights, Fisher Information, learned thresholds
+- `load_controller_state.json` - ML model weights, experience buffer
+- Auto-saved after every learning event
+- Auto-loaded on initialization
+
+### Testing
+
 See [ARCHITECTURE.md](ARCHITECTURE.md) for complete documentation.
