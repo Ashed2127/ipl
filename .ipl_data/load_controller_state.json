@@ -1,0 +1,46 @@
+{
+  "model_weights": null,
+  "model_bias": null,
+  "is_trained": false,
+  "experience_buffer": [
+    {
+      "features": {
+        "load_ratio": 0.5,
+        "is_overloaded": 0.0,
+        "response_time": 100.0,
+        "timestamp": 1790986968.7515087
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 5,
+        "capacity": 10,
+        "is_overloaded": false,
+        "response_time": 100.0,
+        "timestamp": 1790986968.7515087
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.5,
+        "is_overloaded": 0.0,
+        "response_time": 100.0,
+        "timestamp": 1790986968.7515087
+      },
+      "action": false,
+      "label": 0.0,
+      "state": {
+        "active_requests": 5,
+        "capacity": 10,
+        "is_overloaded": false,
+        "response_time": 100.0,
+        "timestamp": 1790986968.7515087
+      }
+    }
+  ],
+  "metrics": {
+    "total_decisions": 0,
+    "ml_decisions": 0,
+    "rule_based_decisions": 0
+  }
+}
