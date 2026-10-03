@@ -123,7 +123,7 @@ def verify_file(filepath: str):
         parser = Parser(tokens)
         program = parser.parse()
 
-        is_valid, violations = MathematicalFirewall.verify_tree(program)
+        is_valid, violations = AutonomousFirewall.verify_tree(program)
         if is_valid:
             console.print(Panel(
                 f"[bold green]✔ PASSED: Formal Mathematical Firewall Verification Succeeded[/bold green]\n"
