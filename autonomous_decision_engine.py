@@ -952,6 +952,8 @@ class AutonomousDecisionEngine:
                 for d in self.decision_history[-100:]  # Save last 100 decisions
             ],
             'statistics': self.get_statistics(),
+            'training_data': [x.tolist() if hasattr(x, 'tolist') else x for x in self.training_X],
+            'training_labels': [y.tolist() if hasattr(y, 'tolist') else y for y in self.training_y],
         }
 
         # Save neural network weights if using intelligent components
@@ -1027,6 +1029,18 @@ class AutonomousDecisionEngine:
         self.learned_dangerous_patterns = state['learned_dangerous_patterns']
         self.learned_safe_patterns = state['learned_safe_patterns']
         self.learned_thresholds = state['learned_thresholds']
+
+        # Restore statistics
+        if 'statistics' in state:
+            self.total_decisions = state['statistics']['total_decisions']
+            self.good_decisions = state['statistics']['good_decisions']
+            self.bad_decisions = state['statistics']['bad_decisions']
+
+        # Restore training data
+        if 'training_data' in state:
+            self.training_X = [np.array(x) for x in state['training_data']]
+        if 'training_labels' in state:
+            self.training_y = [np.array(y) for y in state['training_labels']]
 
         # Restore neural network weights if using intelligent components
         if self.use_intelligent_components and 'security_nn' in state:
