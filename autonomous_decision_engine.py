@@ -401,7 +401,8 @@ class AutonomousDecisionEngine:
                  experience_buffer_size: int = 10000,
                  learning_rate: float = 0.01,
                  exploration_rate: float = 0.1,
-                 use_intelligent_components: bool = True):
+                 use_intelligent_components: bool = True,
+                 persistence_path: str = ".ipl_data/autonomous_engine_state.json"):
         """
         Initialize the autonomous decision engine with ML components.
 
@@ -410,11 +411,13 @@ class AutonomousDecisionEngine:
             learning_rate: Learning rate for neural networks
             exploration_rate: Rate of exploration vs exploitation
             use_intelligent_components: Whether to use neural networks and continual learning
+            persistence_path: Path to save/load persistent state
         """
         self.experience_buffer_size = experience_buffer_size
         self.learning_rate = learning_rate
         self.exploration_rate = exploration_rate
         self.use_intelligent_components = use_intelligent_components
+        self.persistence_path = persistence_path
 
         # Experience replay (learn from past decisions)
         self.experience_buffer: deque = deque(maxlen=experience_buffer_size)
@@ -989,7 +992,13 @@ class AutonomousDecisionEngine:
         print(f"✓ Saved autonomous engine state to {path}")
 
     def load_state(self, path: str):
-        """Load the autonomous engine state"""
+        """Load the autonomous engine state including neural network weights"""
+        import os
+
+        if not os.path.exists(path):
+            print(f"⚠ No saved state found at {path}, starting fresh")
+            return
+
         with open(path, 'r') as f:
             state = json.load(f)
 
@@ -998,6 +1007,62 @@ class AutonomousDecisionEngine:
         self.learned_dangerous_patterns = state['learned_dangerous_patterns']
         self.learned_safe_patterns = state['learned_safe_patterns']
         self.learned_thresholds = state['learned_thresholds']
+
+        # Restore neural network weights if using intelligent components
+        if self.use_intelligent_components and 'security_nn' in state:
+            # Restore security neural network weights
+            self.security_nn.nn.W1 = np.array(state['security_nn']['W1'])
+            self.security_nn.nn.b1 = np.array(state['security_nn']['b1'])
+            self.security_nn.nn.W2 = np.array(state['security_nn']['W2'])
+            self.security_nn.nn.b2 = np.array(state['security_nn']['b2'])
+            self.security_nn.learnable_thresholds = state['security_nn']['learnable_thresholds']
+
+            # Restore Fisher Information for EWC
+            if 'fisher_information' in state['security_nn']:
+                self.security_nn.fisher_information = {
+                    'W1': np.array(state['security_nn']['fisher_information']['W1']),
+                    'b1': np.array(state['security_nn']['fisher_information']['b1']),
+                    'W2': np.array(state['security_nn']['fisher_information']['W2']),
+                    'b2': np.array(state['security_nn']['fisher_information']['b2']),
+                }
+
+            # Restore optimal parameters for EWC
+            if 'optimal_params' in state['security_nn']:
+                self.security_nn.optimal_params = {
+                    'W1': np.array(state['security_nn']['optimal_params']['W1']),
+                    'b1': np.array(state['security_nn']['optimal_params']['b1']),
+                    'W2': np.array(state['security_nn']['optimal_params']['W2']),
+                    'b2': np.array(state['security_nn']['optimal_params']['b2']),
+                }
+
+            # Restore optimization neural network weights
+            if 'optimization_nn' in state:
+                self.optimization_nn.W1 = np.array(state['optimization_nn']['W1'])
+                self.optimization_nn.b1 = np.array(state['optimization_nn']['b1'])
+                self.optimization_nn.W2 = np.array(state['optimization_nn']['W2'])
+                self.optimization_nn.b2 = np.array(state['optimization_nn']['b2'])
+
+            # Restore experience buffer
+            if 'experience_buffer' in state:
+                for exp_data in state['experience_buffer']:
+                    decision = Decision(
+                        decision_id=exp_data['decision_id'],
+                        decision_type=DecisionType(exp_data['decision_type']),
+                        context=exp_data['context'],
+                        action=eval(exp_data['action']) if isinstance(exp_data['action'], str) else exp_data['action'],
+                        confidence=exp_data['confidence'],
+                        timestamp=exp_data['timestamp'],
+                    )
+                    if exp_data['outcome']:
+                        decision.outcome = DecisionOutcome(exp_data['outcome'])
+                    decision.reward = exp_data['reward']
+                    self.experience_buffer.append(decision)
+
+        print(f"✓ Loaded autonomous engine state from {path}")
+        print(f"  Total decisions: {state['statistics']['total_decisions']}")
+        print(f"  Success rate: {state['statistics']['success_rate']:.2%}")
+        if 'security_nn' in state and 'learnable_thresholds' in state['security_nn']:
+            print(f"  Learned thresholds restored")
 
 
 # Test the autonomous decision engine
