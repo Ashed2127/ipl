@@ -905,7 +905,12 @@ class AutonomousDecisionEngine:
         return stats
 
     def save_state(self, path: str):
-        """Save the autonomous engine state"""
+        """Save the autonomous engine state including neural network weights"""
+        import os
+
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(path) if os.path.dirname(path) else '.', exist_ok=True)
+
         state = {
             'security_q_table': {k: v.tolist() for k, v in self.security_q_table.items()},
             'optimization_q_table': {k: v.tolist() for k, v in self.optimization_q_table.items()},
@@ -926,8 +931,62 @@ class AutonomousDecisionEngine:
             'statistics': self.get_statistics(),
         }
 
+        # Save neural network weights if using intelligent components
+        if self.use_intelligent_components:
+            # Save security neural network weights
+            state['security_nn'] = {
+                'W1': self.security_nn.nn.W1.tolist(),
+                'b1': self.security_nn.nn.b1.tolist(),
+                'W2': self.security_nn.nn.W2.tolist(),
+                'b2': self.security_nn.nn.b2.tolist(),
+                'learnable_thresholds': self.security_nn.learnable_thresholds,
+            }
+
+            # Save Fisher Information for EWC
+            if self.security_nn.fisher_information is not None:
+                state['security_nn']['fisher_information'] = {
+                    'W1': self.security_nn.fisher_information['W1'].tolist(),
+                    'b1': self.security_nn.fisher_information['b1'].tolist(),
+                    'W2': self.security_nn.fisher_information['W2'].tolist(),
+                    'b2': self.security_nn.fisher_information['b2'].tolist(),
+                }
+
+            # Save optimal parameters for EWC
+            if self.security_nn.optimal_params is not None:
+                state['security_nn']['optimal_params'] = {
+                    'W1': self.security_nn.optimal_params['W1'].tolist(),
+                    'b1': self.security_nn.optimal_params['b1'].tolist(),
+                    'W2': self.security_nn.optimal_params['W2'].tolist(),
+                    'b2': self.security_nn.optimal_params['b2'].tolist(),
+                }
+
+            # Save optimization neural network weights
+            state['optimization_nn'] = {
+                'W1': self.optimization_nn.W1.tolist(),
+                'b1': self.optimization_nn.b1.tolist(),
+                'W2': self.optimization_nn.W2.tolist(),
+                'b2': self.optimization_nn.b2.tolist(),
+            }
+
+            # Save experience buffer (as serializable data)
+            state['experience_buffer'] = [
+                {
+                    'decision_id': d.decision_id,
+                    'decision_type': d.decision_type.value,
+                    'context': d.context,
+                    'action': str(d.action),
+                    'confidence': d.confidence,
+                    'outcome': d.outcome.value if d.outcome else None,
+                    'reward': d.reward,
+                    'timestamp': d.timestamp,
+                }
+                for d in list(self.experience_buffer)[-1000:]  # Save last 1000 experiences
+            ]
+
         with open(path, 'w') as f:
             json.dump(state, f, indent=2)
+
+        print(f"✓ Saved autonomous engine state to {path}")
 
     def load_state(self, path: str):
         """Load the autonomous engine state"""
