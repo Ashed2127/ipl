@@ -52,7 +52,9 @@ class NeuralNetwork:
         self.cache['Z1'] = np.dot(X, self.W1) + self.b1
         self.cache['A1'] = np.maximum(0, self.cache['Z1'])  # ReLU
         self.cache['Z2'] = np.dot(self.cache['A1'], self.W2) + self.b2
-        self.cache['A2'] = 1.0 / (1.0 + np.exp(-self.cache['Z2']))  # Sigmoid
+        # Numerically stable sigmoid
+        Z2_clipped = np.clip(self.cache['Z2'], -500, 500)
+        self.cache['A2'] = 1.0 / (1.0 + np.exp(-Z2_clipped))  # Sigmoid
         return self.cache['A2']
 
     def backward(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, np.ndarray]:

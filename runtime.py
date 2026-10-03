@@ -26,7 +26,7 @@ try:
     from .formatter import IntelligentFormatter
     from .security_engine import SecurityEngine
     from .taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
-    from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
+    from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall
     from .static_taint_analyzer import analyze_program_taint
     from .intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
 except (ImportError, ValueError):
@@ -43,7 +43,7 @@ except (ImportError, ValueError):
     from formatter import IntelligentFormatter
     from security_engine import SecurityEngine
     from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
-    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, MathematicalFirewall
+    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall
     from static_taint_analyzer import analyze_program_taint
     from load_aware_runtime import LoadAwareController, ServerState
 

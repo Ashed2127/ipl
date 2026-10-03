@@ -13,12 +13,9 @@ from collections import deque
 import threading
 import json
 
-try:
-    from ml_heuristic_generator import MLHeuristicGenerator, HeuristicType, MLModelType
-    ML_AVAILABLE = True
-except ImportError:
-    ML_AVAILABLE = False
-    print("Warning: ML Heuristic Generator not available, using fallback")
+# Use pure numpy implementation instead of sklearn dependency
+import numpy as np
+ML_AVAILABLE = True
 
 
 @dataclass
@@ -58,23 +55,20 @@ class IntelligentLoadController:
         # Experience buffer for learning
         self.experience_buffer: List[Dict] = []
         self.max_experience = 1000
-        
-        # ML generator
-        self.ml_generator = None
+
+        # Pure numpy ML model (simple neural network)
+        self.model_weights = None
+        self.model_bias = None
         self.heuristic_name = "load_control_heuristic"
         self.is_trained = False
-        
+
         # Performance tracking
         self.decisions_made = 0
         self.ml_decisions = 0
         self.rule_based_decisions = 0
-        
+
         # Thread safety
         self.lock = threading.Lock()
-        
-        # Initialize ML if available
-        if ML_AVAILABLE:
-            self.ml_generator = MLHeuristicGenerator()
     
     def record_experience(self, state: ServerState, action: bool, outcome: bool):
         """
@@ -115,13 +109,13 @@ class IntelligentLoadController:
     def make_intelligent_decision(self, current_state: ServerState) -> IntelligentDecision:
         """
         IPL autonomously decides whether to send a request.
-        
+
         This is the core intelligence: IPL learns from experience and makes
         autonomous decisions without any manual rules or configuration.
         """
         with self.lock:
             self.decisions_made += 1
-            
+
             # Extract features
             features = {
                 "load_ratio": current_state.active_requests / current_state.capacity,
@@ -129,39 +123,49 @@ class IntelligentLoadController:
                 "response_time": current_state.response_time,
                 "timestamp": current_state.timestamp
             }
-            
+
             # If ML is trained, use it
-            if self.is_trained and self.ml_generator:
+            if self.is_trained and self.model_weights is not None:
                 try:
-                    decision = self.ml_generator.apply_heuristic(
-                        self.heuristic_name, 
-                        features
-                    )
-                    
+                    # Extract feature vector in consistent order
+                    feature_vec = np.array([
+                        features.get("load_ratio", 0),
+                        features.get("is_overloaded", 0),
+                        features.get("response_time", 0),
+                        features.get("timestamp", 0) % 1000
+                    ])
+
+                    # Make prediction using logistic regression
+                    z = np.dot(feature_vec, self.model_weights) + self.model_bias
+                    z = np.clip(z, -500, 500)  # Prevent overflow
+                    probability = 1.0 / (1.0 + np.exp(-z))  # Sigmoid
+                    should_send = probability > 0.5
+                    confidence = max(probability, 1.0 - probability)
+
                     self.ml_decisions += 1
-                    
+
                     return IntelligentDecision(
-                        should_send=decision.decision,
-                        confidence=decision.confidence,
-                        reasoning=decision.reasoning,
+                        should_send=should_send,
+                        confidence=confidence,
+                        reasoning=f"ML model prediction (probability: {probability:.4f})",
                         is_intelligent=True,
-                        model_used="RandomForest"
+                        model_used="LogisticRegression"
                     )
                 except Exception as e:
                     # Fallback to rule-based if ML fails
                     pass
-            
+
             # Fallback: simple heuristic (will be replaced by ML)
             self.rule_based_decisions += 1
-            
+
             load_ratio = current_state.active_requests / current_state.capacity
-            
+
             # Conservative baseline (ML will learn better)
             should_send = load_ratio < 0.5
             confidence = 0.5 if should_send else 0.3
-            
+
             reasoning = f"Load ratio {load_ratio:.2f} (ML not yet trained)"
-            
+
             return IntelligentDecision(
                 should_send=should_send,
                 confidence=confidence,
@@ -172,35 +176,72 @@ class IntelligentLoadController:
     
     def _train_ml_model(self):
         """
-        Train ML model on collected experience.
-        
+        Train ML model on collected experience using pure numpy.
+
         IPL learns what decisions led to good outcomes.
         """
-        if not self.ml_generator or len(self.experience_buffer) < 50:
+        if len(self.experience_buffer) < 50:
             return
-        
+
         # Prepare training data
-        training_data = []
-        labels = []
-        
+        X = []
+        y = []
+
         for exp in self.experience_buffer:
-            training_data.append(exp["features"])
+            features = exp["features"]
+            # Extract feature vector in consistent order
+            feature_vec = [
+                features.get("load_ratio", 0),
+                features.get("is_overloaded", 0),
+                features.get("response_time", 0),
+                features.get("timestamp", 0) % 1000  # Normalize timestamp
+            ]
+            X.append(feature_vec)
             # Label is whether the outcome was good
-            labels.append(exp["label"])
-        
+            y.append(exp["label"])
+
+        X = np.array(X)
+        y = np.array(y)
+
         try:
-            # Train Random Forest model
-            heuristic = self.ml_generator.learn_heuristic(
-                training_data=training_data,
-                labels=labels,
-                model_type=MLModelType.RANDOM_FOREST
-            )
-            
+            # Simple logistic regression using numpy
+            # Initialize weights
+            n_features = X.shape[1]
+            self.model_weights = np.random.randn(n_features) * 0.01
+            self.model_bias = 0.0
+
+            # Train using gradient descent
+            learning_rate = 0.1
+            epochs = 100
+
+            for epoch in range(epochs):
+                # Forward pass
+                z = np.dot(X, self.model_weights) + self.model_bias
+                # Numerically stable sigmoid
+                z = np.clip(z, -500, 500)  # Prevent overflow
+                y_pred = 1.0 / (1.0 + np.exp(-z))  # Sigmoid
+
+                # Backward pass
+                error = y_pred - y
+                gradient = np.dot(X.T, error) / len(y)
+                bias_gradient = np.mean(error)
+
+                # Update weights
+                self.model_weights -= learning_rate * gradient
+                self.model_bias -= learning_rate * bias_gradient
+
+            # Calculate accuracy
+            z = np.dot(X, self.model_weights) + self.model_bias
+            z = np.clip(z, -500, 500)  # Prevent overflow
+            y_pred = 1.0 / (1.0 + np.exp(-z))
+            predictions = (y_pred > 0.5).astype(int)
+            accuracy = np.mean(predictions == y)
+
             self.is_trained = True
-            print(f"🧠 IPL trained ML model: {heuristic.name} (accuracy: {heuristic.accuracy:.2f})")
-            print(f"   Features: {heuristic.features}")
-            print(f"   Condition: {heuristic.condition}")
-            
+            print(f"🧠 IPL trained ML model: logistic regression (accuracy: {accuracy:.2f})")
+            print(f"   Weights: {self.model_weights}")
+            print(f"   Bias: {self.model_bias:.4f}")
+
         except Exception as e:
             print(f"ML training failed: {e}")
     
