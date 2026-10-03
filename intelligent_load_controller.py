@@ -285,6 +285,10 @@ class IntelligentLoadController:
 
             # Restore experience buffer
             if 'experience_buffer' in state:
+                # Reconstruct ServerState objects
+                for exp in state['experience_buffer']:
+                    if 'state' in exp and isinstance(exp['state'], dict):
+                        exp['state'] = ServerState(**exp['state'])
                 self.experience_buffer = state['experience_buffer']
 
             # Restore metrics
@@ -306,11 +310,26 @@ class IntelligentLoadController:
         try:
             os.makedirs(os.path.dirname(self.persistence_path) if os.path.dirname(self.persistence_path) else '.', exist_ok=True)
 
+            # Convert experience buffer to serializable format
+            serializable_buffer = []
+            for exp in self.experience_buffer:
+                serializable_exp = exp.copy()
+                # Convert ServerState to dict
+                if 'state' in serializable_exp and hasattr(serializable_exp['state'], '__dict__'):
+                    serializable_exp['state'] = {
+                        'active_requests': serializable_exp['state'].active_requests,
+                        'capacity': serializable_exp['state'].capacity,
+                        'is_overloaded': serializable_exp['state'].is_overloaded,
+                        'response_time': serializable_exp['state'].response_time,
+                        'timestamp': serializable_exp['state'].timestamp,
+                    }
+                serializable_buffer.append(serializable_exp)
+
             state = {
                 'model_weights': self.model_weights.tolist() if self.model_weights is not None else None,
                 'model_bias': self.model_bias,
                 'is_trained': self.is_trained,
-                'experience_buffer': self.experience_buffer,
+                'experience_buffer': serializable_buffer,
                 'metrics': {
                     'total_decisions': self.decisions_made,
                     'ml_decisions': self.ml_decisions,
