@@ -1,988 +1,189 @@
 {
   "model_weights": [
-    -0.05967964614504101,
-    -0.02549456036369907,
-    -0.028065891996620386,
-    -28.52807840215416
+    0.19912427080309025,
+    0.35563954882038873,
+    3.736161518936038,
+    25.59791087814508
   ],
-  "model_bias": -0.058871880129560156,
+  "model_bias": 0.06443149391487202,
   "is_trained": true,
   "experience_buffer": [
     {
       "features": {
-        "load_ratio": 0.0,
-        "is_overloaded": 0.0,
-        "response_time": 0.1,
-        "timestamp": 1791332484.5632615
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 0,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.1,
-        "timestamp": 1791332484.5632615
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.02,
-        "is_overloaded": 0.0,
-        "response_time": 0.11,
-        "timestamp": 1791332484.5634565
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 2,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.11,
-        "timestamp": 1791332484.5634565
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.04,
-        "is_overloaded": 0.0,
-        "response_time": 0.12000000000000001,
-        "timestamp": 1791332484.5636404
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 4,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.12000000000000001,
-        "timestamp": 1791332484.5636404
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.06,
-        "is_overloaded": 0.0,
-        "response_time": 0.13,
-        "timestamp": 1791332484.563999
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 6,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.13,
-        "timestamp": 1791332484.563999
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.08,
-        "is_overloaded": 0.0,
-        "response_time": 0.14,
-        "timestamp": 1791332484.5647504
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 8,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.14,
-        "timestamp": 1791332484.5647504
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.1,
-        "is_overloaded": 0.0,
-        "response_time": 0.15000000000000002,
-        "timestamp": 1791332484.5650961
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 10,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.15000000000000002,
-        "timestamp": 1791332484.5650961
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.12,
-        "is_overloaded": 0.0,
-        "response_time": 0.16,
-        "timestamp": 1791332484.565443
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 12,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.16,
-        "timestamp": 1791332484.565443
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.14,
-        "is_overloaded": 0.0,
-        "response_time": 0.17,
-        "timestamp": 1791332484.5657997
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 14,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.17,
-        "timestamp": 1791332484.5657997
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.16,
-        "is_overloaded": 0.0,
-        "response_time": 0.18,
-        "timestamp": 1791332484.5661588
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 16,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.18,
-        "timestamp": 1791332484.5661588
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.18,
-        "is_overloaded": 0.0,
-        "response_time": 0.19,
-        "timestamp": 1791332484.566509
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 18,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.19,
-        "timestamp": 1791332484.566509
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.2,
-        "is_overloaded": 0.0,
-        "response_time": 0.2,
-        "timestamp": 1791332484.5669556
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 20,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.2,
-        "timestamp": 1791332484.5669556
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.22,
-        "is_overloaded": 0.0,
-        "response_time": 0.21000000000000002,
-        "timestamp": 1791332484.5673592
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 22,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.21000000000000002,
-        "timestamp": 1791332484.5673592
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.24,
-        "is_overloaded": 0.0,
-        "response_time": 0.22,
-        "timestamp": 1791332484.5677438
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 24,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.22,
-        "timestamp": 1791332484.5677438
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.26,
-        "is_overloaded": 0.0,
-        "response_time": 0.23,
-        "timestamp": 1791332484.5681446
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 26,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.23,
-        "timestamp": 1791332484.5681446
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.28,
-        "is_overloaded": 0.0,
-        "response_time": 0.24000000000000002,
-        "timestamp": 1791332484.5685656
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 28,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.24000000000000002,
-        "timestamp": 1791332484.5685656
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.3,
-        "is_overloaded": 0.0,
-        "response_time": 0.25,
-        "timestamp": 1791332484.569025
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 30,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.25,
-        "timestamp": 1791332484.569025
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.32,
-        "is_overloaded": 0.0,
-        "response_time": 0.26,
-        "timestamp": 1791332484.5694962
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 32,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.26,
-        "timestamp": 1791332484.5694962
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.34,
-        "is_overloaded": 0.0,
-        "response_time": 0.27,
-        "timestamp": 1791332484.569974
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 34,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.27,
-        "timestamp": 1791332484.569974
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.36,
-        "is_overloaded": 0.0,
-        "response_time": 0.28,
-        "timestamp": 1791332484.5704808
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 36,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.28,
-        "timestamp": 1791332484.5704808
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.38,
-        "is_overloaded": 0.0,
-        "response_time": 0.29000000000000004,
-        "timestamp": 1791332484.5710008
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 38,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.29000000000000004,
-        "timestamp": 1791332484.5710008
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.4,
-        "is_overloaded": 0.0,
-        "response_time": 0.30000000000000004,
-        "timestamp": 1791332484.5715406
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 40,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.30000000000000004,
-        "timestamp": 1791332484.5715406
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.42,
-        "is_overloaded": 0.0,
-        "response_time": 0.31,
-        "timestamp": 1791332484.5720987
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 42,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.31,
-        "timestamp": 1791332484.5720987
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.44,
-        "is_overloaded": 0.0,
-        "response_time": 0.32,
-        "timestamp": 1791332484.5726938
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 44,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.32,
-        "timestamp": 1791332484.5726938
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.46,
-        "is_overloaded": 0.0,
-        "response_time": 0.33,
-        "timestamp": 1791332484.5732982
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 46,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.33,
-        "timestamp": 1791332484.5732982
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.48,
-        "is_overloaded": 0.0,
-        "response_time": 0.33999999999999997,
-        "timestamp": 1791332484.5738986
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 48,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.33999999999999997,
-        "timestamp": 1791332484.5738986
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.5,
-        "is_overloaded": 0.0,
-        "response_time": 0.35,
-        "timestamp": 1791332484.5745387
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 50,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.35,
-        "timestamp": 1791332484.5745387
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.52,
-        "is_overloaded": 0.0,
-        "response_time": 0.36,
-        "timestamp": 1791332484.575173
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 52,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.36,
-        "timestamp": 1791332484.575173
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.54,
-        "is_overloaded": 0.0,
-        "response_time": 0.37,
-        "timestamp": 1791332484.57583
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 54,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.37,
-        "timestamp": 1791332484.57583
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.56,
-        "is_overloaded": 0.0,
-        "response_time": 0.38,
-        "timestamp": 1791332484.5765164
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 56,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.38,
-        "timestamp": 1791332484.5765164
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.58,
-        "is_overloaded": 0.0,
-        "response_time": 0.39,
-        "timestamp": 1791332484.5772934
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 58,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.39,
-        "timestamp": 1791332484.5772934
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.6,
-        "is_overloaded": 0.0,
-        "response_time": 0.4,
-        "timestamp": 1791332484.577989
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 60,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.4,
-        "timestamp": 1791332484.577989
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.62,
-        "is_overloaded": 0.0,
-        "response_time": 0.41000000000000003,
-        "timestamp": 1791332484.578721
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 62,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.41000000000000003,
-        "timestamp": 1791332484.578721
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.64,
-        "is_overloaded": 0.0,
-        "response_time": 0.42000000000000004,
-        "timestamp": 1791332484.57949
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 64,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.42000000000000004,
-        "timestamp": 1791332484.57949
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.66,
-        "is_overloaded": 0.0,
-        "response_time": 0.43000000000000005,
-        "timestamp": 1791332484.5803967
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 66,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.43000000000000005,
-        "timestamp": 1791332484.5803967
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.68,
-        "is_overloaded": 0.0,
-        "response_time": 0.44000000000000006,
-        "timestamp": 1791332484.5811741
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 68,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.44000000000000006,
-        "timestamp": 1791332484.5811741
-      }
-    },
-    {
-      "features": {
         "load_ratio": 0.7,
         "is_overloaded": 0.0,
-        "response_time": 0.45000000000000007,
-        "timestamp": 1791332484.5819838
+        "response_time": 4.2137859934417365,
+        "timestamp": 1791333397.0390284
       },
       "action": false,
-      "label": 0.0,
+      "label": 1.0,
       "state": {
         "active_requests": 70,
         "capacity": 100,
         "is_overloaded": false,
-        "response_time": 0.45000000000000007,
-        "timestamp": 1791332484.5819838
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.72,
-        "is_overloaded": 0.0,
-        "response_time": 0.45999999999999996,
-        "timestamp": 1791332484.582806
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 72,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.45999999999999996,
-        "timestamp": 1791332484.582806
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.74,
-        "is_overloaded": 0.0,
-        "response_time": 0.47,
-        "timestamp": 1791332484.583641
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 74,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.47,
-        "timestamp": 1791332484.583641
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.76,
-        "is_overloaded": 0.0,
-        "response_time": 0.48,
-        "timestamp": 1791332484.5844946
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 76,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.48,
-        "timestamp": 1791332484.5844946
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.78,
-        "is_overloaded": 0.0,
-        "response_time": 0.49,
-        "timestamp": 1791332484.5854747
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 78,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.49,
-        "timestamp": 1791332484.5854747
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.8,
-        "is_overloaded": 0.0,
-        "response_time": 0.5,
-        "timestamp": 1791332484.5863638
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 80,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.5,
-        "timestamp": 1791332484.5863638
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.82,
-        "is_overloaded": 0.0,
-        "response_time": 0.51,
-        "timestamp": 1791332484.587267
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 82,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.51,
-        "timestamp": 1791332484.587267
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.84,
-        "is_overloaded": 0.0,
-        "response_time": 0.52,
-        "timestamp": 1791332484.5881944
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 84,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.52,
-        "timestamp": 1791332484.5881944
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.86,
-        "is_overloaded": 0.0,
-        "response_time": 0.53,
-        "timestamp": 1791332484.5891469
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 86,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.53,
-        "timestamp": 1791332484.5891469
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.88,
-        "is_overloaded": 0.0,
-        "response_time": 0.54,
-        "timestamp": 1791332484.5901146
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 88,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.54,
-        "timestamp": 1791332484.5901146
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.9,
-        "is_overloaded": 0.0,
-        "response_time": 0.55,
-        "timestamp": 1791332484.5911038
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 90,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.55,
-        "timestamp": 1791332484.5911038
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.92,
-        "is_overloaded": 0.0,
-        "response_time": 0.56,
-        "timestamp": 1791332484.5920866
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 92,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.56,
-        "timestamp": 1791332484.5920866
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.94,
-        "is_overloaded": 0.0,
-        "response_time": 0.5700000000000001,
-        "timestamp": 1791332484.5931382
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 94,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.5700000000000001,
-        "timestamp": 1791332484.5931382
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.96,
-        "is_overloaded": 0.0,
-        "response_time": 0.58,
-        "timestamp": 1791332484.594202
-      },
-      "action": true,
-      "label": 1.0,
-      "state": {
-        "active_requests": 96,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.58,
-        "timestamp": 1791332484.594202
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 0.98,
-        "is_overloaded": 0.0,
-        "response_time": 0.59,
-        "timestamp": 1791332484.5953517
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 98,
-        "capacity": 100,
-        "is_overloaded": false,
-        "response_time": 0.59,
-        "timestamp": 1791332484.5953517
+        "response_time": 4.2137859934417365,
+        "timestamp": 1791333397.0390284
       }
     },
     {
       "features": {
         "load_ratio": 1.0,
         "is_overloaded": 0.0,
-        "response_time": 0.6,
-        "timestamp": 1791332484.60883
+        "response_time": 1.2339588482846908,
+        "timestamp": 1791333397.0393906
       },
-      "action": true,
-      "label": 0.0,
+      "action": false,
+      "label": 1.0,
       "state": {
         "active_requests": 100,
         "capacity": 100,
         "is_overloaded": false,
-        "response_time": 0.6,
-        "timestamp": 1791332484.60883
+        "response_time": 1.2339588482846908,
+        "timestamp": 1791333397.0393906
       }
     },
     {
       "features": {
-        "load_ratio": 1.02,
-        "is_overloaded": 1.0,
-        "response_time": 0.61,
-        "timestamp": 1791332484.6099663
-      },
-      "action": false,
-      "label": 1.0,
-      "state": {
-        "active_requests": 102,
-        "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.61,
-        "timestamp": 1791332484.6099663
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 1.04,
-        "is_overloaded": 1.0,
-        "response_time": 0.62,
-        "timestamp": 1791332484.6123607
-      },
-      "action": true,
-      "label": 0.0,
-      "state": {
-        "active_requests": 104,
-        "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.62,
-        "timestamp": 1791332484.6123607
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 1.06,
-        "is_overloaded": 1.0,
-        "response_time": 0.63,
-        "timestamp": 1791332484.6150024
-      },
-      "action": false,
-      "label": 0.0,
-      "state": {
-        "active_requests": 106,
-        "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.63,
-        "timestamp": 1791332484.6150024
-      }
-    },
-    {
-      "features": {
-        "load_ratio": 1.08,
-        "is_overloaded": 1.0,
-        "response_time": 0.64,
-        "timestamp": 1791332484.6164737
+        "load_ratio": 0.15,
+        "is_overloaded": 0.0,
+        "response_time": 4.236818014382044,
+        "timestamp": 1791333397.0429165
       },
       "action": true,
       "label": 1.0,
       "state": {
-        "active_requests": 108,
+        "active_requests": 15,
         "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.64,
-        "timestamp": 1791332484.6164737
+        "is_overloaded": false,
+        "response_time": 4.236818014382044,
+        "timestamp": 1791333397.0429165
       }
     },
     {
       "features": {
-        "load_ratio": 1.1,
-        "is_overloaded": 1.0,
-        "response_time": 0.65,
-        "timestamp": 1791332484.6178868
+        "load_ratio": 0.68,
+        "is_overloaded": 0.0,
+        "response_time": 4.510458795963828,
+        "timestamp": 1791333397.1200402
       },
       "action": false,
       "label": 0.0,
       "state": {
-        "active_requests": 110,
+        "active_requests": 68,
         "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.65,
-        "timestamp": 1791332484.6178868
+        "is_overloaded": false,
+        "response_time": 4.510458795963828,
+        "timestamp": 1791333397.1200402
       }
     },
     {
       "features": {
-        "load_ratio": 1.12,
-        "is_overloaded": 1.0,
-        "response_time": 0.66,
-        "timestamp": 1791332484.6192365
+        "load_ratio": 0.44,
+        "is_overloaded": 0.0,
+        "response_time": 3.4013640821555735,
+        "timestamp": 1791333397.1498232
       },
       "action": true,
-      "label": 0.0,
+      "label": 1.0,
       "state": {
-        "active_requests": 112,
+        "active_requests": 44,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.4013640821555735,
+        "timestamp": 1791333397.1498232
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.15,
+        "is_overloaded": 1.0,
+        "response_time": 18.20070366203673,
+        "timestamp": 1791333397.1515143
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 115,
         "capacity": 100,
         "is_overloaded": true,
-        "response_time": 0.66,
-        "timestamp": 1791332484.6192365
+        "response_time": 18.20070366203673,
+        "timestamp": 1791333397.1515143
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.27,
+        "is_overloaded": 0.0,
+        "response_time": 2.6652304844609134,
+        "timestamp": 1791333397.2168567
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 27,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.6652304844609134,
+        "timestamp": 1791333397.2168567
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.17,
+        "is_overloaded": 0.0,
+        "response_time": 2.629143162053424,
+        "timestamp": 1791333397.2583728
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 17,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.629143162053424,
+        "timestamp": 1791333397.2583728
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.47,
+        "is_overloaded": 1.0,
+        "response_time": 9.224646106358922,
+        "timestamp": 1791333397.3005686
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 147,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 9.224646106358922,
+        "timestamp": 1791333397.3005686
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.3,
+        "is_overloaded": 0.0,
+        "response_time": 2.790121410616853,
+        "timestamp": 1791333397.3339844
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 30,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.790121410616853,
+        "timestamp": 1791333397.3339844
       }
     },
     {
       "features": {
         "load_ratio": 1.14,
         "is_overloaded": 1.0,
-        "response_time": 0.67,
-        "timestamp": 1791332484.620473
+        "response_time": 10.27343190983112,
+        "timestamp": 1791333397.3348064
       },
       "action": false,
       "label": 1.0,
@@ -990,48 +191,678 @@
         "active_requests": 114,
         "capacity": 100,
         "is_overloaded": true,
-        "response_time": 0.67,
-        "timestamp": 1791332484.620473
+        "response_time": 10.27343190983112,
+        "timestamp": 1791333397.3348064
       }
     },
     {
       "features": {
-        "load_ratio": 1.16,
-        "is_overloaded": 1.0,
-        "response_time": 0.6799999999999999,
-        "timestamp": 1791332484.6217663
+        "load_ratio": 0.33,
+        "is_overloaded": 0.0,
+        "response_time": 0.3195414432633982,
+        "timestamp": 1791333397.3355293
       },
       "action": true,
-      "label": 0.0,
+      "label": 1.0,
       "state": {
-        "active_requests": 116,
+        "active_requests": 33,
         "capacity": 100,
-        "is_overloaded": true,
-        "response_time": 0.6799999999999999,
-        "timestamp": 1791332484.6217663
+        "is_overloaded": false,
+        "response_time": 0.3195414432633982,
+        "timestamp": 1791333397.3355293
       }
     },
     {
       "features": {
-        "load_ratio": 1.18,
+        "load_ratio": 0.79,
+        "is_overloaded": 0.0,
+        "response_time": 2.588198465141422,
+        "timestamp": 1791333397.3362217
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 79,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.588198465141422,
+        "timestamp": 1791333397.3362217
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.16,
+        "is_overloaded": 0.0,
+        "response_time": 0.634525936375351,
+        "timestamp": 1791333397.3368938
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 16,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 0.634525936375351,
+        "timestamp": 1791333397.3368938
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.35,
         "is_overloaded": 1.0,
-        "response_time": 0.69,
-        "timestamp": 1791332484.6230214
+        "response_time": 13.894022062532063,
+        "timestamp": 1791333397.3376174
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 135,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 13.894022062532063,
+        "timestamp": 1791333397.3376174
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.04,
+        "is_overloaded": 1.0,
+        "response_time": 10.713599699600563,
+        "timestamp": 1791333397.3386452
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 104,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 10.713599699600563,
+        "timestamp": 1791333397.3386452
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.47,
+        "is_overloaded": 0.0,
+        "response_time": 0.5401462405007981,
+        "timestamp": 1791333397.3396862
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 47,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 0.5401462405007981,
+        "timestamp": 1791333397.3396862
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.02,
+        "is_overloaded": 1.0,
+        "response_time": 13.797255461635086,
+        "timestamp": 1791333397.3404698
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 102,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 13.797255461635086,
+        "timestamp": 1791333397.3404698
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.13,
+        "is_overloaded": 1.0,
+        "response_time": 19.365532410249987,
+        "timestamp": 1791333397.3411376
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 113,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 19.365532410249987,
+        "timestamp": 1791333397.3411376
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.45,
+        "is_overloaded": 1.0,
+        "response_time": 7.472838151271012,
+        "timestamp": 1791333397.3417733
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 145,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 7.472838151271012,
+        "timestamp": 1791333397.3417733
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.83,
+        "is_overloaded": 0.0,
+        "response_time": 2.2183856277644245,
+        "timestamp": 1791333397.3425317
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 83,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.2183856277644245,
+        "timestamp": 1791333397.3425317
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.35,
+        "is_overloaded": 1.0,
+        "response_time": 5.098061705372161,
+        "timestamp": 1791333397.3432453
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 135,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 5.098061705372161,
+        "timestamp": 1791333397.3432453
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.07,
+        "is_overloaded": 1.0,
+        "response_time": 8.978794693644506,
+        "timestamp": 1791333397.3440516
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 107,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 8.978794693644506,
+        "timestamp": 1791333397.3440516
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.38,
+        "is_overloaded": 0.0,
+        "response_time": 4.591632125317884,
+        "timestamp": 1791333397.3447084
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 38,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 4.591632125317884,
+        "timestamp": 1791333397.3447084
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.44,
+        "is_overloaded": 0.0,
+        "response_time": 3.8701829311881735,
+        "timestamp": 1791333397.345434
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 44,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.8701829311881735,
+        "timestamp": 1791333397.345434
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.89,
+        "is_overloaded": 0.0,
+        "response_time": 0.1590018626417158,
+        "timestamp": 1791333397.3461213
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 89,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 0.1590018626417158,
+        "timestamp": 1791333397.3461213
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.87,
+        "is_overloaded": 0.0,
+        "response_time": 3.8307212234066883,
+        "timestamp": 1791333397.346976
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 87,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.8307212234066883,
+        "timestamp": 1791333397.346976
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.16,
+        "is_overloaded": 0.0,
+        "response_time": 2.767246306188583,
+        "timestamp": 1791333397.3476884
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 16,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.767246306188583,
+        "timestamp": 1791333397.3476884
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.03,
+        "is_overloaded": 1.0,
+        "response_time": 15.40579972413654,
+        "timestamp": 1791333397.348438
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 103,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 15.40579972413654,
+        "timestamp": 1791333397.348438
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.72,
+        "is_overloaded": 0.0,
+        "response_time": 3.3803475640593486,
+        "timestamp": 1791333397.3492231
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 72,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.3803475640593486,
+        "timestamp": 1791333397.3492231
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.91,
+        "is_overloaded": 0.0,
+        "response_time": 4.4486031212210495,
+        "timestamp": 1791333397.3500242
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 91,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 4.4486031212210495,
+        "timestamp": 1791333397.3500242
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.4,
+        "is_overloaded": 1.0,
+        "response_time": 15.36258772865276,
+        "timestamp": 1791333397.3508244
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 140,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 15.36258772865276,
+        "timestamp": 1791333397.3508244
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.77,
+        "is_overloaded": 0.0,
+        "response_time": 4.278349784697209,
+        "timestamp": 1791333397.3516712
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 77,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 4.278349784697209,
+        "timestamp": 1791333397.3516712
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.88,
+        "is_overloaded": 0.0,
+        "response_time": 4.183448277258374,
+        "timestamp": 1791333397.3524983
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 88,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 4.183448277258374,
+        "timestamp": 1791333397.3524983
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.04,
+        "is_overloaded": 0.0,
+        "response_time": 3.5506349556944605,
+        "timestamp": 1791333397.3533967
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 4,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.5506349556944605,
+        "timestamp": 1791333397.3533967
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.07,
+        "is_overloaded": 1.0,
+        "response_time": 12.242317411721139,
+        "timestamp": 1791333397.3543065
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 107,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 12.242317411721139,
+        "timestamp": 1791333397.3543065
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.67,
+        "is_overloaded": 0.0,
+        "response_time": 3.069718517961874,
+        "timestamp": 1791333397.355215
       },
       "action": false,
       "label": 0.0,
       "state": {
-        "active_requests": 118,
+        "active_requests": 67,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.069718517961874,
+        "timestamp": 1791333397.355215
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.29,
+        "is_overloaded": 0.0,
+        "response_time": 0.2880021094197145,
+        "timestamp": 1791333397.3562179
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 29,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 0.2880021094197145,
+        "timestamp": 1791333397.3562179
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.14,
+        "is_overloaded": 0.0,
+        "response_time": 1.2552164797003673,
+        "timestamp": 1791333397.3570971
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 14,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 1.2552164797003673,
+        "timestamp": 1791333397.3570971
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.07,
+        "is_overloaded": 1.0,
+        "response_time": 12.693675780894315,
+        "timestamp": 1791333397.3580585
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 107,
         "capacity": 100,
         "is_overloaded": true,
-        "response_time": 0.69,
-        "timestamp": 1791332484.6230214
+        "response_time": 12.693675780894315,
+        "timestamp": 1791333397.3580585
       }
-    }
-  ],
-  "metrics": {
-    "total_decisions": 0,
-    "ml_decisions": 0,
-    "rule_based_decisions": 0
-  }
-}
+    },
+    {
+      "features": {
+        "load_ratio": 0.25,
+        "is_overloaded": 0.0,
+        "response_time": 3.207801001006194,
+        "timestamp": 1791333397.3591034
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 25,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.207801001006194,
+        "timestamp": 1791333397.3591034
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.58,
+        "is_overloaded": 0.0,
+        "response_time": 3.300264304279889,
+        "timestamp": 1791333397.3601341
+      },
+      "action": false,
+      "label": 0.0,
+      "state": {
+        "active_requests": 58,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 3.300264304279889,
+        "timestamp": 1791333397.3601341
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.09,
+        "is_overloaded": 0.0,
+        "response_time": 0.9100059675574879,
+        "timestamp": 1791333397.361094
+      },
+      "action": true,
+      "label": 1.0,
+      "state": {
+        "active_requests": 9,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 0.9100059675574879,
+        "timestamp": 1791333397.361094
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.44,
+        "is_overloaded": 1.0,
+        "response_time": 18.424919510948886,
+        "timestamp": 1791333397.3620753
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 144,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 18.424919510948886,
+        "timestamp": 1791333397.3620753
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.89,
+        "is_overloaded": 0.0,
+        "response_time": 2.487874253305171,
+        "timestamp": 1791333397.3630817
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 89,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 2.487874253305171,
+        "timestamp": 1791333397.3630817
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.6,
+        "is_overloaded": 0.0,
+        "response_time": 1.0227405492959614,
+        "timestamp": 1791333397.364142
+      },
+      "action": false,
+      "label": 0.0,
+      "state": {
+        "active_requests": 60,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 1.0227405492959614,
+        "timestamp": 1791333397.364142
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.95,
+        "is_overloaded": 0.0,
+        "response_time": 4.513598796351325,
+        "timestamp": 1791333397.3652287
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 95,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 4.513598796351325,
+        "timestamp": 1791333397.3652287
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.55,
+        "is_overloaded": 0.0,
+        "response_time": 1.4140161196565975,
+        "timestamp": 1791333397.3663127
+      },
+      "action": false,
+      "label": 0.0,
+      "state": {
+        "active_requests": 55,
+        "capacity": 100,
+        "is_overloaded": false,
+        "response_time": 1.4140161196565975,
+        "timestamp": 1791333397.3663127
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.05,
+        "is_overloaded": 1.0,
+        "response_time": 5.2056095846864805,
+        "timestamp": 1791333397.3674183
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 105,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 5.2056095846864805,
+        "timestamp": 1791333397.3674183
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 1.17,
+        "is_overloaded": 1.0,
+        "response_time": 15.46065042000205,
+        "timestamp": 1791333397.3685355
+      },
+      "action": false,
+      "label": 1.0,
+      "state": {
+        "active_requests": 117,
+        "capacity": 100,
+        "is_overloaded": true,
+        "response_time": 15.46065042000205,
+        "timestamp": 1791333397.3685355
+      }
+    },
+    {
+      "features": {
+        "load_ratio": 0.29,
+        "is_overloaded": 0.0,
+        "response_time": 0.7866410300041735,
+        "timestamp": 1791333397.3725905
+      },
+      "action": 
