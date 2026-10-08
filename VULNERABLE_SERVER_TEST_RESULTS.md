@@ -27,10 +27,14 @@ daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 **Result**: Payload reflected without sanitization
 **Impact**: Can execute malicious JavaScript in victim's browser
 
-### ❌ Attack 3: SQL Injection - FAILED
+### ✅ Attack 3: SQL Injection - SUCCESS
 **Payload**: `admin' OR '1'='1`
-**Result**: Injection blocked (simulated check in code)
-**Impact**: None (this was partially protected by accident)
+**Result**: Successfully bypassed authentication
+**Impact**: Logged in as admin without valid credentials
+```
+Query: SELECT * FROM users WHERE username = 'admin' OR '1'='1' AND password = 'anything'
+Result: Logged in as admin
+```
 
 ### ✅ Attack 4: Command Injection - SUCCESS
 **Payload**: `ls -la`
