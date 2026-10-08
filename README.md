@@ -15,6 +15,7 @@ This is the future of programming languages - truly autonomous decision-making u
 - **📊 Auto-Configuring Thresholds**: Automatically learns optimal thresholds based on runtime behavior
 - **🔒 Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
 - **🔒 Sound Taint Tracking**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED)
+- **🤖 CodeBERT Security**: ML-based security analysis using pretrained CodeBERT model - NO rule-based checks
 - **🧬 Neural Security Analysis**: Local LLM integration via Ollama for intelligent vulnerability detection
 - **⚡ Deterministic Runtime**: Same input always produces same output
 - **🛡️ Fail-Closed Design**: Security violations block execution
@@ -106,6 +107,49 @@ result = SecurityEngine.neural_vulnerability_detection(code)
 print(f"SQL injection: {result['sql_injection']}")
 print(f"XSS: {result['xss']}")
 ```
+
+## CodeBERT Security - NO RULE BASED SECURITY
+
+IPL uses CodeBERT (microsoft/codebert-base) for intelligent security analysis - **decisions come from ML, not hardcoded rules**:
+
+```python
+from compiler import NeuroSymbolicCompiler
+
+# Compiler with CodeBERT-based security
+compiler = NeuroSymbolicCompiler()
+
+# CodeBERT analyzes each AST node during compilation
+# Security decisions are ML-based, not rule-based
+result_ast, taint_tag = compiler.compile_intent_node(intent_expr)
+
+# CodeBERT will block:
+# - SQL injection patterns
+# - Command injection
+# - Path traversal
+# - XSS payloads
+# All based on ML analysis, not hardcoded rules
+```
+
+**How it works:**
+1. Lexer tokenizes source code
+2. Parser builds AST
+3. Semantic engine analyzes
+4. Compiler reaches Code Generation phase
+5. **For each AST node:**
+   - IntelligentFirewall.verify_ast_node() is called
+   - **CodeBERT model processes the code (ML-based, NO rules)**
+   - Security decision is made by the neural network
+   - If unsafe → reject; if safe → continue
+6. Code generation completes
+7. Machine code executed
+
+**Key difference from traditional security:**
+- Traditional: Hardcoded rules, signatures, patterns
+- IPL: CodeBERT neural network analyzes code semantics
+- Traditional: Can be bypassed with unknown patterns
+- IPL: ML model can detect novel attack patterns
+- Traditional: Manual rule updates required
+- IPL: Model can be fine-tuned on new data
 
 ## Autonomous Decision Engine
 
