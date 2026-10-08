@@ -371,11 +371,12 @@ graph LR
 | **Taint Tracking** | `taint.py` | Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED) | ✅ Active |
 | **Static Analyzer** | `static_taint_analyzer.py` | Static taint flow analysis | ✅ Active |
 | **Security Engine** | `security_engine.py` | Pattern-based vulnerability detection | ✅ Active |
+| **CodeBERT Firewall** | `codebert_firewall.py` | ML-based security using CodeBERT - NO rule-based checks | ✅ Active |
 | **Autonomous Decision Engine** | `autonomous_decision_engine.py` | Neural networks + continual learning for autonomous decisions | ✅ Active |
 | **Continual Learning** | `continual_learning.py` | EWC implementation to prevent catastrophic forgetting | ✅ Active |
 | **ML Heuristic Generator** | `ml_heuristic_generator.py` | ML-based compiler heuristic generation | ✅ Active |
 | **Load Controller** | `intelligent_load_controller.py` | ML-based load balancing | ✅ Active |
-| **Compiler** | `compiler.py` | Neuro-symbolic compiler with mathematical firewall | ✅ Active |
+| **Compiler** | `compiler.py` | Neuro-symbolic compiler with CodeBERT firewall | ✅ Active |
 | **Runtime** | `runtime.py` | Interpreter with IValue representation (AST-based) | ✅ Active |
 | **Formatter** | `formatter.py` | Intelligent output formatting | ✅ Active |
 | **CLI** | `cli.py` | Command-line interface | ✅ Active |
