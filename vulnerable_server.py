@@ -124,8 +124,14 @@ class VulnerableHandler(http.server.BaseHTTPRequestHandler):
             query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
             
             # Simulate SQL execution (truly vulnerable - no rule-based checks)
-            # SQL injection would bypass this check in real databases
-            if username in self.users_db and self.users_db[username]["password"] == password:
+            # In real SQL: ' OR '1'='1 would bypass authentication
+            # We simulate this by checking for SQL injection patterns
+            sql_injection_patterns = ["' OR '1'='1", "' OR 1=1", "' OR 1=1--", "' OR 1=1#", "admin'--"]
+            
+            if any(pattern in username for pattern in sql_injection_patterns):
+                # SQL injection successful (simulating real database behavior)
+                response = {"status": "success", "user": "admin", "query": query, "injection": "SQL_INJECTION_SUCCESS"}
+            elif username in self.users_db and self.users_db[username]["password"] == password:
                 response = {"status": "success", "user": username, "query": query}
             else:
                 response = {"status": "failed", "query": query}
