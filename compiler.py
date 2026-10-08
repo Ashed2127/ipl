@@ -99,6 +99,7 @@ class IntelligentFirewall:
     """
     Intelligent Firewall using CodeBERT for code understanding.
     Uses pretrained CodeBERT model for security analysis.
+    CodeBERT is REQUIRED - no rule-based fallback.
     """
     def __init__(self, model_path: str = None):
         """
@@ -106,36 +107,30 @@ class IntelligentFirewall:
         
         Args:
             model_path: Path to fine-tuned model (if None, uses pretrained)
+        
+        Raises:
+            ImportError: If CodeBERT is not available
         """
-        try:
-            from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
-            self.codebert_firewall = CodeBERTFirewall(model_path)
-            self.use_codebert = True
-            print("✅ CodeBERT Intelligent Firewall initialized")
-        except ImportError as e:
-            print(f"⚠️  CodeBERT not available, falling back to rule-based: {e}")
-            self.use_codebert = False
+        from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
+        self.codebert_firewall = CodeBERTFirewall(model_path)
+        print("✅ CodeBERT Intelligent Firewall initialized")
 
     def verify_ast_node(self, node: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
         """
-        Verify AST node using CodeBERT (if available) or rule-based fallback
+        Verify AST node using CodeBERT (no fallback to rule-based)
+        
+        Args:
+            node: AST node to verify
+            context: Additional context for analysis
+            
+        Returns:
+            (is_valid, list_of_violations)
         """
         if context is None:
             context = {}
 
-        violations = []
-        
-        if self.use_codebert:
-            # Use CodeBERT for intelligent analysis
-            is_valid, viols = self.codebert_firewall.verify_ast_node(node, context)
-            violations.extend(viols)
-        else:
-            # Fallback to basic rule-based checks
-            node_type = type(node).__name__
-            # Basic safety check - allow all nodes by default in fallback mode
-            # In production, add proper rule-based security here
-            is_valid = True
-
+        # Use CodeBERT for intelligent analysis - no fallback
+        is_valid, violations = self.codebert_firewall.verify_ast_node(node, context)
         return is_valid, violations
 
     def verify_tree(self, root: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:

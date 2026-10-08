@@ -8,6 +8,11 @@ from transformers import AutoModel, AutoTokenizer
 from typing import Dict, Any, Tuple, List
 import os
 
+# Set fixed seed for reproducibility
+torch.manual_seed(42)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(42)
+
 
 class CodeBERTSecurityModel(nn.Module):
     """CodeBERT-based security classifier"""
