@@ -4,6 +4,8 @@
 
 This is the future of programming languages - truly autonomous decision-making using **Neural Networks, Continual Learning, and ML Heuristics** - NO hardcoded rules.
 
+**🛡️ NO RULE BASED SECURITY - CodeBERT-based intelligent security decisions**
+
 ## Key Features
 
 - **🧠 Neural Network Intelligence**: Uses real neural networks with backpropagation for pattern recognition
