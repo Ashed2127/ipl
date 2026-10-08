@@ -13,7 +13,9 @@ dependencies = [
     "starlette>=0.20.0",
     "uvicorn>=0.18.0",
     "scikit-learn>=1.0.0",
-    "numpy>=1.20.0"
+    "numpy>=1.20.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0"
 ]
 
 [project.scripts]
@@ -24,6 +26,7 @@ py-modules = [
     "ast_nodes",
     "autonomous_decision_engine",
     "cli",
+    "codebert_firewall",
     "compiler",
     "continual_learning",
     "dynamic_optimizer",
