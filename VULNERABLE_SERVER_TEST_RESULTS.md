@@ -119,6 +119,9 @@ Without security protections, systems are extremely vulnerable. The vulnerable s
 - No output encoding
 - No authentication
 - No command sanitization
+- No SQL protection
 - No secrets management
 
 This baseline will be used to compare against the IPL compiler's intelligent security system.
+
+**Note**: SQL injection vulnerability was fixed to simulate real SQL behavior (removed accidental rule-based protection). The server now has 0% protection (6/6 attacks successful).
