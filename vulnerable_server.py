@@ -123,11 +123,9 @@ class VulnerableHandler(http.server.BaseHTTPRequestHandler):
             # VULNERABLE: Direct string concatenation (simulated SQL)
             query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
             
-            # Simulate SQL execution (vulnerable to injection)
-            if "OR" in username.upper() and "1=1" in username:
-                # SQL injection successful
-                response = {"status": "success", "user": "admin", "query": query}
-            elif username in self.users_db and self.users_db[username]["password"] == password:
+            # Simulate SQL execution (truly vulnerable - no rule-based checks)
+            # SQL injection would bypass this check in real databases
+            if username in self.users_db and self.users_db[username]["password"] == password:
                 response = {"status": "success", "user": username, "query": query}
             else:
                 response = {"status": "failed", "query": query}
