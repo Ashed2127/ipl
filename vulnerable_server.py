@@ -166,7 +166,7 @@ class VulnerableHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
-def run_server(port=9999):
+def run_server(port=7777):
     """Start the vulnerable server"""
     with socketserver.ThreadingTCPServer(("", port), VulnerableHandler) as httpd:
         httpd.allow_reuse_address = True

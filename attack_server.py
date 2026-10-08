@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-SERVER_URL = "http://localhost:9999"
+SERVER_URL = "http://localhost:7777"
 
 def print_attack(title, success, details):
     """Print attack result"""
