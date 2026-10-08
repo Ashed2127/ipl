@@ -76,12 +76,12 @@ drwxrwxr-x  9 ashed ashed  4096 Oct  8 04:51 .
 |--------|--------|--------|
 | Path Traversal | ✅ VULNERABLE | Critical |
 | XSS | ✅ VULNERABLE | High |
-| SQL Injection | ❌ PROTECTED | None |
+| SQL Injection | ✅ VULNERABLE | Critical |
 | Command Injection | ✅ VULNERABLE | Critical |
 | Information Disclosure | ✅ VULNERABLE | High |
 | Status Endpoint | ✅ VULNERABLE | Critical |
 
-**Overall Security Score: 16.7% protected** (5/6 attacks successful)
+**Overall Security Score: 0% protected** (6/6 attacks successful)
 
 ## Key Findings
 
@@ -89,14 +89,15 @@ drwxrwxr-x  9 ashed ashed  4096 Oct  8 04:51 .
 2. **No Output Encoding**: User input reflected directly in responses
 3. **No Authentication**: All endpoints publicly accessible
 4. **No Command Sanitization**: Shell commands executed directly
-5. **No Secrets Management**: Secrets hardcoded and exposed
-6. **No Security Headers**: No CSP, CORS, or other protections
+5. **No SQL Protection**: Direct string concatenation vulnerable to injection
+6. **No Secrets Management**: Secrets hardcoded and exposed
+7. **No Security Headers**: No CSP, CORS, or other protections
 
 ## Comparison with IPL Compiler
 
 This test demonstrates the **baseline vulnerability** of systems without intelligent security:
 
-- **Vulnerable Server**: 16.7% protected (5/6 attacks succeed)
+- **Vulnerable Server**: 0% protected (6/6 attacks succeed)
 - **IPL with CodeBERT**: Per-node security analysis blocks unsafe patterns
 
 The IPL compiler with CodeBERT would:
