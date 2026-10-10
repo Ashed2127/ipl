@@ -1,26 +1,19 @@
 # IPL (Intelligent Programming Language)
 
-**IPL is an intelligent programming language that decides any situation by itself whether the decision is good or bad.**
+**IPL is a research prototype of an autonomous programming language that uses Neural Networks and Continual Learning to make security decisions without hardcoded rules.**
 
-This is the future of programming languages - truly autonomous decision-making using **Neural Networks, Continual Learning, and ML Heuristics** - NO hardcoded rules.
-
-**🛡️ NO RULE BASED SECURITY - CodeBERT-based intelligent security decisions**
+**Status:** Research Prototype (Not Production Ready)
+**ML Accuracy:** 51% (trained on 2,202 scenarios)
+**Performance:** 13x faster than GCC/Clang
 
 ## Key Features
 
-- **🧠 Neural Network Intelligence**: Uses real neural networks with backpropagation for pattern recognition
-- **🔄 Continual Learning**: Implements Elastic Weight Consolidation (EWC) to learn without catastrophic forgetting
-- **🌳 ML Heuristic Generation**: Decision trees automatically learn rules from experience
-- **🎯 Autonomous Decision Engine**: IPL decides what's safe or dangerous by itself - NO hardcoded rules
-- **📊 Auto-Configuring Thresholds**: Automatically learns optimal thresholds based on runtime behavior
-- **🔒 Zero-Trust Security**: All data starts untrusted and must be explicitly sanitized
-- **🔒 Sound Taint Tracking**: Three-level security lattice (UNTRUSTED < SANITIZED < TRUSTED)
-- **🤖 CodeBERT Security**: ML-based security analysis using pretrained CodeBERT model - NO rule-based checks
-- **🧬 Neural Security Analysis**: Local LLM integration via Ollama for intelligent vulnerability detection
-- **⚡ Deterministic Runtime**: Same input always produces same output
-- **🛡️ Fail-Closed Design**: Security violations block execution
-- **📝 Cryptographic Auditing**: SHA-256 signed execution traces
-- **🔤 Pattern-Based Semantics**: Currency, Sentiment, Quantity, Date parsing
+- **🧠 Neural Network Security**: Uses real neural networks (64→128→2) with backpropagation for security decisions
+- **🔄 Continual Learning**: Elastic Weight Consolidation (EWC) prevents catastrophic forgetting
+- **🔒 Zero-Trust Taint Tracking**: Three-level security lattice (UNTRUSTED → SANITIZED → TRUSTED)
+- **📊 Auto-Configuring Thresholds**: Learns optimal thresholds from runtime behavior
+- **⚡ High Performance**: 13x faster than GCC/Clang, 627x faster bytecode VM
+- **🎯 Comprehensive Training**: Trained on 753 CWE categories, 496 CVEs, 200+ attack types
 
 ## Installation
 
@@ -30,13 +23,9 @@ git clone https://github.com/Ashed2127/ipl.git
 cd ipl
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-# Install Ollama for neural security analysis (optional)
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull CyberCrew/notmythos-8b:mini
 ```
 
-## Usage
+## Quick Start
 
 ### Run IPL programs
 ```bash
@@ -81,332 +70,74 @@ fn calculate_tax(amount, rate) {
 }
 ```
 
+## ML Training Status
+
+IPL has been trained with comprehensive security data:
+
+- **2,202 training scenarios** (6,030 training decisions)
+- **753 CWE categories** (80% of all known weaknesses)
+- **496 real-world CVEs** from NVD database
+- **200+ attack types** (SQLi, XSS, CMDi, Path Traversal, CSRF, SSRF, etc.)
+- **200 safe security patterns** for best practices
+
+**Training Time:** 11.93 minutes
+**ML Model State:** 6.4 MB (persisted in `.ipl_data/`)
+
+## Current Status
+
+### Working ✅
+- Core language (lexer, parser, AST)
+- Rule-based security (SQLi, XSS, CMDi protection)
+- Neural network architecture and backpropagation
+- Continual Learning (EWC) implementation
+- Zero-trust taint tracking
+- Performance (13x faster than GCC)
+
+### Issues ⚠️
+- ML accuracy: 51% (needs 90%+ for production)
+- Taint tracking bugs (2/9 tests failing)
+- Integration issues (gateway/API)
+- External dependencies (Ollama for neural security)
+
+**Production Readiness:** 6.5/10 - Suitable for research/academic use only
+
+## Architecture
+
+IPL uses a neuro-symbolic compiler architecture:
+
+1. **Source Code** → **Lexer** → **Tokens**
+2. **Tokens** → **Parser** → **AST**
+3. **AST** → **Static Taint Analyzer** → **Taint Labels**
+4. **AST + Taint** → **Autonomous Decision Engine** → **Security Decisions**
+5. **Verified AST** → **Runtime Interpreter** → **Output**
+
+### Key Components
+
+- **Lexer/Parser**: Tokenizes and parses IPL source code
+- **Semantic Engine**: Pattern-based parsing for semantic types (Currency, Sentiment, Quantity)
+- **Taint Tracking**: Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED)
+- **Autonomous Decision Engine**: Neural network (64→128→2) with backpropagation and EWC
+- **Runtime**: AST-based interpreter with security checks
+- **Persistence**: ML state saved to `.ipl_data/` directory
+
+## Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Complete architecture documentation
+- [IPL_PROJECT_SUMMARY.md](IPL_PROJECT_SUMMARY.md) - Project overview and status
+- [PRODUCTION_READINESS_ASSESSMENT.md](PRODUCTION_READINESS_ASSESSMENT.md) - Production readiness evaluation
+- [FINAL_TRAINING_REPORT.md](FINAL_TRAINING_REPORT.md) - Training data and results
+- [ML_STRUCTURE.md](ML_STRUCTURE.md) - ML architecture details
+
 ## Testing
 
 ```bash
 # Test rule-based security
 python3 test_adversarial_attacks.py
 
-# Test neural security analysis (requires Ollama)
-python3 test_neural_security.py
+# Test autonomous decision engine
+python3 test_autonomous_compiler.py
 ```
 
-## Neural Security Analysis
+## License
 
-IPL now integrates with local LLM models via Ollama for intelligent vulnerability detection:
-
-```python
-from security_engine import SecurityEngine
-
-# Rule-based + neural analysis
-code = "let user_input = 'admin OR 1=1'; db_write('users', user_input);"
-is_safe, warnings = SecurityEngine.check_execution_safety(code, use_neural=True)
-
-# Pure neural vulnerability detection
-result = SecurityEngine.neural_vulnerability_detection(code)
-print(f"SQL injection: {result['sql_injection']}")
-print(f"XSS: {result['xss']}")
-```
-
-## CodeBERT Security - NO RULE BASED SECURITY
-
-IPL uses CodeBERT (microsoft/codebert-base) for intelligent security analysis - **decisions come from ML, not hardcoded rules**:
-
-```python
-from compiler import NeuroSymbolicCompiler
-
-# Compiler with CodeBERT-based security
-compiler = NeuroSymbolicCompiler()
-
-# CodeBERT analyzes each AST node during compilation
-# Security decisions are ML-based, not rule-based
-result_ast, taint_tag = compiler.compile_intent_node(intent_expr)
-
-# CodeBERT will block:
-# - SQL injection patterns
-# - Command injection
-# - Path traversal
-# - XSS payloads
-# All based on ML analysis, not hardcoded rules
-```
-
-**How it works:**
-1. Lexer tokenizes source code
-2. Parser builds AST
-3. Semantic engine analyzes
-4. Compiler reaches Code Generation phase
-5. **For each AST node:**
-   - IntelligentFirewall.verify_ast_node() is called
-   - **CodeBERT model processes the code (ML-based, NO rules)**
-   - Security decision is made by the neural network
-   - If unsafe → reject; if safe → continue
-6. Code generation completes
-7. Machine code executed
-
-**Key difference from traditional security:**
-- Traditional: Hardcoded rules, signatures, patterns
-- IPL: CodeBERT neural network analyzes code semantics
-- Traditional: Can be bypassed with unknown patterns
-- IPL: ML model can detect novel attack patterns
-- Traditional: Manual rule updates required
-- IPL: Model can be fine-tuned on new data
-
-## Autonomous Decision Engine
-
-The core innovation of IPL - it decides what's good or bad by itself using **Neural Networks and Continual Learning**:
-
-```python
-from autonomous_decision_engine import AutonomousDecisionEngine
-
-# Initialize the intelligent engine with Neural Networks
-engine = AutonomousDecisionEngine(
-    use_intelligent_components=True  # Enable Neural Networks and Continual Learning
-)
-
-# The Neural Network autonomously judges safety
-context = {
-    'has_untrusted_data': True,
-    'has_sanitization': False,
-    'taint_propagation_steps': 5,
-}
-
-judgment = engine.judge_safety(context)
-print(f"Is Safe: {judgment.is_safe}")
-print(f"Confidence: {judgment.confidence}")
-print(f"Reasoning: {judgment.reasoning}")  # Shows "Neural network: safe=0.xxx, dangerous=0.xxx"
-print(f"Threat Level: {judgment.threat_level}")
-
-# Record outcome for learning
-from autonomous_decision_engine import Decision, DecisionType, DecisionOutcome
-decision = Decision(
-    decision_id="dec_1",
-    decision_type=DecisionType.SECURITY,
-    context=context,
-    action=judgment.is_safe,
-    confidence=judgment.confidence,
-    timestamp=time.time()
-)
-engine.record_outcome(decision, DecisionOutcome.GOOD, reward=1.0)
-
-# The Neural Network learns via backpropagation!
-# Fisher Information is computed for Continual Learning (EWC)
-stats = engine.get_statistics()
-print(f"Success Rate: {stats['success_rate']:.2%}")
-print(f"Training samples: {stats['training_samples_collected']}")
-```
-
-**Key capabilities:**
-- **Neural Networks**: Real deep learning with backpropagation for pattern recognition
-- **Continual Learning**: Elastic Weight Consolidation (EWC) prevents catastrophic forgetting
-- **ML Heuristics**: Decision trees automatically learn explainable rules
-- **No hardcoded rules**: Unlike traditional compilers with fixed whitelists/blacklists, IPL learns what's safe
-- **Auto-configuration**: Thresholds and heuristics are learned from runtime behavior
-- **Continuous adaptation**: Adapts to new situations without human intervention
-
-## Architecture
-
-### System Workflow
-
-```mermaid
-graph TB
-    subgraph "Input Layer"
-        A[Source Code] --> B[Lexer]
-        B --> C[Parser]
-    end
-
-    subgraph "AST Layer"
-        C --> D[AST Nodes]
-        D --> E[Semantic Engine]
-    end
-
-    subgraph "Security Layer"
-        E --> F[Static Taint Analyzer]
-        F --> G[Taint Tracking System]
-        G --> H{Is Tainted?}
-        H -->|Yes| I[Sanitization Required]
-        H -->|No| J[Proceed]
-        I --> K[Sanitization Node]
-        K --> J
-    end
-
-    subgraph "Intelligence Layer"
-        J --> L[Autonomous Decision Engine]
-        L --> M{Decision}
-        M -->|Neural Network| N[Continual Learning NN]
-        M -->|Q-Learning| O[Q-Table]
-        N --> P[Record Outcome]
-        O --> P
-        P --> L
-    end
-
-    subgraph "Compiler Layer"
-        L --> Q[Neuro-Symbolic Compiler]
-        Q --> R[Autonomous Firewall]
-        R --> S[Mathematical Firewall]
-        S --> T[Verified Audit Trace]
-    end
-
-    subgraph "Execution Layer"
-        T --> X[Runtime Interpreter]
-        X --> Y{Security Checks}
-        Y -->|Taint Violation| Z[Block Execution]
-        Y -->|Safe| AA[Execute AST]
-        AA --> BB[Intelligent Formatter]
-    end
-
-    subgraph "Output Layer"
-        BB --> CC[Output]
-    end
-
-    subgraph "ML Components"
-        DD[ML Heuristic Generator]
-        EE[Continual Learning]
-        FF[Intelligent Load Controller]
-    end
-
-    L --> DD
-    N --> EE
-    X --> FF
-
-    style A fill:#e1f5ff
-    style CC fill:#e1f5ff
-    style L fill:#fff4e1
-    style N fill:#fff4e1
-    style G fill:#ffe1e1
-    style T fill:#e1ffe1
-    style Z fill:#ffcccc
-```
-
-### Module Dependency Graph
-
-```mermaid
-graph LR
-    subgraph "Core Language"
-        LEX[lexer.py]
-        TOK[tokens.py]
-        PAR[parser.py]
-        AST[ast_nodes.py]
-    end
-
-    subgraph "Runtime"
-        SEM[semantic_engine.py]
-        RUN[runtime.py]
-        FMT[formatter.py]
-    end
-
-    subgraph "Security"
-        TAI[taint.py]
-        STA[static_taint_analyzer.py]
-        SEC[security_engine.py]
-        OLL[ollama_security.py]
-    end
-
-    subgraph "Intelligence"
-        ADE[autonomous_decision_engine.py]
-        CON[continual_learning.py]
-        MLH[ml_heuristic_generator.py]
-        ILC[intelligent_load_controller.py]
-    end
-
-    subgraph "Compiler"
-        COM[compiler.py]
-        LAR[load_aware_runtime.py]
-    end
-
-    subgraph "Experimental"
-        BYT[bytecode.py]
-        DYN[dynamic_optimizer.py]
-        GNN[gnn_engine.py]
-    end
-
-    subgraph "Infrastructure"
-        CLI[cli.py]
-        GTW[gateway.py]
-        SRV[simple_server.py]
-    end
-
-    TOK --> LEX
-    AST --> PAR
-    AST --> RUN
-    AST --> COM
-    AST --> STA
-
-    LEX --> CLI
-    PAR --> CLI
-    SEM --> RUN
-    TAI --> RUN
-    SEC --> COM
-    FMT --> RUN
-
-    ADE --> COM
-    CON --> ADE
-    MLH --> COM
-    ILC --> LAR
-
-    LAR --> RUN
-
-    COM --> RUN
-    RUN --> CLI
-    COM --> GTW
-
-    STA --> COM
-    OLL --> SEC
-
-    BYT -.-> RUN
-    DYN -.-> RUN
-    GNN -.-> COM
-
-    style BYT fill:#f0f0f0,stroke-dasharray: 5 5
-    style DYN fill:#f0f0f0,stroke-dasharray: 5 5
-    style GNN fill:#f0f0f0,stroke-dasharray: 5 5
-```
-
-### Key Components
-
-| Component | File | Purpose | Status |
-|-----------|------|---------|--------|
-| **Lexer** | `lexer.py` | Tokenizes source code into tokens | ✅ Active |
-| **Parser** | `parser.py` | Builds Abstract Syntax Tree (AST) from tokens | ✅ Active |
-| **Semantic Engine** | `semantic_engine.py` | NLP processing, intent extraction, confidence scoring | ✅ Active |
-| **Taint Tracking** | `taint.py` | Zero-trust security lattice (UNTRUSTED → SANITIZED → TRUSTED) | ✅ Active |
-| **Static Analyzer** | `static_taint_analyzer.py` | Static taint flow analysis | ✅ Active |
-| **Security Engine** | `security_engine.py` | Pattern-based vulnerability detection | ✅ Active |
-| **CodeBERT Firewall** | `codebert_firewall.py` | ML-based security using CodeBERT - NO rule-based checks | ✅ Active |
-| **Autonomous Decision Engine** | `autonomous_decision_engine.py` | Neural networks + continual learning for autonomous decisions | ✅ Active |
-| **Continual Learning** | `continual_learning.py` | EWC implementation to prevent catastrophic forgetting | ✅ Active |
-| **ML Heuristic Generator** | `ml_heuristic_generator.py` | ML-based compiler heuristic generation | ✅ Active |
-| **Load Controller** | `intelligent_load_controller.py` | ML-based load balancing | ✅ Active |
-| **Compiler** | `compiler.py` | Neuro-symbolic compiler with CodeBERT firewall | ✅ Active |
-| **Runtime** | `runtime.py` | Interpreter with IValue representation (AST-based) | ✅ Active |
-| **Formatter** | `formatter.py` | Intelligent output formatting | ✅ Active |
-| **CLI** | `cli.py` | Command-line interface | ✅ Active |
-| **Gateway** | `gateway.py` | REST API microservice | ✅ Active |
-| **Bytecode VM** | `bytecode.py` | Stack-based virtual machine | 🔬 Experimental |
-| **Dynamic Optimizer** | `dynamic_optimizer.py` | JIT compilation and hot path detection | 🔬 Experimental |
-| **GNN Engine** | `gnn_engine.py` | Graph neural networks for program analysis | 🔬 Experimental |
-
-### Data Flow
-
-1. **Source Code** → **Lexer** → **Tokens**
-2. **Tokens** → **Parser** → **AST**
-3. **AST** → **Static Taint Analyzer** → **Taint Labels**
-4. **AST + Taint** → **Neuro-Symbolic Compiler** → **Security Decisions**
-5. **Compiler** → **Autonomous Firewall** → **Autonomous Decision Engine**
-6. **Decision Engine** → **Neural Networks / Q-Learning** → **Safety Judgment**
-7. **Verified AST** → **Runtime Interpreter** → **Direct AST Execution**
-8. **Execution** → **Security Checks** → **Taint Violation Detection**
-9. **Results** → **Intelligent Formatter** → **Output**
-
-**Note**: The Runtime Interpreter executes AST nodes directly (not bytecode). Bytecode VM, Dynamic Optimizer, and GNN Engine are experimental components available for future integration.
-
-### Persistence Layer
-
-All learned state is persisted to `.ipl_data/` directory:
-- `autonomous_engine_state.json` - Neural network weights, Fisher Information, learned thresholds
-- `load_controller_state.json` - ML model weights, experience buffer
-- Auto-saved after every learning event
-- Auto-loaded on initialization
-
-### Testing
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for complete documentation.
+MIT License - See LICENSE file for details
