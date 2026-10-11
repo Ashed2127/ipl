@@ -15,13 +15,35 @@ if torch.cuda.is_available():
 
 
 class CodeBERTSecurityModel(nn.Module):
-    """CodeBERT-based security classifier"""
+    """CodeBERT-based security classifier (binary: safe/unsafe)"""
     
     def __init__(self, model_name="microsoft/codebert-base"):
         super().__init__()
         self.codebert = AutoModel.from_pretrained(model_name)
         self.classifier = nn.Linear(768, 2)  # 768 is CodeBERT output dimension
         self.dropout = nn.Dropout(0.1)
+    
+    def forward(self, input_ids, attention_mask):
+        # Get CodeBERT embeddings
+        outputs = self.codebert(input_ids=input_ids, attention_mask=attention_mask)
+        # Use [CLS] token embedding (first token)
+        cls_embedding = outputs.last_hidden_state[:, 0, :]
+        # Apply dropout
+        cls_embedding = self.dropout(cls_embedding)
+        # Classify
+        logits = self.classifier(cls_embedding)
+        return logits
+
+
+class MultiClassCodeBERTSecurityModel(nn.Module):
+    """CodeBERT-based multi-class security classifier"""
+    
+    def __init__(self, model_name="microsoft/codebert-base", num_classes=7):
+        super().__init__()
+        self.codebert = AutoModel.from_pretrained(model_name)
+        self.classifier = nn.Linear(768, num_classes)  # 768 is CodeBERT output dimension
+        self.dropout = nn.Dropout(0.1)
+        self.num_classes = num_classes
     
     def forward(self, input_ids, attention_mask):
         # Get CodeBERT embeddings
