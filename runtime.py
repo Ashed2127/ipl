@@ -1063,7 +1063,7 @@ class Interpreter:
         if stmt.is_trusted:
             evaluated.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="trusted_declaration")
             self.console.print(f"[green]🔒 Trusted variable '{stmt.name}' - security checks bypassed[/green]")
-       :
+        else:
             # Security check on raw string data (CodeBERT-based, no rule-based fallback)
             # NOTE: Sanitization functions will use CodeBERT, so we skip pre-check here
             # to allow sanitization to handle the security decision
@@ -1196,19 +1196,20 @@ class Interpreter:
         target_taint = ivalue.taint
 
         # Security check for string data (CodeBERT-based, no rule-based fallback)
-        if isinstance(raw, str) and not skip_security:
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
-            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
-            if not is_safe and confidence > 0.5:
-                self.console.print(
-                    f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
-                )
-                self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
-                self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
-                # Reject unsafe data
-                raise SecurityError(
-                    f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
-                )
+        # NOTE: Disabled here - sanitization functions will use CodeBERT
+        # if isinstance(raw, str) and not skip_security:
+        #     is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
+        #     # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+        #     if not is_safe and confidence > 0.5:
+        #         self.console.print(
+        #             f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
+        #         )
+        #         self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+        #         self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
+        #         # Reject unsafe data
+        #         raise SecurityError(
+        #             f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+        #         )
 
         # Semantic extraction from strings
         if isinstance(raw, str):
