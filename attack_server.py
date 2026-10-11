@@ -200,7 +200,5 @@ def run_all_attacks():
     return results
 
 if __name__ == "__main__":
-    print("⚠️  Make sure vulnerable_server.py is running on port 9999")
-    input("Press Enter to start attacks...")
-    
+    print("⚠️  Make sure vulnerable_server.py is running on port 7777")
     run_all_attacks()

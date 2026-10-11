@@ -26,7 +26,7 @@ try:
     from .formatter import IntelligentFormatter
     from .taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
     from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, IntelligentFirewall, SecurityError
-    from .codebert_firewall import IntelligentFirewall as CodeBERTFirewall
+    from .codebert_firewall import IntelligentFirewall as SecureBERTFirewall
     from .static_taint_analyzer import analyze_program_taint
     from .intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
     from .load_aware_runtime import LoadAwareController
@@ -44,7 +44,7 @@ except (ImportError, ValueError):
     from formatter import IntelligentFormatter
     from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
     from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, IntelligentFirewall, SecurityError
-    from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
+    from codebert_firewall import IntelligentFirewall as SecureBERTFirewall
     from static_taint_analyzer import analyze_program_taint
     from intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
     from load_aware_runtime import LoadAwareController
@@ -240,7 +240,7 @@ class Interpreter:
         self.formatter = IntelligentFormatter(self.console)
         self.global_env = Environment(console=self.console)
         self.compiler = NeuroSymbolicCompiler(console=self.console, model_name=model_name)
-        self.codebert_firewall = CodeBERTFirewall()  # CodeBERT-based security (no rule-based fallback)
+        self.securebert_firewall = SecureBERT 2.0Firewall()  # SecureBERT 2.0-based security (no rule-based fallback)
         self.loaded_modules: Set[str] = set()
         self.load_controller = LoadAwareController()  # ML-based load controller
         self._init_builtins()
@@ -346,20 +346,20 @@ class Interpreter:
             return IValue(True, "Bool", confidence=1.0)
 
         def _sanitize_string(arg_val: IValue) -> IValue:
-            """CodeBERT-based sanitization (no rule-based fallback)."""
+            """SecureBERT 2.0-based sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_string requires a string argument")
 
-            # Use CodeBERT to check if the string is safe
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            # Use SecureBERT 2.0 to check if the string is safe
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(arg_val.raw_value)
 
             # For pretrained model, be more lenient - only reject if confidence > 0.7
             if is_safe or confidence < 0.7:
-                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                # SecureBERT 2.0 decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_string", SinkKind.GENERAL)
             else:
-                # CodeBERT decided it's unsafe with high confidence - reject it
+                # SecureBERT 2.0 decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -370,7 +370,7 @@ class Interpreter:
                     }
                 )
                 raise SecurityError(
-                    f"CodeBERT rejected string as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    f"SecureBERT 2.0 rejected string as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                 )
             
             self.compiler.audit_trace.record(
@@ -389,20 +389,20 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_sql(arg_val: IValue) -> IValue:
-            """CodeBERT-based SQL sanitization (no rule-based fallback)."""
+            """SecureBERT 2.0-based SQL sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_sql requires a string argument")
 
-            # Use CodeBERT to check if the SQL is safe
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            # Use SecureBERT 2.0 to check if the SQL is safe
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(arg_val.raw_value)
 
             # For pretrained model, be more lenient - only reject if confidence > 0.7
             if is_safe or confidence < 0.7:
-                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                # SecureBERT 2.0 decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_sql", SinkKind.SQL)
             else:
-                # CodeBERT decided it's unsafe with high confidence - reject it
+                # SecureBERT 2.0 decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -413,7 +413,7 @@ class Interpreter:
                     }
                 )
                 raise SecurityError(
-                    f"CodeBERT rejected SQL as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    f"SecureBERT 2.0 rejected SQL as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                 )
             
             self.compiler.audit_trace.record(
@@ -432,20 +432,20 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_html(arg_val: IValue) -> IValue:
-            """CodeBERT-based HTML sanitization (no rule-based fallback)."""
+            """SecureBERT 2.0-based HTML sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_html requires a string argument")
 
-            # Use CodeBERT to check if the HTML is safe
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            # Use SecureBERT 2.0 to check if the HTML is safe
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(arg_val.raw_value)
 
             # For pretrained model, be more lenient - only reject if confidence > 0.7
             if is_safe or confidence < 0.7:
-                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                # SecureBERT 2.0 decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_html", SinkKind.HTML)
             else:
-                # CodeBERT decided it's unsafe with high confidence - reject it
+                # SecureBERT 2.0 decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -456,7 +456,7 @@ class Interpreter:
                     }
                 )
                 raise SecurityError(
-                    f"CodeBERT rejected HTML as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    f"SecureBERT 2.0 rejected HTML as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                 )
             
             self.compiler.audit_trace.record(
@@ -475,20 +475,20 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_shell(arg_val: IValue) -> IValue:
-            """CodeBERT-based shell sanitization (no rule-based fallback)."""
+            """SecureBERT 2.0-based shell sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_shell requires a string argument")
 
-            # Use CodeBERT to check if the shell command is safe
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            # Use SecureBERT 2.0 to check if the shell command is safe
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(arg_val.raw_value)
 
             # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
             if is_safe or confidence < 0.5:
-                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                # SecureBERT 2.0 decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_shell", SinkKind.SHELL)
             else:
-                # CodeBERT decided it's unsafe with high confidence - reject it
+                # SecureBERT 2.0 decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -499,7 +499,7 @@ class Interpreter:
                     }
                 )
                 raise SecurityError(
-                    f"CodeBERT rejected shell command as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    f"SecureBERT 2.0 rejected shell command as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                 )
             
             self.compiler.audit_trace.record(
@@ -518,20 +518,20 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_file(arg_val: IValue) -> IValue:
-            """CodeBERT-based file path sanitization (no rule-based fallback)."""
+            """SecureBERT 2.0-based file path sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_file requires a string argument")
 
-            # Use CodeBERT to check if the file path is safe
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            # Use SecureBERT 2.0 to check if the file path is safe
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(arg_val.raw_value)
 
             # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
             if is_safe or confidence < 0.5:
-                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                # SecureBERT 2.0 decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_file", SinkKind.FILE)
             else:
-                # CodeBERT decided it's unsafe with high confidence - reject it
+                # SecureBERT 2.0 decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -542,7 +542,7 @@ class Interpreter:
                     }
                 )
                 raise SecurityError(
-                    f"CodeBERT rejected file path as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    f"SecureBERT 2.0 rejected file path as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                 )
             
             self.compiler.audit_trace.record(
@@ -954,15 +954,15 @@ class Interpreter:
                 f"[yellow]⚡ {len(static_results['dynamic_sites'])} sinks require runtime taint check[/yellow]"
             )
         
-        # Security check before execution (CodeBERT-based, no rule-based fallback)
+        # Security check before execution (SecureBERT 2.0-based, no rule-based fallback)
         if source_code:
-            is_safe, confidence, reasoning = self.codebert_firewall.check_code(source_code)
+            is_safe, confidence, reasoning = self.securebert_firewall.check_code(source_code)
             # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
             if not is_safe and confidence > 0.5:
                 self.console.print(
                     f"[bold red]🚨 CODEBERT SECURITY ALERT: THREAT DETECTED[/bold red]"
                 )
-                self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+                self.console.print(f"[red]SecureBERT 2.0 Reasoning: {reasoning}[/red]")
                 self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
                 self.console.print("[bold red]Execution blocked for security reasons.[/bold red]")
                 return
@@ -1064,8 +1064,8 @@ class Interpreter:
             evaluated.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="trusted_declaration")
             self.console.print(f"[green]🔒 Trusted variable '{stmt.name}' - security checks bypassed[/green]")
         else:
-            # Security check on raw string data (CodeBERT-based, no rule-based fallback)
-            # NOTE: Sanitization functions will use CodeBERT, so we skip pre-check here
+            # Security check on raw string data (SecureBERT 2.0-based, no rule-based fallback)
+            # NOTE: Sanitization functions will use SecureBERT 2.0, so we skip pre-check here
             # to allow sanitization to handle the security decision
             pass
 
@@ -1195,20 +1195,20 @@ class Interpreter:
         raw = ivalue.raw_value
         target_taint = ivalue.taint
 
-        # Security check for string data (CodeBERT-based, no rule-based fallback)
-        # NOTE: Disabled here - sanitization functions will use CodeBERT
+        # Security check for string data (SecureBERT 2.0-based, no rule-based fallback)
+        # NOTE: Disabled here - sanitization functions will use SecureBERT 2.0
         # if isinstance(raw, str) and not skip_security:
-        #     is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
+        #     is_safe, confidence, reasoning = self.securebert_firewall.check_code(raw)
         #     # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
         #     if not is_safe and confidence > 0.5:
         #         self.console.print(
         #             f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
         #         )
-        #         self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+        #         self.console.print(f"[red]SecureBERT 2.0 Reasoning: {reasoning}[/red]")
         #         self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
         #         # Reject unsafe data
         #         raise SecurityError(
-        #             f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+        #             f"SecureBERT 2.0 rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
         #         )
 
         # Semantic extraction from strings
@@ -1516,22 +1516,22 @@ class Interpreter:
             raw = target_val.raw_value
 
             sanitizer_name = expr.rule or "codebert_sanitization_node"
-            # Use CodeBERT to check if the data is safe (no rule-based fallback)
+            # Use SecureBERT 2.0 to check if the data is safe (no rule-based fallback)
             if isinstance(raw, str):
-                is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
+                is_safe, confidence, reasoning = self.securebert_firewall.check_code(raw)
                 # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
                 if not is_safe and confidence > 0.5:
                     raise SecurityError(
-                        f"CodeBERT rejected data in SanitizationNode as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                        f"SecureBERT 2.0 rejected data in SanitizationNode as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                     )
             elif isinstance(raw, dict):
                 for k, v in raw.items():
                     if isinstance(v, str):
-                        is_safe, confidence, reasoning = self.codebert_firewall.check_code(v)
+                        is_safe, confidence, reasoning = self.securebert_firewall.check_code(v)
                         # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
                         if not is_safe and confidence > 0.5:
                             raise SecurityError(
-                                f"CodeBERT rejected dict value '{k}' as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                                f"SecureBERT 2.0 rejected dict value '{k}' as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                             )
 
             new_taint = target_val.taint.transition_to(TaintLevel.SANITIZED, sanitizer_name)

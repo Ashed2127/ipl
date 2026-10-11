@@ -97,40 +97,40 @@ class VerifiedAuditTrace:
 
 class IntelligentFirewall:
     """
-    Intelligent Firewall using CodeBERT for code understanding.
-    Uses pretrained CodeBERT model for security analysis.
-    CodeBERT is REQUIRED - no rule-based fallback.
+    Intelligent Firewall using SecureBERT 2.0 for cybersecurity intelligence.
+    Uses SecureBERT 2.0 model for security analysis with domain-specific pretraining.
+    SecureBERT 2.0 is REQUIRED - no rule-based fallback.
     """
     def __init__(self, model_path: str = None):
         """
-        Initialize CodeBERT-based firewall
-        
+        Initialize SecureBERT 2.0-based firewall
+
         Args:
             model_path: Path to fine-tuned model (if None, uses pretrained)
-        
+
         Raises:
-            ImportError: If CodeBERT is not available
+            ImportError: If SecureBERT 2.0 is not available
         """
-        from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
-        self.codebert_firewall = CodeBERTFirewall(model_path)
-        print("✅ CodeBERT Intelligent Firewall initialized")
+        from codebert_firewall import IntelligentFirewall as SecureBERTFirewall
+        self.securebert_firewall = SecureBERTFirewall(model_path)
+        print("✅ SecureBERT 2.0 Intelligent Firewall initialized")
 
     def verify_ast_node(self, node: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
         """
-        Verify AST node using CodeBERT (no fallback to rule-based)
-        
+        Verify AST node using SecureBERT 2.0 (no fallback to rule-based)
+
         Args:
             node: AST node to verify
             context: Additional context for analysis
-            
+
         Returns:
             (is_valid, list_of_violations)
         """
         if context is None:
             context = {}
 
-        # Use CodeBERT for intelligent analysis - no fallback
-        is_valid, violations = self.codebert_firewall.verify_ast_node(node, context)
+        # Use SecureBERT 2.0 for intelligent analysis - no fallback
+        is_valid, violations = self.securebert_firewall.verify_ast_node(node, context)
         return is_valid, violations
 
     def verify_tree(self, root: ASTNode, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
@@ -412,7 +412,7 @@ class NeuroSymbolicCompiler:
     def __init__(self, console: Optional[Console] = None, model_name: Optional[str] = None):
         self.console = console or Console()
         self.system1 = LocalInferenceRuntime(model_name=model_name)
-        self.firewall = IntelligentFirewall()  # CodeBERT-based intelligent firewall
+        self.firewall = IntelligentFirewall()  # SecureBERT 2.0-based intelligent firewall
         self.audit_trace = VerifiedAuditTrace()
 
     def compile_intent_node(
