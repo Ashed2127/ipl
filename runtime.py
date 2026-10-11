@@ -396,8 +396,8 @@ class Interpreter:
             # Use CodeBERT to check if the SQL is safe
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
 
-            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
-            if is_safe or confidence < 0.5:
+            # For pretrained model, be more lenient - only reject if confidence > 0.7
+            if is_safe or confidence < 0.7:
                 # CodeBERT decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_sql", SinkKind.SQL)
@@ -439,8 +439,8 @@ class Interpreter:
             # Use CodeBERT to check if the HTML is safe
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
 
-            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
-            if is_safe or confidence < 0.5:
+            # For pretrained model, be more lenient - only reject if confidence > 0.7
+            if is_safe or confidence < 0.7:
                 # CodeBERT decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_html", SinkKind.HTML)
