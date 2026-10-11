@@ -1516,11 +1516,22 @@ class Interpreter:
             target_val = self.evaluate_expr(expr.target, env)
             raw = target_val.raw_value
 
-            sanitizer_name = expr.rule or "deterministic_sanitization_node"
+            sanitizer_name = expr.rule or "codebert_sanitization_node"
+            # Use CodeBERT to check if the data is safe (no rule-based fallback)
             if isinstance(raw, str):
-                raw = self.security_engine.sanitize_string(raw)
+                is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
+                if not is_safe:
+                    raise SecurityError(
+                        f"CodeBERT rejected data in SanitizationNode as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    )
             elif isinstance(raw, dict):
-                raw = {k: self.security_engine.sanitize_string(v) if isinstance(v, str) else v for k, v in raw.items()}
+                for k, v in raw.items():
+                    if isinstance(v, str):
+                        is_safe, confidence, reasoning = self.codebert_firewall.check_code(v)
+                        if not is_safe:
+                            raise SecurityError(
+                                f"CodeBERT rejected dict value '{k}' as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                            )
 
             new_taint = target_val.taint.transition_to(TaintLevel.SANITIZED, sanitizer_name)
             self.compiler.audit_trace.record(
@@ -1529,7 +1540,8 @@ class Interpreter:
                 details={
                     "type": target_val.type_name,
                     "rule": sanitizer_name,
-                    "transition": f"{target_val.taint.level.value} -> {new_taint.level.value}"
+                    "transition": f"{target_val.taint.level.value} -> {new_taint.level.value}",
+                    "codebert_decision": "safe"
                 }
             )
             return IValue(
