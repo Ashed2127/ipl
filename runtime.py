@@ -1198,22 +1198,19 @@ class Interpreter:
         raw = ivalue.raw_value
         target_taint = ivalue.taint
 
-        # Security check for string data (skip if trusted)
+        # Security check for string data (CodeBERT-based, no rule-based fallback)
         if isinstance(raw, str) and not skip_security:
-            data_security = self.security_engine.analyze_data(raw)
-            if data_security["is_malicious"]:
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
+            if not is_safe:
                 self.console.print(
-                    f"[bold red]🚨 DATA SECURITY ALERT: {data_security['risk_level'].upper()} RISK DETECTED[/bold red]"
+                    f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
                 )
-                if data_security["detected_risks"]:
-                    self.console.print("[red]Detected Risks:[/red]")
-                    for risk in data_security["detected_risks"]:
-                        self.console.print(f"  • [yellow]{risk['type']}[/yellow]: {risk['match']}")
-                
-                # Sanitize the data
-                sanitized = self.security_engine.sanitize_string(raw)
-                self.console.print(f"[yellow]Data sanitized for security. Original length: {len(raw)}, Sanitized: {len(sanitized)}[/yellow]")
-                raw = sanitized
+                self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+                self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
+                # Reject unsafe data
+                raise SecurityError(
+                    f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                )
 
         # Semantic extraction from strings
         if isinstance(raw, str):
