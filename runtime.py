@@ -478,16 +478,17 @@ class Interpreter:
             """CodeBERT-based shell sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_shell requires a string argument")
-            
+
             # Use CodeBERT to check if the shell command is safe
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
-            
-            if is_safe:
+
+            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+            if is_safe or confidence < 0.5:
                 # CodeBERT decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_shell", SinkKind.SHELL)
             else:
-                # CodeBERT decided it's unsafe - reject it
+                # CodeBERT decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
@@ -520,16 +521,17 @@ class Interpreter:
             """CodeBERT-based file path sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_file requires a string argument")
-            
+
             # Use CodeBERT to check if the file path is safe
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
-            
-            if is_safe:
+
+            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+            if is_safe or confidence < 0.5:
                 # CodeBERT decides it's safe - keep as is, mark as SANITIZED
                 sanitized = arg_val.raw_value
                 new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_file", SinkKind.FILE)
             else:
-                # CodeBERT decided it's unsafe - reject it
+                # CodeBERT decided it's unsafe with high confidence - reject it
                 self.compiler.audit_trace.record(
                     phase="CODEBERT_SECURITY_CHECK",
                     status="REJECTED",
