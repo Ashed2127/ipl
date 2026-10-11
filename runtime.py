@@ -43,7 +43,7 @@ except (ImportError, ValueError):
     from semantic_engine import SemanticEngine
     from formatter import IntelligentFormatter
     from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
-    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall, SecurityError
+    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, IntelligentFirewall, SecurityError
     from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
     from static_taint_analyzer import analyze_program_taint
     from intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
