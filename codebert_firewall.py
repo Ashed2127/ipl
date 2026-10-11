@@ -143,33 +143,34 @@ class IntelligentFirewall:
     def verify_ast_node(self, node, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
         """
         Verify AST node using CodeBERT
-        
+
         Args:
             node: AST node to verify
             context: Additional context (unused in CodeBERT approach)
-            
+
         Returns:
             (is_valid, list_of_violations)
         """
         if context is None:
             context = {}
-        
+
         violations = []
-        
+
         # Convert AST to code string
         code_snippet = self.ast_to_string(node)
-        
+
         # Check with CodeBERT
         is_safe, confidence, reasoning = self.check_code(code_snippet)
-        
+
         # If unsafe and confident, flag as violation
-        if not is_safe and confidence > 0.6:
+        # Lower threshold for pretrained model (0.6) vs fine-tuned model (0.7)
+        if not is_safe and confidence > 0.5:
             violations.append(
                 f"CodeBERT decision: {type(node).__name__} flagged as potentially unsafe. "
                 f"{reasoning}. "
                 f"Confidence: {confidence:.2f}."
             )
-        
+
         return len(violations) == 0, violations
 
 
