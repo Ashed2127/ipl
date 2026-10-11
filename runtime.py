@@ -1058,22 +1058,19 @@ class Interpreter:
             evaluated.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="trusted_declaration")
             self.console.print(f"[green]🔒 Trusted variable '{stmt.name}' - security checks bypassed[/green]")
         else:
-            # Security check on raw string data
+            # Security check on raw string data (CodeBERT-based, no rule-based fallback)
             if isinstance(evaluated.raw_value, str):
-                data_security = self.security_engine.analyze_data(evaluated.raw_value)
-                if data_security["is_malicious"]:
+                is_safe, confidence, reasoning = self.codebert_firewall.check_code(evaluated.raw_value)
+                if not is_safe:
                     self.console.print(
-                        f"[bold red]🚨 DATA SECURITY ALERT: {data_security['risk_level'].upper()} RISK DETECTED[/bold red]"
+                        f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
                     )
-                    if data_security["detected_risks"]:
-                        self.console.print("[red]Detected Risks:[/red]")
-                        for risk in data_security["detected_risks"]:
-                            self.console.print(f"  • [yellow]{risk['type']}[/yellow]: {risk['match']}")
-                    
-                    # Sanitize the data
-                    sanitized = self.security_engine.sanitize_string(evaluated.raw_value)
-                    self.console.print(f"[yellow]Data sanitized for security. Original length: {len(evaluated.raw_value)}, Sanitized: {len(sanitized)}[/yellow]")
-                    evaluated = IValue(raw_value=sanitized, type_name=evaluated.type_name, confidence=evaluated.confidence, taint=evaluated.taint)
+                    self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+                    self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
+                    # Reject unsafe data
+                    raise SecurityError(
+                        f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                    )
 
         # 3. Semantic Extraction & Type Coercion based on TypeAnnotation
         ivalue = self.apply_type_annotation(evaluated, stmt.type_annotation, stmt.name, skip_security=stmt.is_trusted)
