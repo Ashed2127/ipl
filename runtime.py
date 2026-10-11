@@ -25,7 +25,7 @@ try:
     from .semantic_engine import SemanticEngine
     from .formatter import IntelligentFormatter
     from .taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
-    from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall
+    from .compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall, SecurityError
     from .codebert_firewall import IntelligentFirewall as CodeBERTFirewall
     from .static_taint_analyzer import analyze_program_taint
     from .intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
@@ -43,7 +43,7 @@ except (ImportError, ValueError):
     from semantic_engine import SemanticEngine
     from formatter import IntelligentFormatter
     from taint import TaintLevel, TaintTag, TaintViolationError, SinkKind
-    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall
+    from compiler import NeuroSymbolicCompiler, VerifiedAuditTrace, AutonomousFirewall, SecurityError
     from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
     from static_taint_analyzer import analyze_program_taint
     from intelligent_load_controller import IntelligentLoadController, ServerState, IntelligentDecision
@@ -472,12 +472,31 @@ class Interpreter:
             return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_shell(arg_val: IValue) -> IValue:
-            """Shell-specific sanitization using allowlist."""
+            """CodeBERT-based shell sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_shell requires a string argument")
             
-            sanitized = self.security_engine.sanitize_for_shell(arg_val.raw_value)
-            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_shell", SinkKind.SHELL)
+            # Use CodeBERT to check if the shell command is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            
+            if is_safe:
+                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                sanitized = arg_val.raw_value
+                new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_shell", SinkKind.SHELL)
+            else:
+                # CodeBERT decided it's unsafe - reject it
+                self.compiler.audit_trace.record(
+                    phase="CODEBERT_SECURITY_CHECK",
+                    status="REJECTED",
+                    details={
+                        "reasoning": reasoning,
+                        "confidence": confidence,
+                        "sink_kind": "SHELL"
+                    }
+                )
+                raise SecurityError(
+                    f"CodeBERT rejected shell command as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                )
             
             self.compiler.audit_trace.record(
                 phase="SANITIZATION",
@@ -486,19 +505,40 @@ class Interpreter:
                     "original_length": len(arg_val.raw_value),
                     "sanitized_length": len(sanitized),
                     "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
-                    "sink_kind": "SHELL"
+                    "sink_kind": "SHELL",
+                    "codebert_decision": "safe",
+                    "codebert_confidence": confidence
                 }
             )
             
-            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+            return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _sanitize_for_file(arg_val: IValue) -> IValue:
-            """File-specific sanitization for path validation."""
+            """CodeBERT-based file path sanitization (no rule-based fallback)."""
             if not isinstance(arg_val.raw_value, str):
                 raise TypeError("sanitize_for_file requires a string argument")
             
-            sanitized = self.security_engine.sanitize_for_file(arg_val.raw_value)
-            new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_file", SinkKind.FILE)
+            # Use CodeBERT to check if the file path is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(arg_val.raw_value)
+            
+            if is_safe:
+                # CodeBERT decides it's safe - keep as is, mark as SANITIZED
+                sanitized = arg_val.raw_value
+                new_taint = arg_val.taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_file", SinkKind.FILE)
+            else:
+                # CodeBERT decided it's unsafe - reject it
+                self.compiler.audit_trace.record(
+                    phase="CODEBERT_SECURITY_CHECK",
+                    status="REJECTED",
+                    details={
+                        "reasoning": reasoning,
+                        "confidence": confidence,
+                        "sink_kind": "FILE"
+                    }
+                )
+                raise SecurityError(
+                    f"CodeBERT rejected file path as unsafe: {reasoning}. Confidence: {confidence:.2f}"
+                )
             
             self.compiler.audit_trace.record(
                 phase="SANITIZATION",
@@ -507,11 +547,13 @@ class Interpreter:
                     "original_length": len(arg_val.raw_value),
                     "sanitized_length": len(sanitized),
                     "transition": f"{arg_val.taint.level.value} -> {new_taint.level.value}",
-                    "sink_kind": "FILE"
+                    "sink_kind": "FILE",
+                    "codebert_decision": "safe",
+                    "codebert_confidence": confidence
                 }
             )
             
-            return IValue(sanitized, "String", confidence=1.0, taint=new_taint)
+            return IValue(sanitized, "String", confidence=confidence, taint=new_taint)
 
         def _html_render(html_val: IValue) -> IValue:
             """HTML rendering sink that requires HTML-sanitized data."""

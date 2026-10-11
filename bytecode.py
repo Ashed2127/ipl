@@ -1,6 +1,7 @@
 """
 Bytecode VM for IPL with proof-skip optimization.
 Uses stack-based instruction set with slot-indexed variable access.
+CodeBERT-based security (no rule-based fallback).
 """
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional, Set, Tuple
@@ -502,6 +503,9 @@ class BytecodeInterpreter:
         self.pc: int = 0  # Program counter
         self.running: bool = False
         self.taint_tags: List[Any] = []  # Parallel to stack for taint tracking
+        # Initialize CodeBERT firewall for security decisions (no rule-based fallback)
+        from codebert_firewall import IntelligentFirewall as CodeBERTFirewall
+        self.codebert_firewall = CodeBERTFirewall()
 
     def execute(self, program: BytecodeProgram) -> Any:
         """Execute a bytecode program"""
@@ -723,49 +727,69 @@ class BytecodeInterpreter:
             cmd = self.stack.pop()
             self.taint_tags.pop()
 
-        # Sanitization functions
+        # Sanitization functions (CodeBERT-based, no rule-based fallback)
         elif opcode == OpCode.SANITIZE_FOR_SQL:
             value = self.stack.pop()
             taint = self.taint_tags.pop()
-            from security_engine import SecurityEngine
-            sanitized = SecurityEngine.sanitize_for_sql(str(value))
-            new_taint = taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_sql", SinkKind.SQL)
+            # Use CodeBERT to check if the SQL is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(str(value))
+            if is_safe:
+                sanitized = str(value)
+                new_taint = taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_sql", SinkKind.SQL)
+            else:
+                raise Exception(f"CodeBERT rejected SQL as unsafe: {reasoning}. Confidence: {confidence:.2f}")
             self.stack.append(sanitized)
             self.taint_tags.append(new_taint)
 
         elif opcode == OpCode.SANITIZE_FOR_HTML:
             value = self.stack.pop()
             taint = self.taint_tags.pop()
-            from security_engine import SecurityEngine
-            sanitized = SecurityEngine.sanitize_for_html(str(value))
-            new_taint = taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_html", SinkKind.HTML)
+            # Use CodeBERT to check if the HTML is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(str(value))
+            if is_safe:
+                sanitized = str(value)
+                new_taint = taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_html", SinkKind.HTML)
+            else:
+                raise Exception(f"CodeBERT rejected HTML as unsafe: {reasoning}. Confidence: {confidence:.2f}")
             self.stack.append(sanitized)
             self.taint_tags.append(new_taint)
 
         elif opcode == OpCode.SANITIZE_FOR_SHELL:
             value = self.stack.pop()
             taint = self.taint_tags.pop()
-            from security_engine import SecurityEngine
-            sanitized = SecurityEngine.sanitize_for_shell(str(value))
-            new_taint = taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_shell", SinkKind.SHELL)
+            # Use CodeBERT to check if the shell command is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(str(value))
+            if is_safe:
+                sanitized = str(value)
+                new_taint = taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_shell", SinkKind.SHELL)
+            else:
+                raise Exception(f"CodeBERT rejected shell command as unsafe: {reasoning}. Confidence: {confidence:.2f}")
             self.stack.append(sanitized)
             self.taint_tags.append(new_taint)
 
         elif opcode == OpCode.SANITIZE_FOR_FILE:
             value = self.stack.pop()
             taint = self.taint_tags.pop()
-            from security_engine import SecurityEngine
-            sanitized = SecurityEngine.sanitize_for_file(str(value))
-            new_taint = taint.transition_to(TaintLevel.SANITIZED, "sanitize_for_file", SinkKind.FILE)
+            # Use CodeBERT to check if the file path is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(str(value))
+            if is_safe:
+                sanitized = str(value)
+                new_taint = taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_for_file", SinkKind.FILE)
+            else:
+                raise Exception(f"CodeBERT rejected file path as unsafe: {reasoning}. Confidence: {confidence:.2f}")
             self.stack.append(sanitized)
             self.taint_tags.append(new_taint)
 
         elif opcode == OpCode.SANITIZE_STRING:
             value = self.stack.pop()
             taint = self.taint_tags.pop()
-            from security_engine import SecurityEngine
-            sanitized = SecurityEngine.sanitize_string(str(value))
-            new_taint = taint.transition_to(TaintLevel.SANITIZED, "sanitize_string", SinkKind.GENERAL)
+            # Use CodeBERT to check if the string is safe
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(str(value))
+            if is_safe:
+                sanitized = str(value)
+                new_taint = taint.transition_to(TaintLevel.SANITIZED, "codebert_sanitize_string", SinkKind.GENERAL)
+            else:
+                raise Exception(f"CodeBERT rejected string as unsafe: {reasoning}. Confidence: {confidence:.2f}")
             self.stack.append(sanitized)
             self.taint_tags.append(new_taint)
 
