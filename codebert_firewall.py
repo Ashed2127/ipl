@@ -217,95 +217,48 @@ class MultiClassIntelligentFirewall:
             )
         
         return len(violations) == 0, violations
-    
-    def ast_to_string(self, node) -> str:
-        """
-        Convert AST node to code string for CodeBERT analysis
-        This is a simplified version - in production, use proper AST to code conversion
-        """
-        # Simple string representation for now
-        if hasattr(node, 'value'):
-            return str(node.value)
-        elif hasattr(node, 'name'):
-            return node.name
-        elif hasattr(node, 'intent_prompt'):
-            return node.intent_prompt
-        else:
-            return str(type(node).__name__)
-    
-    def check_code(self, code_snippet: str) -> Tuple[bool, float, str]:
-        """
-        Check if code snippet is safe using CodeBERT
-        
-        Args:
-            code_snippet: Code string to analyze
-            
-        Returns:
-            (is_safe, confidence, reasoning)
-        """
-        # Tokenize
-        inputs = self.tokenizer(
-            code_snippet,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=512
-        )
-        
-        # Move to device
-        input_ids = inputs["input_ids"].to(self.device)
-        attention_mask = inputs["attention_mask"].to(self.device)
-        
-        # Get prediction
-        with torch.no_grad():
-            logits = self.model(input_ids, attention_mask)
-            probs = torch.softmax(logits, dim=1)
-            safe_prob = probs[0][1].item()  # Index 1 = safe
-            is_safe = safe_prob > 0.5
-            confidence = max(safe_prob, 1 - safe_prob)
-        
-        reasoning = f"CodeBERT analysis: safe probability = {safe_prob:.3f}"
-        
-        return is_safe, confidence, reasoning
-    
-    def verify_ast_node(self, node, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
-        """
-        Verify AST node using CodeBERT
-        
-        Args:
-            node: AST node to verify
-            context: Additional context (unused in CodeBERT approach)
-            
-        Returns:
-            (is_valid, list_of_violations)
-        """
-        if context is None:
-            context = {}
-        
-        violations = []
-        
-        # Convert AST to code string
-        code_snippet = self.ast_to_string(node)
-        
-        # Check with CodeBERT
-        is_safe, confidence, reasoning = self.check_code(code_snippet)
-        
-        # If unsafe and confident, flag as violation
-        if not is_safe and confidence > 0.6:
-            violations.append(
-                f"CodeBERT decision: {type(node).__name__} flagged as potentially unsafe. "
-                f"{reasoning}. "
-                f"Confidence: {confidence:.2f}."
-            )
-        
-        return len(violations) == 0, violations
 
 
-# Test function
+# Test function for multi-class firewall
+def test_multiclass_firewall():
+    """Test the multi-class CodeBERT firewall with sample code"""
+    print("=" * 70)
+    print("Testing Multi-class CodeBERT Intelligent Firewall")
+    print("=" * 70)
+    
+    firewall = MultiClassIntelligentFirewall()
+    
+    # Test cases covering different vulnerability types
+    test_cases = [
+        ("SELECT * FROM users WHERE id = '" + "' OR '1'='1", "SQL Injection"),
+        ("<script>alert('XSS')</script>", "XSS Attack"),
+        ("; cat /etc/passwd", "Command Injection"),
+        ("../../../etc/passwd", "Path Traversal"),
+        ("eval(malicious_code)", "Dangerous Function"),
+        ("SELECT * FROM users WHERE id = ?", "Safe Parameterized Query"),
+        ("<div>Safe content</div>", "Safe HTML"),
+        ("def calculate(x, y): return x + y", "Safe Python Code"),
+    ]
+    
+    for code, description in test_cases:
+        vuln_type, confidence, reasoning = firewall.check_code(code)
+        status = "✅ SAFE" if vuln_type == "Safe Code" else f"❌ {vuln_type}"
+        print(f"\n{description}:")
+        print(f"  Code: {code[:50]}...")
+        print(f"  Status: {status}")
+        print(f"  Confidence: {confidence:.2f}")
+        print(f"  Reasoning: {reasoning}")
+    
+    print("\n" + "=" * 70)
+    print("Test Complete")
+    print("=" * 70)
+
+
+# Test function for binary firewall
 def test_codebert_firewall():
     """Test the CodeBERT firewall with sample code"""
     print("=" * 70)
-    print("Testing CodeBERT Intelligent Firewall")
+    print("Testing CodeBERT Intelligent Firewall (Binary)")
     print("=" * 70)
     
     firewall = IntelligentFirewall()
@@ -333,4 +286,7 @@ def test_codebert_firewall():
 
 
 if __name__ == "__main__":
+    # Test both firewalls
     test_codebert_firewall()
+    print("\n\n")
+    test_multiclass_firewall()
