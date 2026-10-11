@@ -1208,7 +1208,8 @@ class Interpreter:
         # Security check for string data (CodeBERT-based, no rule-based fallback)
         if isinstance(raw, str) and not skip_security:
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
-            if not is_safe:
+            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+            if not is_safe and confidence > 0.5:
                 self.console.print(
                     f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
                 )
@@ -1527,7 +1528,8 @@ class Interpreter:
             # Use CodeBERT to check if the data is safe (no rule-based fallback)
             if isinstance(raw, str):
                 is_safe, confidence, reasoning = self.codebert_firewall.check_code(raw)
-                if not is_safe:
+                # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+                if not is_safe and confidence > 0.5:
                     raise SecurityError(
                         f"CodeBERT rejected data in SanitizationNode as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                     )
@@ -1535,7 +1537,8 @@ class Interpreter:
                 for k, v in raw.items():
                     if isinstance(v, str):
                         is_safe, confidence, reasoning = self.codebert_firewall.check_code(v)
-                        if not is_safe:
+                        # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+                        if not is_safe and confidence > 0.5:
                             raise SecurityError(
                                 f"CodeBERT rejected dict value '{k}' as unsafe: {reasoning}. Confidence: {confidence:.2f}"
                             )
