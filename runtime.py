@@ -1063,21 +1063,11 @@ class Interpreter:
         if stmt.is_trusted:
             evaluated.taint = TaintTag(level=TaintLevel.TRUSTED, provenance="trusted_declaration")
             self.console.print(f"[green]🔒 Trusted variable '{stmt.name}' - security checks bypassed[/green]")
-        else:
+       :
             # Security check on raw string data (CodeBERT-based, no rule-based fallback)
-            if isinstance(evaluated.raw_value, str):
-                is_safe, confidence, reasoning = self.codebert_firewall.check_code(evaluated.raw_value)
-                # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
-                if not is_safe and confidence > 0.5:
-                    self.console.print(
-                        f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
-                    )
-                    self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
-                    self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
-                    # Reject unsafe data
-                    raise SecurityError(
-                        f"CodeBERT rejected data as unsafe: {reasoning}. Confidence: {confidence:.2f}"
-                    )
+            # NOTE: Sanitization functions will use CodeBERT, so we skip pre-check here
+            # to allow sanitization to handle the security decision
+            pass
 
         # 3. Semantic Extraction & Type Coercion based on TypeAnnotation
         ivalue = self.apply_type_annotation(evaluated, stmt.type_annotation, stmt.name, skip_security=stmt.is_trusted)
