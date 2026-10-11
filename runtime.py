@@ -949,25 +949,15 @@ class Interpreter:
                 f"[yellow]⚡ {len(static_results['dynamic_sites'])} sinks require runtime taint check[/yellow]"
             )
         
-        # Security check before execution
+        # Security check before execution (CodeBERT-based, no rule-based fallback)
         if source_code:
-            security_analysis = self.security_engine.analyze_code(source_code)
-            if security_analysis["is_malicious"]:
+            is_safe, confidence, reasoning = self.codebert_firewall.check_code(source_code)
+            if not is_safe:
                 self.console.print(
-                    f"[bold red]🚨 SECURITY ALERT: {security_analysis['threat_level'].upper()} THREAT DETECTED[/bold red]"
+                    f"[bold red]🚨 CODEBERT SECURITY ALERT: THREAT DETECTED[/bold red]"
                 )
-                self.console.print(f"[red]Threat Score: {security_analysis['threat_level']}[/red]")
-                
-                if security_analysis["detected_threats"]:
-                    self.console.print("[bold red]Detected Threats:[/bold red]")
-                    for threat in security_analysis["detected_threats"]:
-                        self.console.print(f"  • [yellow]{threat['type']}[/yellow]: {threat['match']}")
-                
-                if security_analysis["dangerous_keywords"]:
-                    self.console.print("[bold red]Dangerous Keywords:[/bold red]")
-                    for kw in security_analysis["dangerous_keywords"]:
-                        self.console.print(f"  • [yellow]{kw['keyword']}[/yellow]: {kw['description']}")
-                
+                self.console.print(f"[red]CodeBERT Reasoning: {reasoning}[/red]")
+                self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
                 self.console.print("[bold red]Execution blocked for security reasons.[/bold red]")
                 return
             
