@@ -89,6 +89,134 @@ class IntelligentFirewall:
         
         self.model.to(self.device)
         self.model.eval()
+
+
+class MultiClassIntelligentFirewall:
+    """
+    Multi-class Intelligent Firewall using CodeBERT for specific vulnerability type detection
+    Classifies code into specific vulnerability categories
+    """
+    
+    VULN_TYPES = {
+        0: "SQL Injection",
+        1: "XSS",
+        2: "Command Injection",
+        3: "Path Traversal",
+        4: "Dangerous Functions",
+        5: "Other Vulnerabilities",
+        6: "Safe Code"
+    }
+    
+    def __init__(self, model_path: str = None, num_classes: int = 7):
+        """
+        Initialize multi-class CodeBERT-based firewall
+        
+        Args:
+            model_path: Path to trained multi-class model (if None, uses pretrained without fine-tuning)
+            num_classes: Number of vulnerability classes (default: 7)
+        """
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Multi-class CodeBERT Firewall initialized on device: {self.device}")
+        
+        # Load tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+        
+        # Load model
+        if model_path and os.path.exists(model_path):
+            # Load fine-tuned multi-class model
+            self.model = MultiClassCodeBERTSecurityModel(num_classes=num_classes)
+            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+            print(f"Loaded fine-tuned multi-class model from: {model_path}")
+        else:
+            # Use pretrained model (no fine-tuning yet)
+            self.model = MultiClassCodeBERTSecurityModel(num_classes=num_classes)
+            print("Using pretrained CodeBERT (not fine-tuned on vulnerabilities yet)")
+        
+        self.model.to(self.device)
+        self.model.eval()
+        self.num_classes = num_classes
+    
+    def ast_to_string(self, node) -> str:
+        """
+        Convert AST node to code string for CodeBERT analysis
+        This is a simplified version - in production, use proper AST to code conversion
+        """
+        # Simple string representation for now
+        if hasattr(node, 'value'):
+            return str(node.value)
+        elif hasattr(node, 'name'):
+            return node.name
+        elif hasattr(node, 'intent_prompt'):
+            return node.intent_prompt
+        else:
+            return str(type(node).__name__)
+    
+    def check_code(self, code_snippet: str) -> Tuple[str, float, str]:
+        """
+        Check if code snippet is safe using multi-class CodeBERT
+        
+        Args:
+            code_snippet: Code string to analyze
+            
+        Returns:
+            (vulnerability_type, confidence, reasoning)
+        """
+        # Tokenize
+        inputs = self.tokenizer(
+            code_snippet,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=512
+        )
+        
+        # Move to device
+        input_ids = inputs["input_ids"].to(self.device)
+        attention_mask = inputs["attention_mask"].to(self.device)
+        
+        # Get prediction
+        with torch.no_grad():
+            logits = self.model(input_ids, attention_mask)
+            probs = torch.softmax(logits, dim=1)
+            predicted_class = torch.argmax(probs, dim=1).item()
+            confidence = probs[0][predicted_class].item()
+        
+        vuln_type = self.VULN_TYPES[predicted_class]
+        reasoning = f"CodeBERT multi-class analysis: predicted = {vuln_type} (class {predicted_class}), confidence = {confidence:.3f}"
+        
+        return vuln_type, confidence, reasoning
+    
+    def verify_ast_node(self, node, context: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
+        """
+        Verify AST node using multi-class CodeBERT
+        
+        Args:
+            node: AST node to verify
+            context: Additional context (unused in CodeBERT approach)
+            
+        Returns:
+            (is_valid, list_of_violations)
+        """
+        if context is None:
+            context = {}
+        
+        violations = []
+        
+        # Convert AST to code string
+        code_snippet = self.ast_to_string(node)
+        
+        # Check with CodeBERT
+        vuln_type, confidence, reasoning = self.check_code(code_snippet)
+        
+        # If not safe and confident, flag as violation
+        if vuln_type != "Safe Code" and confidence > 0.6:
+            violations.append(
+                f"CodeBERT multi-class decision: {type(node).__name__} flagged as {vuln_type}. "
+                f"{reasoning}. "
+                f"Confidence: {confidence:.2f}."
+            )
+        
+        return len(violations) == 0, violations
     
     def ast_to_string(self, node) -> str:
         """
