@@ -1067,7 +1067,8 @@ class Interpreter:
             # Security check on raw string data (CodeBERT-based, no rule-based fallback)
             if isinstance(evaluated.raw_value, str):
                 is_safe, confidence, reasoning = self.codebert_firewall.check_code(evaluated.raw_value)
-                if not is_safe:
+                # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+                if not is_safe and confidence > 0.5:
                     self.console.print(
                         f"[bold red]🚨 CODEBERT DATA SECURITY ALERT: THREAT DETECTED[/bold red]"
                     )
