@@ -960,14 +960,6 @@ class Interpreter:
                 self.console.print(f"[red]Confidence: {confidence:.2f}[/red]")
                 self.console.print("[bold red]Execution blocked for security reasons.[/bold red]")
                 return
-            
-            # Check execution safety
-            is_safe, warnings = self.security_engine.check_execution_safety(source_code)
-            if not is_safe:
-                self.console.print("[bold yellow]⚠️ SECURITY WARNINGS:[/bold yellow]")
-                for warning in warnings:
-                    self.console.print(f"  • {warning}")
-                self.console.print("[yellow]Proceeding with caution...[/yellow]\n")
         
         for stmt in program.statements:
             self.execute_statement(stmt, self.global_env)
