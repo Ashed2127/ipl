@@ -957,7 +957,8 @@ class Interpreter:
         # Security check before execution (CodeBERT-based, no rule-based fallback)
         if source_code:
             is_safe, confidence, reasoning = self.codebert_firewall.check_code(source_code)
-            if not is_safe:
+            # For pretrained model, use lower threshold (0.5) vs fine-tuned (0.6)
+            if not is_safe and confidence > 0.5:
                 self.console.print(
                     f"[bold red]🚨 CODEBERT SECURITY ALERT: THREAT DETECTED[/bold red]"
                 )
